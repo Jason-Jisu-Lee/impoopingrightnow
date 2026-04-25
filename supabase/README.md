@@ -1,3 +1,8 @@
-# Supabase placeholder
+# Supabase foundation
 
-Schema, local config, and migrations will be added in the Supabase foundation step.
+The V1 foundation migration now lives in `supabase/migrations` and creates the
+anonymous `users`, `session_log`, and `live_feed_messages` tables from the
+build prompt.
+
+This step only provides schema and client wiring. The first actual user upsert
+happens when the session flow is implemented, not during shell boot.

@@ -14,6 +14,8 @@ V1 monorepo bootstrap for the web app, mobile app, shared code, and Supabase con
 - `npm install` - install all workspace dependencies from the repo root
 - `npm run web` - start the Next.js app
 - `npm run mobile` - start the Expo app
+- `npm run test` - run the shared smoke tests
+- `npm run validate` - run lint, typecheck, tests, and the web production build
 - `npm run build:web` - build the web app
 - `npm run lint:web` - lint the web app
 

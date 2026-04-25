@@ -1,4 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
+import {
+  ensureAnonymousIdentity,
+  getWebPublicSupabaseEnv,
+} from "@impoopingrightnow/shared";
 
 type ShellScreenProps = {
   eyebrow: string;
@@ -20,6 +28,60 @@ const navItems = [
   { href: "/settings", label: "Identity", title: "Settings" },
 ];
 
+type IdentityCardState = {
+  title: string;
+  body: string;
+};
+
+const browserIdentityStorage = {
+  getItem(key: string) {
+    if (typeof window === "undefined") {
+      return null;
+    }
+
+    try {
+      return window.localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  setItem(key: string, value: string) {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(key, value);
+    } catch {
+      // Ignore blocked storage and continue with a best-effort bootstrap.
+    }
+  },
+};
+
+function createIdentityCardState(
+  username: string | null,
+  isSupabaseConfigured: boolean,
+): IdentityCardState {
+  if (!username) {
+    return {
+      title: "Provisioning anonymous record",
+      body: "Creating the local UUID and username that future session-start sync will use.",
+    };
+  }
+
+  if (isSupabaseConfigured) {
+    return {
+      title: `Anonymous record: ${username}`,
+      body: "Saved locally. Supabase public env is configured, so session start can upsert this user in the next step.",
+    };
+  }
+
+  return {
+    title: `Anonymous record: ${username}`,
+    body: "Saved locally. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to enable session-start upserts.",
+  };
+}
+
 export function ShellScreen({
   eyebrow,
   title,
@@ -29,6 +91,46 @@ export function ShellScreen({
   asideTitle,
   asideBody,
 }: ShellScreenProps) {
+  const [identityCard, setIdentityCard] = useState<IdentityCardState>(
+    createIdentityCardState(null, false),
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function provisionIdentity() {
+      const localIdentity = await ensureAnonymousIdentity(
+        browserIdentityStorage,
+      );
+
+      if (!isMounted) {
+        return;
+      }
+
+      setIdentityCard(
+        createIdentityCardState(
+          localIdentity.identity.username,
+          Boolean(getWebPublicSupabaseEnv()),
+        ),
+      );
+    }
+
+    provisionIdentity().catch(() => {
+      if (!isMounted) {
+        return;
+      }
+
+      setIdentityCard({
+        title: "Anonymous record unavailable",
+        body: "Local storage is unavailable, so identity will be recreated until storage access succeeds.",
+      });
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <main className="shell-page">
       <div className="shell-frame">
@@ -46,8 +148,9 @@ export function ShellScreen({
             </div>
           </div>
           <p className="banner-subtitle">
-            This step only defines the surfaces we need for V1: navigation,
-            shell layout, placeholder state, and a consistent visual direction.
+            This slice keeps the structural shell intact while adding anonymous
+            identity bootstrapping and the Supabase foundation the session flow
+            will need next.
           </p>
         </section>
 
@@ -89,6 +192,11 @@ export function ShellScreen({
               </section>
 
               <section className="shell-aside-card">
+                <h3>{identityCard.title}</h3>
+                <p>{identityCard.body}</p>
+              </section>
+
+              <section className="shell-aside-card">
                 <h3>What this step covers</h3>
                 <ul className="shell-checklist">
                   {checklist.map((item) => (
@@ -106,12 +214,12 @@ export function ShellScreen({
 
         <footer className="shell-footer">
           <span>
-            <strong>Status:</strong> navigation and placeholder surfaces are
+            <strong>Status:</strong> shell surfaces and anonymous identity are
             wired.
           </span>
           <span>
-            Realtime, identity, persistence, and session logic land in later
-            steps.
+            Session-start upserts, timers, feed activity, and certificate logic
+            land in later steps.
           </span>
         </footer>
       </div>

@@ -11,12 +11,17 @@
     "web": "npm run dev --workspace @impoopingrightnow/web",
     "mobile": "npm run start --workspace @impoopingrightnow/mobile",
     "build:web": "npm run build --workspace @impoopingrightnow/web",
+    "lint": "npm run lint:web",
     "lint:web": "npm run lint --workspace @impoopingrightnow/web",
+    "typecheck": "npm run typecheck:web && npm run typecheck:mobile && npm run typecheck:shared",
     "typecheck:web": "tsc -p apps/web/tsconfig.json --noEmit",
     "typecheck:mobile": "tsc -p apps/mobile/tsconfig.json --noEmit",
-    "typecheck:shared": "tsc -p packages/shared/tsconfig.json --noEmit"
+    "typecheck:shared": "tsc -p packages/shared/tsconfig.json --noEmit",
+    "test": "vitest run",
+    "validate": "npm run lint && npm run typecheck && npm run test && npm run build:web"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
   }
 }
