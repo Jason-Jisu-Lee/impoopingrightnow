@@ -8,7 +8,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "noEmit": true,
-    "baseUrl": "."
+    "noEmit": true
   }
 }
