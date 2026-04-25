@@ -1,0 +1,16 @@
+node_modules/
+package-lock.json
+
+.env
+.env.local
+.env.*.local
+
+apps/web/.next/
+apps/web/out/
+apps/mobile/.expo/
+apps/mobile/dist/
+apps/mobile/web-build/
+
+.vercel/
+.DS_Store
+Thumbs.db

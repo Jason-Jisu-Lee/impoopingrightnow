@@ -1,0 +1,22 @@
+{
+  "name": "impoopingrightnow",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "npm@10.9.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "web": "npm run dev --workspace @impoopingrightnow/web",
+    "mobile": "npm run start --workspace @impoopingrightnow/mobile",
+    "build:web": "npm run build --workspace @impoopingrightnow/web",
+    "lint:web": "npm run lint --workspace @impoopingrightnow/web",
+    "typecheck:web": "tsc -p apps/web/tsconfig.json --noEmit",
+    "typecheck:mobile": "tsc -p apps/mobile/tsconfig.json --noEmit",
+    "typecheck:shared": "tsc -p packages/shared/tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
