@@ -1,0 +1,15 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "impoopingrightnow",
+  "compatibility_date": "2026-04-25",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+  "routes": ["impoopingrightnow.com/*", "www.impoopingrightnow.com/*"],
+  "observability": {
+    "enabled": true,
+  },
+}

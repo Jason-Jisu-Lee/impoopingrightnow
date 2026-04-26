@@ -7,6 +7,8 @@ package-lock.json
 
 apps/web/.next/
 apps/web/out/
+apps/web/.open-next/
+apps/web/.wrangler/
 apps/mobile/.expo/
 apps/mobile/dist/
 apps/mobile/web-build/

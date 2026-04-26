@@ -11,6 +11,8 @@
     "web": "npm run dev --workspace @impoopingrightnow/web",
     "mobile": "npm run start --workspace @impoopingrightnow/mobile",
     "build:web": "npm run build --workspace @impoopingrightnow/web",
+    "preview:web": "npm run preview --workspace @impoopingrightnow/web",
+    "deploy:web": "npm run deploy --workspace @impoopingrightnow/web",
     "lint": "npm run lint:web",
     "lint:web": "npm run lint --workspace @impoopingrightnow/web",
     "typecheck": "npm run typecheck:web && npm run typecheck:mobile && npm run typecheck:shared",
