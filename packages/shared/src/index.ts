@@ -54,6 +54,8 @@ export type {
 } from "./session-runtime";
 
 export {
+  getDailyPoopCounterSeed,
+  getSimulatedCounterSeed,
   getEncouragementMessage,
   simulateCounterTick,
   simulatedCounterFloor,

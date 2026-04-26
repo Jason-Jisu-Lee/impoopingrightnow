@@ -18,10 +18,12 @@ import {
   ensureAnonymousProfile,
   ensureAnonymousIdentity,
   formatDurationMs,
+  getDailyPoopCounterSeed,
   getCurrentPushElapsedMs,
   getEncouragementMessage,
   getLiveFeedPhase,
   getHoldButtonLabel,
+  getSimulatedCounterSeed,
   getSeededLiveFeedMessage,
   getSessionElapsedMs,
   getWebPublicSupabaseEnv,
@@ -281,33 +283,79 @@ describe("session ambience", () => {
     );
   });
 
-  it("weights the simulated counter upward during peak hours", () => {
-    expect(
-      simulateCounterTick(900, new Date(2026, 3, 24, 7, 30, 0), () => 0.6),
-    ).toEqual({
-      count: 924,
-      nextDelayMs: 12200,
-    });
+  it("seeds the simulated counter from the eastern-time activity curve", () => {
+    const overnightLow = getSimulatedCounterSeed(
+      new Date("2026-04-24T08:45:00.000Z"),
+    );
+    const morningPeak = getSimulatedCounterSeed(
+      new Date("2026-04-24T12:30:00.000Z"),
+    );
+    const lunchBump = getSimulatedCounterSeed(
+      new Date("2026-04-24T17:15:00.000Z"),
+    );
+    const lateAfternoon = getSimulatedCounterSeed(
+      new Date("2026-04-24T21:00:00.000Z"),
+    );
+    const eveningLift = getSimulatedCounterSeed(
+      new Date("2026-04-24T23:00:00.000Z"),
+    );
+
+    expect(overnightLow).toBe(simulatedCounterFloor);
+    expect(morningPeak).toBeGreaterThan(lunchBump);
+    expect(lunchBump).toBeGreaterThan(lateAfternoon);
+    expect(eveningLift).toBeGreaterThan(lateAfternoon);
+  });
+
+  it("nudges the simulated counter toward the morning peak with human-trackable updates", () => {
+    const randomValues = [0.6, 0.9, 0.1, 0.4];
+    let index = 0;
 
     expect(
-      simulateCounterTick(900, new Date(2026, 3, 24, 10, 30, 0), () => 0.6),
+      simulateCounterTick(
+        230,
+        new Date("2026-04-24T12:30:00.000Z"),
+        () => randomValues[index++] ?? 0.4,
+      ),
     ).toEqual({
-      count: 876,
-      nextDelayMs: 12200,
+      count: 229,
+      nextDelayMs: 252,
     });
   });
 
   it("never lets the simulated counter fall below the floor", () => {
+    const randomValues = [0.4, 0.05, 0.95, 0.2];
+    let index = 0;
+
     expect(
       simulateCounterTick(
-        simulatedCounterFloor + 2,
-        new Date(2026, 3, 24, 10, 30, 0),
-        () => 0.95,
+        simulatedCounterFloor + 1,
+        new Date("2026-04-24T08:45:00.000Z"),
+        () => randomValues[index++] ?? 0.2,
       ),
     ).toEqual({
       count: simulatedCounterFloor,
-      nextDelayMs: 14650,
+      nextDelayMs: 1940,
     });
+  });
+
+  it("builds the daily poop counter from the same eastern-time curve and resets after midnight", () => {
+    const earlyMorning = getDailyPoopCounterSeed(
+      new Date("2026-04-24T08:45:00.000Z"),
+    );
+    const morningPeak = getDailyPoopCounterSeed(
+      new Date("2026-04-24T12:30:00.000Z"),
+    );
+    const evening = getDailyPoopCounterSeed(
+      new Date("2026-04-24T23:00:00.000Z"),
+    );
+    const justAfterMidnight = getDailyPoopCounterSeed(
+      new Date("2026-04-25T04:01:00.000Z"),
+    );
+
+    expect(earlyMorning).toBeGreaterThan(0);
+    expect(morningPeak).toBeGreaterThan(earlyMorning);
+    expect(evening).toBeGreaterThan(morningPeak);
+    expect(justAfterMidnight).toBeLessThan(earlyMorning);
   });
 });
 
@@ -357,7 +405,7 @@ describe("live feed", () => {
 
     expect(seededMessage).toMatchObject({
       username: "SilentComet_14",
-      message: "false alarm",
+      message: "we're negotiating",
       createdAt: "2026-04-24T12:00:00.000Z",
       source: "seed",
     });

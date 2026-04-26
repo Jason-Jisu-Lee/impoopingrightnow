@@ -12,7 +12,7 @@ import {
 const navItems = [
   { href: "/", label: "Primary", title: "Home / Session" },
   { href: "/my-stats", label: "Records", title: "My Stats" },
-  { href: "/global", label: "Census", title: "Global" },
+  { href: "/global", label: "Browse", title: "World Board" },
   { href: "/settings", label: "Identity", title: "Settings" },
 ];
 
@@ -57,24 +57,21 @@ export default function GlobalPage() {
       <div className="shell-frame">
         <section className="shell-banner">
           <div className="shell-banner-row">
-            <span className="eyebrow">Global Analytics</span>
+            <span className="eyebrow">World Board</span>
             <span className="banner-counter">
-              Preview census · {globalAnalytics.countryLeaderboard.length}{" "}
+              Preview board · {globalAnalytics.countryLeaderboard.length}{" "}
               countries / {globalAnalytics.regionalStats.length} regions
             </span>
           </div>
           <div className="shell-banner-row">
             <div>
               <p className="eyebrow">impoopingrightnow.com</p>
-              <h1 className="banner-title">
-                A public leaderboard for bowel geopolitics.
-              </h1>
+              <h1 className="banner-title">Something to read while you sit.</h1>
             </div>
           </div>
           <p className="banner-subtitle">
-            This page is browseable and read-only now, but still honest about
-            the data source: the leaderboard is preview analytics until
-            geolocation and real aggregation land in a later slice.
+            This page is just for browsing. The numbers are still preview data
+            for now.
           </p>
         </section>
 
@@ -91,15 +88,13 @@ export default function GlobalPage() {
           <div className="shell-content-grid">
             <section className="global-panel">
               <header className="shell-panel-head">
-                <p className="eyebrow">Browsable public census</p>
+                <p className="eyebrow">Read-only preview</p>
                 <h2 className="shell-panel-title">
-                  Thresholded leaderboard copy without pretending the geo
-                  pipeline exists yet.
+                  A simple world board for now.
                 </h2>
                 <p className="shell-panel-body">
-                  Countries and regions only appear once the preview dataset
-                  clears the minimum session threshold. Food profiles stay
-                  hardcoded and intentionally absurd for v1.
+                  These country and region cards are still preview data. Real
+                  location-based totals can come later.
                 </p>
               </header>
 
@@ -108,8 +103,8 @@ export default function GlobalPage() {
                   <span className="stats-record-label">This Device</span>
                   <strong>{localSessionCount.toLocaleString()}</strong>
                   <p className="global-summary-copy">
-                    Completed sessions saved locally in this browser. They
-                    inform My Stats, not the preview world board.
+                    Completed sessions saved in this browser. They show up in My
+                    Stats, not on this preview board.
                   </p>
                 </article>
 
@@ -117,8 +112,8 @@ export default function GlobalPage() {
                   <span className="stats-record-label">Threshold</span>
                   <strong>{globalAnalytics.minimumSessions} sessions</strong>
                   <p className="global-summary-copy">
-                    Any country or region stays off the board until it clears
-                    the minimum qualifying volume.
+                    Countries and regions stay off the board until they clear
+                    the minimum session count.
                   </p>
                 </article>
 
@@ -133,11 +128,10 @@ export default function GlobalPage() {
 
               <section className="global-leaderboard-card">
                 <div className="stats-section-head">
-                  <h3>Country Leaderboard</h3>
+                  <h3>Countries</h3>
                   <p>
-                    Ranked by average total poop time. Peak hour, log rate, and
-                    push time sit beside it so the nonsense looks properly
-                    bureaucratic.
+                    Average time, peak hour, log rate, and push time are all in
+                    one place.
                   </p>
                 </div>
 
@@ -151,8 +145,7 @@ export default function GlobalPage() {
                         <div className="global-row-title">
                           <h3>{row.name}</h3>
                           <p>
-                            {row.sessionCount.toLocaleString()} qualifying
-                            sessions
+                            {row.sessionCount.toLocaleString()} counted sessions
                           </p>
                         </div>
                       </div>
@@ -184,10 +177,9 @@ export default function GlobalPage() {
 
               <section className="global-leaderboard-card">
                 <div className="stats-section-head">
-                  <h3>Regional Stats</h3>
+                  <h3>Regions</h3>
                   <p>
-                    Same threshold rule, same deadpan presentation, plus
-                    hardcoded placeholder food profiles for each qualifying
+                    Same preview rules, plus placeholder food profiles for each
                     region.
                   </p>
                 </div>
@@ -202,8 +194,7 @@ export default function GlobalPage() {
                         <div className="global-row-title">
                           <h3>{row.name}</h3>
                           <p>
-                            {row.sessionCount.toLocaleString()} qualifying
-                            sessions
+                            {row.sessionCount.toLocaleString()} counted sessions
                           </p>
                         </div>
                       </div>
@@ -238,25 +229,22 @@ export default function GlobalPage() {
 
             <aside className="shell-aside">
               <section className="shell-aside-card">
-                <h3>Preview Mode</h3>
+                <h3>Preview only</h3>
                 <p>{globalAnalytics.previewNotice}</p>
               </section>
 
               <section className="shell-aside-card">
-                <h3>Read-Only Rule</h3>
+                <h3>Just for browsing</h3>
                 <p>
-                  This route is meant to be browsed while pooping, not
-                  configured. No inputs, no settings, no user-supplied food
-                  data.
+                  No settings live here. It is just a page of numbers to scroll
+                  through.
                 </p>
               </section>
 
               <section className="shell-aside-card">
-                <h3>Later Data Slice</h3>
+                <h3>Later</h3>
                 <p>
-                  Real country rankings and region buckets depend on
-                  session-save geolocation and aggregated Supabase queries,
-                  which are still deferred.
+                  Real location-based totals and live updates can come later.
                 </p>
               </section>
             </aside>
@@ -265,12 +253,9 @@ export default function GlobalPage() {
 
         <footer className="shell-footer">
           <span>
-            <strong>Status:</strong> global analytics is browseable on web in
-            clearly labeled preview mode.
+            <strong>Status:</strong> the world board is live in preview mode.
           </span>
-          <span>
-            Real geo buckets and live aggregates remain a later slice.
-          </span>
+          <span>Real location data and live totals come later.</span>
         </footer>
       </div>
     </main>

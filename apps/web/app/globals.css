@@ -56,6 +56,10 @@ select {
   padding: 24px 16px 48px;
 }
 
+.shell-home-page {
+  position: relative;
+}
+
 .shell-frame {
   width: min(100%, 1100px);
   margin: 0 auto;
@@ -79,12 +83,28 @@ select {
   border-radius: 24px;
 }
 
+.shell-banner-home {
+  justify-items: center;
+  gap: 0;
+  min-height: 118px;
+  padding: 8px 0 6px;
+  align-content: space-between;
+  border: 0;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
 .shell-banner-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.shell-banner-row.is-centered {
+  justify-content: center;
 }
 
 .eyebrow {
@@ -105,6 +125,36 @@ select {
   color: var(--success);
   font-size: 0.82rem;
   letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.shell-banner-home .banner-counter {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--success);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.35rem, 3.6vw, 2.05rem);
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.banner-domain {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+.shell-daily-poop-counter {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 4;
+  color: rgba(35, 23, 13, 0.72);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -174,6 +224,10 @@ select {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.9fr);
   gap: 18px;
+}
+
+.shell-content-grid.is-landing-layout {
+  grid-template-columns: 1fr;
 }
 
 .shell-panel,
@@ -261,6 +315,10 @@ select {
   gap: 16px;
 }
 
+.shell-aside.is-landing-layout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .shell-aside-card {
   border: 1px solid var(--line);
   background: rgba(245, 236, 219, 0.9);
@@ -277,6 +335,12 @@ select {
   margin: 0;
   color: var(--muted);
   line-height: 1.7;
+}
+
+.shell-aside-actions {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
 }
 
 .shell-stamp {
@@ -440,6 +504,21 @@ select {
 .session-live-shell {
   display: grid;
   gap: 18px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.session-live-topline,
+.session-timer-wrap,
+.session-metric-grid,
+.session-hold-wrap,
+.session-push-helper,
+.session-encouragement,
+.session-live-footer,
+.session-feed-placeholder {
+  position: relative;
+  z-index: 1;
 }
 
 .session-metric-grid {
@@ -1050,62 +1129,55 @@ select {
 }
 
 .session-feed-placeholder {
-  width: min(100%, 250px);
+  width: min(100%, 320px);
   margin-left: auto;
-  border-radius: 20px;
-  border: 1px solid rgba(35, 23, 13, 0.1);
-  background: rgba(255, 255, 255, 0.42);
-  padding: 14px 16px;
-  opacity: 0.84;
-  display: grid;
-  gap: 10px;
-}
-
-.session-feed-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.session-feed-count {
-  color: var(--muted);
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.session-feed-stack {
+  padding: 0;
   display: grid;
   gap: 8px;
-  min-height: 160px;
 }
 
-.session-feed-message {
-  border-radius: 14px;
-  border: 1px solid rgba(35, 23, 13, 0.08);
-  background: rgba(255, 255, 255, 0.48);
-  padding: 10px 12px;
+.session-floating-feed-layer {
+  position: absolute;
+  inset: 16px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.session-floating-feed-note {
+  position: absolute;
+  width: min(220px, calc(100% - 24px));
+  padding: 0;
   display: grid;
-  gap: 6px;
-  animation: session-feed-drift 5200ms ease-out forwards;
+  gap: 8px;
+  opacity: 0;
+  color: var(--floating-note-color);
+  text-shadow: 0 2px 10px rgba(255, 249, 239, 0.9);
+  animation: session-floating-note 5200ms cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
 }
 
-.session-feed-message.is-user {
-  border-color: rgba(46, 91, 62, 0.16);
-  background: rgba(46, 91, 62, 0.08);
+.session-floating-feed-note.is-user {
+  font-weight: 600;
 }
 
 .session-feed-username {
-  color: var(--ink);
+  color: currentColor;
+  justify-self: end;
   font-size: 0.72rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.session-feed-message p {
+.session-floating-feed-message {
   margin: 0;
-  color: var(--muted);
+  color: currentColor;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1rem, 2.4vw, 1.22rem);
+  line-height: 1.45;
+}
+
+.session-floating-feed-note p {
+  margin: 0;
   line-height: 1.55;
 }
 
@@ -1141,6 +1213,7 @@ select {
   color: var(--muted);
   font-size: 0.82rem;
   line-height: 1.55;
+  text-align: right;
 }
 
 .session-feed-notice.is-error {
@@ -1362,24 +1435,38 @@ select {
   }
 }
 
-@keyframes session-feed-drift {
+@keyframes session-floating-note {
   0% {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translate(-50%, 18px) scale(0.96);
   }
 
-  15% {
+  18% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(-50%, 0) scale(1);
   }
 
   100% {
-    opacity: 0.42;
-    transform: translateY(-10px);
+    opacity: 0;
+    transform: translate(
+        calc(-50% + var(--floating-note-drift-x)),
+        var(--floating-note-drift-y)
+      )
+      scale(1.02);
   }
 }
 
 @media (max-width: 860px) {
+  .shell-daily-poop-counter {
+    position: static;
+    justify-self: end;
+    margin-inline: auto 0;
+  }
+
+  .shell-aside.is-landing-layout {
+    grid-template-columns: 1fr;
+  }
+
   .shell-page {
     padding-inline: 12px;
   }
@@ -1426,6 +1513,10 @@ select {
 
   .session-feed-placeholder {
     width: 100%;
+  }
+
+  .session-floating-feed-layer {
+    inset: 12px;
   }
 
   .session-feed-form {

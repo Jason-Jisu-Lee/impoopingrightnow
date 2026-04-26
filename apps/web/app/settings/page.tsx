@@ -20,7 +20,7 @@ import {
 const navItems = [
   { href: "/", label: "Primary", title: "Home / Session" },
   { href: "/my-stats", label: "Records", title: "My Stats" },
-  { href: "/global", label: "Census", title: "Global" },
+  { href: "/global", label: "Browse", title: "World Board" },
   { href: "/settings", label: "Identity", title: "Settings" },
 ];
 

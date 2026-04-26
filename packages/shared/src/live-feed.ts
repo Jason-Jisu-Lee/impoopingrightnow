@@ -31,15 +31,10 @@ const seededUsernames = [
 ] as const;
 
 const seededMessagesByPhase: Record<LiveFeedPhase, readonly string[]> = {
-  early: ["just sat down", "this might take a while", "scrolling twitter"],
-  middle: ["something's moving", "false alarm", "why won't it budge"],
-  push: ["ITS COMING", "ALMOST THERE", "SO CLOSE", "HERE WE GO"],
-  victory: [
-    "FREEDOM",
-    "clean sweep",
-    "7/10 would poop again",
-    "see you tomorrow",
-  ],
+  early: ["seat's still cold", "stall check-in", "phone at 12%"],
+  middle: ["false alarm", "we're negotiating", "this is all paperwork"],
+  push: ["LOCK IN", "OH WOW", "THIS IS IT"],
+  victory: ["light as air", "worth the wait", "goodbye old self"],
 };
 
 function createFeedId(now: Date, random: () => number): string {

@@ -197,7 +197,7 @@ export function buildGlobalAnalyticsSnapshot(
   return {
     minimumSessions,
     previewNotice:
-      "Preview analytics only. Real country and region buckets unlock when the geolocation pipeline lands.",
+      "Preview only for now. Real country and region totals can come later.",
     countryLeaderboard: sortRows(
       countries.filter((row) => row.sessionCount >= minimumSessions),
     ).map(toGlobalAnalyticsRow),

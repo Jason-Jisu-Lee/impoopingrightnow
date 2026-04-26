@@ -38,6 +38,7 @@ This file captures what is still not implemented after the current web-first V1 
 - [ ] Subscribe to live feed messages through Supabase Realtime.
 - [ ] Merge seeded fallback behavior with real feed traffic cleanly.
 - [ ] Track real concurrent active sessions.
+- [ ] Replace the top-right Daily Poop Counter simulation with a real EST-resetting session total.
 - [ ] Switch the counter from simulated mode to live data when real concurrency reaches the defined threshold.
 
 ### Cross-Device Stats

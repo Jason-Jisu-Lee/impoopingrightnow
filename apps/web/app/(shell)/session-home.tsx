@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  type CSSProperties,
   useEffect,
   useRef,
   useState,
@@ -18,9 +19,11 @@ import {
   dismissRetroactiveSessionStub,
   ensureAnonymousProfile,
   formatDurationMs,
+  getDailyPoopCounterSeed,
   getCurrentPushElapsedMs,
   getEncouragementMessage,
   getHoldButtonLabel,
+  getSimulatedCounterSeed,
   getSeededLiveFeedMessage,
   getSessionElapsedMs,
   getWebPublicSupabaseEnv,
@@ -32,7 +35,6 @@ import {
   recordCompletedSession,
   releasePush,
   simulateCounterTick,
-  simulatedCounterFloor,
   startPush,
   startLiveSession,
   updateAnonymousProfile,
@@ -47,7 +49,7 @@ import {
 const navItems = [
   { href: "/", label: "Primary", title: "Home / Session" },
   { href: "/my-stats", label: "Records", title: "My Stats" },
-  { href: "/global", label: "Census", title: "Global" },
+  { href: "/global", label: "Browse", title: "World Board" },
   { href: "/settings", label: "Identity", title: "Settings" },
 ];
 
@@ -86,6 +88,36 @@ const browserIdentityStorage = {
   },
 };
 
+const easternDayFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/New_York",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+function getEasternDayKey(now: Date): string {
+  const parts = easternDayFormatter.formatToParts(now);
+  let year = "0000";
+  let month = "00";
+  let day = "00";
+
+  for (const part of parts) {
+    if (part.type === "year") {
+      year = part.value;
+    }
+
+    if (part.type === "month") {
+      month = part.value;
+    }
+
+    if (part.type === "day") {
+      day = part.value;
+    }
+  }
+
+  return `${year}-${month}-${day}`;
+}
+
 function createIdentityCardState(
   username: string | null,
   isSupabaseConfigured: boolean,
@@ -93,28 +125,28 @@ function createIdentityCardState(
 ): IdentityCardState {
   if (!username) {
     return {
-      title: "Provisioning anonymous record",
-      body: "Creating the local UUID and generated username that the active session flow will use.",
+      title: "Getting your name ready",
+      body: "Making a temporary name so you can start right away.",
     };
   }
 
   if (email) {
     return {
-      title: `Anonymous record: ${username}`,
-      body: `Saved locally with ${email} on file for later recovery prompts. Account creation still stays out of the way.`,
+      title: `You are ${username}`,
+      body: `Saved on this device with ${email} as your recovery email.`,
     };
   }
 
   if (isSupabaseConfigured) {
     return {
-      title: `Anonymous record: ${username}`,
-      body: "Saved locally. Supabase public env is configured, and recovery details can be managed without introducing login flows.",
+      title: `You are ${username}`,
+      body: "Saved on this device and ready to go.",
     };
   }
 
   return {
-    title: `Anonymous record: ${username}`,
-    body: "Saved locally. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to enable session-start sync.",
+    title: `You are ${username}`,
+    body: "Saved on this device and ready to go.",
   };
 }
 
@@ -160,7 +192,7 @@ function readCompletedSessionCount(): number {
 }
 
 function formatCounterCopy(counter: number): string {
-  return `🌍 ${counter.toLocaleString()} people pooping right now`;
+  return `${counter.toLocaleString()} humans pooping right now`;
 }
 
 function createInitialLiveFeedMessages(sessionStart: Date): LiveFeedMessage[] {
@@ -180,6 +212,93 @@ function createInitialLiveFeedMessages(sessionStart: Date): LiveFeedMessage[] {
   });
 
   return appendLiveFeedMessage([firstMessage], secondMessage);
+}
+
+type FloatingFeedStyle = CSSProperties & {
+  "--floating-note-drift-x": string;
+  "--floating-note-drift-y": string;
+  "--floating-note-color": string;
+};
+
+function hashTextToUint(input: string): number {
+  let hash = 2166136261;
+
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return hash >>> 0;
+}
+
+function createFloatingFeedStyle(message: LiveFeedMessage): FloatingFeedStyle {
+  const hash = hashTextToUint(message.id);
+  const palette = [
+    "#a03f1a",
+    "#2f6d8c",
+    "#6a2f83",
+    "#2e6b4e",
+    "#8a4c12",
+    "#8f3058",
+  ] as const;
+  const lanes = [
+    { topStart: 10, topRange: 12, leftStart: 7, leftRange: 16 },
+    { topStart: 12, topRange: 10, leftStart: 71, leftRange: 12 },
+    { topStart: 34, topRange: 14, leftStart: 4, leftRange: 14 },
+    { topStart: 36, topRange: 14, leftStart: 74, leftRange: 10 },
+    { topStart: 69, topRange: 9, leftStart: 15, leftRange: 18 },
+    { topStart: 71, topRange: 9, leftStart: 58, leftRange: 18 },
+  ] as const;
+  const lane = lanes[hash % lanes.length];
+  const top = lane.topStart + ((hash >>> 6) % lane.topRange);
+  const left = lane.leftStart + ((hash >>> 12) % lane.leftRange);
+  const driftX = -16 + ((hash >>> 18) % 33);
+  const driftY = -14 - ((hash >>> 24) % 26);
+  const durationMs = 3800 + (hash % 1801);
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    animationDuration: `${durationMs}ms`,
+    "--floating-note-drift-x": `${driftX}px`,
+    "--floating-note-drift-y": `${driftY}px`,
+    "--floating-note-color": palette[hash % palette.length] ?? palette[0],
+  };
+}
+
+function FloatingFeedOverlay({
+  messages,
+  now,
+}: {
+  messages: LiveFeedMessage[];
+  now: Date;
+}) {
+  const visibleMessages = messages
+    .filter(
+      (message) => now.getTime() - new Date(message.createdAt).getTime() < 5600,
+    )
+    .slice(-4);
+
+  if (visibleMessages.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="session-floating-feed-layer" aria-hidden="true">
+      {visibleMessages.map((message) => (
+        <article
+          key={message.id}
+          className={`session-floating-feed-note${message.source === "user" ? " is-user" : ""}`}
+          style={createFloatingFeedStyle(message)}
+        >
+          <p className="session-floating-feed-message">
+            &quot;{message.message}&quot;
+          </p>
+          <span className="session-feed-username">- {message.username}</span>
+        </article>
+      ))}
+    </div>
+  );
 }
 
 function FlushConfettiOverlay({ token }: { token: number }) {
@@ -205,28 +324,14 @@ function FlushConfettiOverlay({ token }: { token: number }) {
   );
 }
 
-function LandingView({
-  flowState,
-  onStart,
-  onOpenRetroactiveStub,
-  onDismissRetroactiveStub,
-}: {
-  flowState: SessionFlowState;
-  onStart: () => void;
-  onOpenRetroactiveStub: () => void;
-  onDismissRetroactiveStub: () => void;
-}) {
+function LandingView({ onStart }: { onStart: () => void }) {
   return (
     <section className="session-home-panel">
       <header className="session-home-head">
-        <p className="eyebrow">Landing screen</p>
-        <h2 className="session-home-title">
-          Start immediately. No login wall. No intake form.
-        </h2>
+        <p className="eyebrow">Ready</p>
+        <h2 className="session-home-title">Start fast. Keep it simple.</h2>
         <p className="session-home-body">
-          The primary call to action now drops the user straight into the live
-          session shell. Retroactive logging stays stubbed, visible, and out of
-          scope for V1.
+          Tap the main button and the session starts right away.
         </p>
       </header>
 
@@ -238,45 +343,7 @@ function LandingView({
         >
           I&apos;m Pooping Right Now
         </button>
-        <button
-          type="button"
-          className="session-secondary-action"
-          onClick={onOpenRetroactiveStub}
-        >
-          I Pooped
-        </button>
       </div>
-
-      <p className="session-home-caption">
-        Primary action starts immediately. Secondary action stays a stub and
-        only shows a passive coming-soon notice.
-      </p>
-
-      {flowState.retroactiveStub ? (
-        <div className="session-stub-card" role="status" aria-live="polite">
-          <div>
-            <p className="eyebrow">Retroactive logging</p>
-            <h3>{flowState.retroactiveStub.title}</h3>
-            <p>{flowState.retroactiveStub.body}</p>
-          </div>
-          <button
-            type="button"
-            className="session-inline-dismiss"
-            onClick={onDismissRetroactiveStub}
-          >
-            Dismiss
-          </button>
-        </div>
-      ) : null}
-
-      <ul className="session-home-list">
-        <li>Top counter stays visible from the first screen onward.</li>
-        <li>Home route now switches into active-session mode in place.</li>
-        <li>
-          Timer, hold mechanic, and flush-to-certificate flow activate after
-          start.
-        </li>
-      </ul>
     </section>
   );
 }
@@ -299,12 +366,12 @@ function ProtectHistoryBanner({
   return (
     <section className="profile-banner" aria-live="polite">
       <div className="profile-banner-copy">
-        <p className="eyebrow">Passive recovery prompt</p>
+        <p className="eyebrow">Save your history</p>
         <h2>Protect your poop history - add an email.</h2>
         <p>
           {sessionCount.toLocaleString()} completed sessions are now saved on
-          this device. Add one recovery email or dismiss this quietly; there is
-          still no login wall.
+          this device. Add one email for recovery later, or skip it and keep
+          going.
         </p>
       </div>
 
@@ -378,8 +445,10 @@ function ActiveSessionView({
 
   return (
     <section className="session-home-panel session-live-shell">
+      <FloatingFeedOverlay messages={liveFeedMessages} now={now} />
+
       <div className="session-live-topline">
-        <span className="eyebrow">Active session shell</span>
+        <span className="eyebrow">In progress</span>
         <span className="session-live-stamp">
           Started {formatStartTime(sessionActivity.startedAt)}
         </span>
@@ -389,8 +458,7 @@ function ActiveSessionView({
         <span className="session-timer-label">Poop timer</span>
         <strong className="session-timer-value">{sessionElapsedLabel}</strong>
         <p className="session-timer-note">
-          The timer is live. Flush, local history, and the certificate surface
-          are already wired; share export and server-backed sync remain later.
+          The timer is running. Flush when you are done to save this session.
         </p>
       </div>
 
@@ -453,38 +521,16 @@ function ActiveSessionView({
         >
           Flush
         </button>
-        <p>
-          Flush ends the session, updates local history, and refreshes the web
-          stats surfaces while share export and realtime sync stay for later.
-        </p>
+        <p>Flush ends the session and saves it to your local history.</p>
       </div>
 
       <div className="session-feed-placeholder">
-        <div className="session-feed-header">
-          <p className="eyebrow">Floating feed corner</p>
-          <span className="session-feed-count">
-            {liveFeedMessages.length} notes
-          </span>
-        </div>
-
-        <div className="session-feed-stack" aria-live="polite">
-          {liveFeedMessages.map((message) => (
-            <article
-              key={message.id}
-              className={`session-feed-message${message.source === "user" ? " is-user" : ""}`}
-            >
-              <span className="session-feed-username">{message.username}</span>
-              <p>{message.message}</p>
-            </article>
-          ))}
-        </div>
-
         <form className="session-feed-form" onSubmit={onFeedSubmit}>
           <input
             value={feedDraft}
             onChange={(event) => onFeedDraftChange(event.target.value)}
             maxLength={60}
-            placeholder="Say something..."
+            placeholder="drop a note..."
             aria-label="Send a floating feed message"
           />
           <button type="submit">Send</button>
@@ -496,7 +542,7 @@ function ActiveSessionView({
           </p>
         ) : (
           <p className="session-feed-notice">
-            Seeded until realtime joins later.
+            Notes drift through the room for a few seconds.
           </p>
         )}
       </div>
@@ -521,7 +567,7 @@ function CertificateView({
       </div>
 
       <div className="certificate-paper">
-        <p className="eyebrow">Official stool administration</p>
+        <p className="eyebrow">Official record</p>
         <h2 className="certificate-title">Certificate of Completed Movement</h2>
         <p className="certificate-body">
           This document certifies that the undersigned citizen completed a live
@@ -561,10 +607,7 @@ function CertificateView({
           <strong className="certificate-rank-value">
             {certificate.rankLabel}
           </strong>
-          <p>
-            Placeholder until today&apos;s duration distribution query is wired
-            to Supabase.
-          </p>
+          <p>Live ranking can come later.</p>
         </div>
 
         <div className="certificate-footer-row">
@@ -613,8 +656,11 @@ export function SessionHome() {
   const [timerNow, setTimerNow] = useState<Date>(() => new Date());
   const [confettiToken, setConfettiToken] = useState(0);
   const [flushConfettiToken, setFlushConfettiToken] = useState(0);
-  const [simulatedCounter, setSimulatedCounter] = useState(
-    simulatedCounterFloor,
+  const [simulatedCounter, setSimulatedCounter] = useState(() =>
+    getSimulatedCounterSeed(),
+  );
+  const [dailyPoopCounter, setDailyPoopCounter] = useState(() =>
+    getDailyPoopCounterSeed(),
   );
   const [liveFeedMessages, setLiveFeedMessages] = useState<LiveFeedMessage[]>(
     [],
@@ -624,7 +670,8 @@ export function SessionHome() {
   const [emailPromptDraft, setEmailPromptDraft] = useState("");
   const [emailPromptNotice, setEmailPromptNotice] =
     useState<InlineNoticeState>(null);
-  const simulatedCounterRef = useRef(simulatedCounterFloor);
+  const simulatedCounterRef = useRef(simulatedCounter);
+  const dailyPoopCounterDayRef = useRef(getEasternDayKey(new Date()));
   const lastFeedMessageId =
     liveFeedMessages[liveFeedMessages.length - 1]?.id ?? null;
   const isCertificateVisible = certificate !== null;
@@ -632,6 +679,7 @@ export function SessionHome() {
     !isCertificateVisible &&
     flowState.stage === "active" &&
     sessionActivity !== null;
+  const isLandingState = !isCertificateVisible && !isActiveSession;
   const isEmailPromptVisible =
     !isActiveSession &&
     identityProfile !== null &&
@@ -711,6 +759,17 @@ export function SessionHome() {
           simulatedCounterRef.current,
           new Date(),
         );
+        const nextTickTime = new Date();
+        const nextDayKey = getEasternDayKey(nextTickTime);
+        const didCounterIncrease =
+          nextSnapshot.count > simulatedCounterRef.current;
+
+        if (nextDayKey !== dailyPoopCounterDayRef.current) {
+          dailyPoopCounterDayRef.current = nextDayKey;
+          setDailyPoopCounter(didCounterIncrease ? 1 : 0);
+        } else if (didCounterIncrease) {
+          setDailyPoopCounter((current) => current + 1);
+        }
 
         simulatedCounterRef.current = nextSnapshot.count;
         setSimulatedCounter(nextSnapshot.count);
@@ -733,7 +792,7 @@ export function SessionHome() {
       return;
     }
 
-    const delayMs = 3200 + Math.floor(Math.random() * 2801);
+    const delayMs = 1600 + Math.floor(Math.random() * 1801);
     const timeoutId = window.setTimeout(() => {
       const seededMessage = getSeededLiveFeedMessage({
         sessionElapsedMs: getSessionElapsedMs(sessionActivity, new Date()),
@@ -874,7 +933,7 @@ export function SessionHome() {
     setFeedDraft("");
     setFeedNotice({
       tone: "success",
-      text: "Sent to the floating feed.",
+      text: "Note dropped into the room.",
     });
   }
 
@@ -904,7 +963,7 @@ export function SessionHome() {
         setEmailPromptDraft(nextProfile.email ?? "");
         setEmailPromptNotice({
           tone: "success",
-          text: "Recovery email saved locally.",
+          text: "Recovery email saved.",
         });
         setIdentityCard(
           createIdentityCardState(
@@ -943,7 +1002,7 @@ export function SessionHome() {
       .catch(() => {
         setEmailPromptNotice({
           tone: "error",
-          text: "Prompt dismissal could not be saved locally.",
+          text: "Could not save that choice on this device.",
         });
       });
   }
@@ -952,9 +1011,9 @@ export function SessionHome() {
     ? [
         `Session timer is live at ${formatDurationMs(getSessionElapsedMs(sessionActivity, timerNow))}.`,
         `${sessionActivity.pushCount} logs recorded with ${formatDurationMs(sessionActivity.totalPushMs)} of total push time.`,
-        `Counter currently displays ${simulatedCounter.toLocaleString()} live poopers.`,
+        `Counter currently displays ${simulatedCounter.toLocaleString()} live humans.`,
         `Encouragement line: “${encouragementMessage}”`,
-        `${liveFeedMessages.length} floating feed notes are visible in the session corner.`,
+        `${liveFeedMessages.length} notes have been dropped into this session so far.`,
       ]
     : [];
 
@@ -962,41 +1021,27 @@ export function SessionHome() {
     ? [
         `${certificate.pushCount} logs certified across ${certificate.durationLabel}.`,
         `${certificate.totalPushLabel} of total push time recorded on the certificate.`,
-        "Share export and live rank calculation remain staged for later slices.",
+        "Sharing and live ranking can come later.",
       ]
     : [];
 
   return (
-    <main className="shell-page">
+    <main className="shell-page shell-home-page">
       <FlushConfettiOverlay token={flushConfettiToken} />
+      <div className="shell-daily-poop-counter" aria-live="polite">
+        Daily Poop Counter: {dailyPoopCounter.toLocaleString()}
+      </div>
 
       <div className="shell-frame">
-        <section className="shell-banner">
-          <div className="shell-banner-row">
-            <span className="eyebrow">Live session entrypoint</span>
+        <section className="shell-banner shell-banner-home">
+          <div className="shell-banner-row is-centered">
             <span className="banner-counter">
               {formatCounterCopy(simulatedCounter)}
             </span>
           </div>
-          <div className="shell-banner-row">
-            <div>
-              <p className="eyebrow">impoopingrightnow.com</p>
-              <h1 className="banner-title">
-                {isCertificateVisible
-                  ? "Your certificate is ready."
-                  : isActiveSession
-                    ? "You are now in the live-session shell."
-                    : "Start here. Drop in immediately."}
-              </h1>
-            </div>
+          <div className="shell-banner-row is-centered">
+            <p className="banner-domain">IMPOOPINGRIGHTNOW.COM</p>
           </div>
-          <p className="banner-subtitle">
-            {isCertificateVisible
-              ? "Flush now ends the session with a full-screen celebration and an instant client-side certificate placeholder, while sharing and live ranking stay staged for later."
-              : isActiveSession
-                ? "The session surface is now live: the timer is running, the hold button logs pushes on release, and the floating feed is seeded locally while realtime stays staged for later."
-                : "The landing screen now behaves like the product brief: immediate primary entry, passive retroactive stub, and a mobile-first session surface ready to take over."}
-          </p>
         </section>
 
         <section className="shell-main">
@@ -1026,7 +1071,9 @@ export function SessionHome() {
             />
           ) : null}
 
-          <div className="shell-content-grid">
+          <div
+            className={`shell-content-grid${isLandingState ? " is-landing-layout" : ""}`}
+          >
             {isCertificateVisible && certificate ? (
               <CertificateView
                 certificate={certificate}
@@ -1056,69 +1103,101 @@ export function SessionHome() {
                 onFlush={handleFlushSession}
               />
             ) : (
-              <LandingView
-                flowState={flowState}
-                onStart={handleStartSession}
-                onOpenRetroactiveStub={() =>
-                  setFlowState((current) => openRetroactiveSessionStub(current))
-                }
-                onDismissRetroactiveStub={() =>
-                  setFlowState((current) =>
-                    dismissRetroactiveSessionStub(current),
-                  )
-                }
-              />
+              <LandingView onStart={handleStartSession} />
             )}
 
-            <aside className="shell-aside">
+            <aside
+              className={`shell-aside${isLandingState ? " is-landing-layout" : ""}`}
+            >
               <section className="shell-aside-card">
                 <h3>{identityCard.title}</h3>
                 <p>{identityCard.body}</p>
               </section>
 
-              <section className="shell-aside-card">
-                <h3>
-                  {isCertificateVisible
-                    ? "Certificate status"
-                    : isActiveSession
-                      ? "Session shell status"
-                      : "What this slice covers"}
-                </h3>
-                <ul className="shell-checklist">
-                  {(isCertificateVisible
-                    ? certificateChecklist
-                    : isActiveSession
-                      ? activeChecklist
-                      : [
-                          "Landing surface now has real CTA behavior.",
-                          "Retroactive logging remains a passive stub.",
-                          "Home flow is now separate from the other shell pages.",
-                        ]
-                  ).map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </section>
+              {isCertificateVisible || isActiveSession ? (
+                <>
+                  <section className="shell-aside-card">
+                    <h3>
+                      {isCertificateVisible
+                        ? "Certificate notes"
+                        : "Session notes"}
+                    </h3>
+                    <ul className="shell-checklist">
+                      {(isCertificateVisible
+                        ? certificateChecklist
+                        : activeChecklist
+                      ).map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </section>
 
-              <section className="shell-aside-card">
-                <div className="shell-stamp">
-                  {isCertificateVisible
-                    ? "Certificate placeholder"
-                    : "Counter and floating feed"}
-                </div>
-              </section>
+                  <section className="shell-aside-card">
+                    <div className="shell-stamp">
+                      {isCertificateVisible
+                        ? "Certificate placeholder"
+                        : "Live room"}
+                    </div>
+                  </section>
+                </>
+              ) : (
+                <section className="shell-aside-card">
+                  <h3>Log later</h3>
+                  <p>
+                    If you already finished, the manual log button lives here.
+                    It is not built yet.
+                  </p>
+
+                  <div className="shell-aside-actions">
+                    <button
+                      type="button"
+                      className="session-secondary-action"
+                      onClick={() =>
+                        setFlowState((current) =>
+                          openRetroactiveSessionStub(current),
+                        )
+                      }
+                    >
+                      I Pooped
+                    </button>
+
+                    {flowState.retroactiveStub ? (
+                      <div
+                        className="session-stub-card"
+                        role="status"
+                        aria-live="polite"
+                      >
+                        <div>
+                          <p className="eyebrow">Manual logging</p>
+                          <h3>{flowState.retroactiveStub.title}</h3>
+                          <p>{flowState.retroactiveStub.body}</p>
+                        </div>
+                        <button
+                          type="button"
+                          className="session-inline-dismiss"
+                          onClick={() =>
+                            setFlowState((current) =>
+                              dismissRetroactiveSessionStub(current),
+                            )
+                          }
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
+                </section>
+              )}
             </aside>
           </div>
         </section>
 
         <footer className="shell-footer">
           <span>
-            <strong>Status:</strong> the web session flow, local stats, preview
-            analytics, and passive email capture are wired.
+            <strong>Status:</strong> the web session flow, local stats, and the
+            browse page are live.
           </span>
-          <span>
-            Share export, geolocation, and realtime persistence remain later.
-          </span>
+          <span>Sharing and location-based extras can come later.</span>
         </footer>
       </div>
     </main>
