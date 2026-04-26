@@ -312,12 +312,12 @@ describe("session ambience", () => {
 
     expect(
       simulateCounterTick(
-        230,
+        20,
         new Date("2026-04-24T12:30:00.000Z"),
         () => randomValues[index++] ?? 0.4,
       ),
     ).toEqual({
-      count: 229,
+      count: 19,
       nextDelayMs: 252,
     });
   });
@@ -494,6 +494,24 @@ describe("session history", () => {
         await storage.getItem(sessionHistoryStorageKey),
       ),
     ).toEqual(storedRecords);
+  });
+
+  it("persists the diarrhea flag when a session is marked that way", async () => {
+    const storage = createMemoryIdentityStorage();
+    const sessionStart = new Date(2026, 3, 24, 13, 0, 0);
+    const certificate = completeSession(
+      createSessionActivityState(sessionStart.toISOString()),
+      "SteadyButt_00",
+      new Date(2026, 3, 24, 13, 5, 0),
+    ).certificate;
+
+    const storedRecords = await recordCompletedSession(storage, certificate, () => 0, {
+      wasDiarrhea: true,
+    });
+
+    expect(storedRecords[0]).toMatchObject({
+      wasDiarrhea: true,
+    });
   });
 
   it("builds streaks, records, weekly summary, and heatmap counts", () => {

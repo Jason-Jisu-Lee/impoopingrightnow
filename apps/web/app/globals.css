@@ -86,8 +86,8 @@ select {
 .shell-banner-home {
   justify-items: center;
   gap: 0;
-  min-height: 118px;
-  padding: 8px 0 6px;
+  min-height: 162px;
+  padding: 28px 0 0;
   align-content: space-between;
   border: 0;
   background: transparent;
@@ -134,7 +134,7 @@ select {
   background: transparent;
   color: var(--success);
   font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(1.35rem, 3.6vw, 2.05rem);
+  font-size: clamp(1.15rem, 3.05vw, 1.75rem);
   line-height: 1;
   letter-spacing: 0.04em;
 }
@@ -145,6 +145,7 @@ select {
   font-size: 0.68rem;
   letter-spacing: 0.32em;
   text-transform: uppercase;
+  align-self: end;
 }
 
 .shell-daily-poop-counter {
@@ -337,6 +338,28 @@ select {
   line-height: 1.7;
 }
 
+.shell-user-stats-card {
+  display: grid;
+  gap: 10px;
+}
+
+.session-user-stats-line {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.08rem;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.session-user-stats-label {
+  color: var(--muted);
+}
+
+.session-user-stats-value {
+  color: var(--ink);
+  font-weight: 600;
+}
+
 .shell-aside-actions {
   display: grid;
   gap: 14px;
@@ -374,6 +397,40 @@ select {
   color: var(--ink);
 }
 
+.session-status-line {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  min-width: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.session-status-item-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.session-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background: #bf4b3a;
+  box-shadow: 0 0 0 1px rgba(35, 23, 13, 0.16);
+}
+
+.session-status-dot.is-active {
+  background: #4f8a3d;
+}
+
+.session-status-dot.is-inactive {
+  background: #bf4b3a;
+}
+
 .session-home-panel {
   border: 1px solid var(--line);
   border-radius: 24px;
@@ -384,6 +441,13 @@ select {
 .session-home-head {
   display: grid;
   gap: 8px;
+}
+
+.session-home-head-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .session-home-title {
@@ -450,6 +514,27 @@ select {
   color: var(--ink);
   border: 1px solid rgba(35, 23, 13, 0.12);
   font-size: 1.35rem;
+}
+
+.session-secondary-action-compact {
+  width: auto;
+  padding: 10px 14px;
+  border-radius: 16px;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.session-diarrhea-toggle {
+  width: auto;
+  padding: 9px 12px;
+  border-radius: 14px;
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+
+.session-diarrhea-toggle.is-selected {
+  background: rgba(140, 90, 43, 0.18);
+  border-color: rgba(140, 90, 43, 0.28);
 }
 
 .session-home-caption {

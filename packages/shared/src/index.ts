@@ -75,6 +75,8 @@ export type {
   LiveFeedValidationResult,
 } from "./live-feed";
 
+export { masterWordBank } from "./word-bank";
+
 export {
   appendStoredSessionRecord,
   buildSessionStats,

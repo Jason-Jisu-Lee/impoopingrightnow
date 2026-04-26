@@ -52,9 +52,9 @@ export default function MyStatsPage() {
     };
   }, []);
 
-  if (statsSnapshot === undefined || statsSnapshot === null) {
-    return null;
-  }
+  const isStatsLoading = statsSnapshot === undefined;
+  const hasStats = statsSnapshot !== undefined && statsSnapshot !== null;
+  const totalSessions = statsSnapshot?.totalSessions ?? 0;
 
   return (
     <main className="shell-page stats-page">
@@ -63,8 +63,7 @@ export default function MyStatsPage() {
           <div className="shell-banner-row">
             <span className="eyebrow">My Stats</span>
             <span className="banner-counter">
-              {statsSnapshot.totalSessions.toLocaleString()} sessions on this
-              device
+              {totalSessions.toLocaleString()} sessions on this device
             </span>
           </div>
           <div className="shell-banner-row">
@@ -104,85 +103,106 @@ export default function MyStatsPage() {
                 </p>
               </header>
 
-              <section className="stats-heatmap-card">
-                <div className="stats-section-head">
-                  <h3>Heatmap</h3>
-                  <p>Last 12 weeks of completed sessions.</p>
-                </div>
+              {hasStats ? (
+                <>
+                  <section className="stats-heatmap-card">
+                    <div className="stats-section-head">
+                      <h3>Heatmap</h3>
+                      <p>Last 12 weeks of completed sessions.</p>
+                    </div>
 
-                <div
-                  className="stats-heatmap-grid"
-                  role="img"
-                  aria-label="Session heatmap"
-                >
-                  {statsSnapshot.heatmap.map((cell) => (
-                    <span
-                      key={cell.dateKey}
-                      className={`stats-heatmap-cell level-${cell.level}`}
-                      title={`${cell.dateKey}: ${cell.count} session${cell.count === 1 ? "" : "s"}`}
-                    />
-                  ))}
-                </div>
+                    <div
+                      className="stats-heatmap-grid"
+                      role="img"
+                      aria-label="Session heatmap"
+                    >
+                      {statsSnapshot.heatmap.map((cell) => (
+                        <span
+                          key={cell.dateKey}
+                          className={`stats-heatmap-cell level-${cell.level}`}
+                          title={`${cell.dateKey}: ${cell.count} session${cell.count === 1 ? "" : "s"}`}
+                        />
+                      ))}
+                    </div>
 
-                <div className="stats-heatmap-legend">
-                  <span>Less</span>
-                  <div className="stats-heatmap-legend-scale">
-                    <span className="stats-heatmap-cell level-0" />
-                    <span className="stats-heatmap-cell level-1" />
-                    <span className="stats-heatmap-cell level-2" />
-                    <span className="stats-heatmap-cell level-3" />
-                    <span className="stats-heatmap-cell level-4" />
-                  </div>
-                  <span>More</span>
-                </div>
-              </section>
+                    <div className="stats-heatmap-legend">
+                      <span>Less</span>
+                      <div className="stats-heatmap-legend-scale">
+                        <span className="stats-heatmap-cell level-0" />
+                        <span className="stats-heatmap-cell level-1" />
+                        <span className="stats-heatmap-cell level-2" />
+                        <span className="stats-heatmap-cell level-3" />
+                        <span className="stats-heatmap-cell level-4" />
+                      </div>
+                      <span>More</span>
+                    </div>
+                  </section>
 
-              <section className="stats-records-grid">
-                <article className="stats-record-card">
-                  <span className="stats-record-label">Fastest poop</span>
-                  <strong>
-                    {formatDurationMs(statsSnapshot.records.fastest.durationMs)}
-                  </strong>
-                  <p>
-                    Logged by {statsSnapshot.records.fastest.username} with{" "}
-                    {statsSnapshot.records.fastest.pushCount} log
-                    {statsSnapshot.records.fastest.pushCount === 1 ? "" : "s"}.
+                  <section className="stats-records-grid">
+                    <article className="stats-record-card">
+                      <span className="stats-record-label">Fastest poop</span>
+                      <strong>
+                        {formatDurationMs(
+                          statsSnapshot.records.fastest.durationMs,
+                        )}
+                      </strong>
+                      <p>
+                        Logged by {statsSnapshot.records.fastest.username} with{" "}
+                        {statsSnapshot.records.fastest.pushCount} log
+                        {statsSnapshot.records.fastest.pushCount === 1 ? "" : "s"}.
+                      </p>
+                    </article>
+
+                    <article className="stats-record-card">
+                      <span className="stats-record-label">Longest poop</span>
+                      <strong>
+                        {formatDurationMs(
+                          statsSnapshot.records.longest.durationMs,
+                        )}
+                      </strong>
+                      <p>
+                        Total push time:{" "}
+                        {formatDurationMs(
+                          statsSnapshot.records.longest.totalPushMs,
+                        )}
+                        .
+                      </p>
+                    </article>
+
+                    <article className="stats-record-card">
+                      <span className="stats-record-label">Most logs</span>
+                      <strong>{statsSnapshot.records.mostLogs.pushCount}</strong>
+                      <p>
+                        Completed over{" "}
+                        {formatDurationMs(
+                          statsSnapshot.records.mostLogs.durationMs,
+                        )}
+                        .
+                      </p>
+                    </article>
+                  </section>
+                </>
+              ) : (
+                <section className="shell-aside-card stats-summary-card">
+                  <h3>{isStatsLoading ? "Loading your records" : "No records yet"}</h3>
+                  <p className="stats-summary-text">
+                    {isStatsLoading
+                      ? "Reading saved sessions from this browser."
+                      : "Finish at least one session and flush it to populate heatmap, streaks, and personal records."}
                   </p>
-                </article>
-
-                <article className="stats-record-card">
-                  <span className="stats-record-label">Longest poop</span>
-                  <strong>
-                    {formatDurationMs(statsSnapshot.records.longest.durationMs)}
-                  </strong>
-                  <p>
-                    Total push time:{" "}
-                    {formatDurationMs(
-                      statsSnapshot.records.longest.totalPushMs,
-                    )}
-                    .
-                  </p>
-                </article>
-
-                <article className="stats-record-card">
-                  <span className="stats-record-label">Most logs</span>
-                  <strong>{statsSnapshot.records.mostLogs.pushCount}</strong>
-                  <p>
-                    Completed over{" "}
-                    {formatDurationMs(
-                      statsSnapshot.records.mostLogs.durationMs,
-                    )}
-                    .
-                  </p>
-                </article>
-              </section>
+                </section>
+              )}
             </section>
 
             <aside className="shell-aside">
               <section className="shell-aside-card stats-summary-card">
                 <h3>Weekly Summary</h3>
                 <p className="stats-summary-text">
-                  {statsSnapshot.weeklySummary.summaryText}
+                  {hasStats
+                    ? statsSnapshot.weeklySummary.summaryText
+                    : isStatsLoading
+                      ? "Loading local session history."
+                      : "No weekly summary yet because this browser has no completed flushed sessions."}
                 </p>
                 <button
                   type="button"
@@ -198,11 +218,11 @@ export default function MyStatsPage() {
                 <div className="stats-streak-grid">
                   <div>
                     <span className="stats-record-label">Current</span>
-                    <strong>{statsSnapshot.streaks.current} days</strong>
+                    <strong>{hasStats ? statsSnapshot.streaks.current : 0} days</strong>
                   </div>
                   <div>
                     <span className="stats-record-label">Best</span>
-                    <strong>{statsSnapshot.streaks.best} days</strong>
+                    <strong>{hasStats ? statsSnapshot.streaks.best : 0} days</strong>
                   </div>
                 </div>
               </section>

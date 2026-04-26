@@ -8,6 +8,7 @@ export type StoredSessionRecord = {
   pushCount: number;
   totalPushMs: number;
   completedAt: string;
+  wasDiarrhea?: boolean;
 };
 
 export type SessionHeatmapCell = {
@@ -105,6 +106,9 @@ function countRecordCategoriesInWeek(
 export function createStoredSessionRecord(
   certificate: SessionCertificate,
   random: () => number = Math.random,
+  options?: {
+    wasDiarrhea?: boolean;
+  },
 ): StoredSessionRecord {
   return {
     id: `${Date.parse(certificate.endedAt)}-${Math.floor(random() * 1_000_000)}`,
@@ -113,6 +117,7 @@ export function createStoredSessionRecord(
     pushCount: certificate.pushCount,
     totalPushMs: certificate.totalPushMs,
     completedAt: certificate.endedAt,
+    ...(options?.wasDiarrhea ? { wasDiarrhea: true } : {}),
   };
 }
 
@@ -139,7 +144,9 @@ export function parseStoredSessionHistory(
         typeof item.durationMs === "number" &&
         typeof item.pushCount === "number" &&
         typeof item.totalPushMs === "number" &&
-        typeof item.completedAt === "string",
+        typeof item.completedAt === "string" &&
+        (typeof item.wasDiarrhea === "boolean" ||
+          typeof item.wasDiarrhea === "undefined"),
     );
   } catch {
     return [];
@@ -164,13 +171,16 @@ export async function recordCompletedSession(
   storage: IdentityStorage,
   certificate: SessionCertificate,
   random: () => number = Math.random,
+  options?: {
+    wasDiarrhea?: boolean;
+  },
 ): Promise<StoredSessionRecord[]> {
   const existingRecords = parseStoredSessionHistory(
     await storage.getItem(sessionHistoryStorageKey),
   );
   const nextRecords = appendStoredSessionRecord(
     existingRecords,
-    createStoredSessionRecord(certificate, random),
+    createStoredSessionRecord(certificate, random, options),
   );
 
   await storage.setItem(sessionHistoryStorageKey, JSON.stringify(nextRecords));

@@ -16,7 +16,6 @@ import {
   createUserLiveFeedMessage,
   createSessionActivityState,
   createSessionFlowState,
-  dismissRetroactiveSessionStub,
   ensureAnonymousProfile,
   formatDurationMs,
   getDailyPoopCounterSeed,
@@ -31,7 +30,7 @@ import {
   sessionHistoryStorageKey,
   shouldShowEmailCapturePrompt,
   type LiveFeedMessage,
-  openRetroactiveSessionStub,
+  type StoredSessionRecord,
   recordCompletedSession,
   releasePush,
   simulateCounterTick,
@@ -47,7 +46,6 @@ import {
 } from "@impoopingrightnow/shared";
 
 const navItems = [
-  { href: "/", label: "Primary", title: "Home / Session" },
   { href: "/my-stats", label: "Records", title: "My Stats" },
   { href: "/global", label: "Browse", title: "World Board" },
   { href: "/settings", label: "Identity", title: "Settings" },
@@ -125,8 +123,8 @@ function createIdentityCardState(
 ): IdentityCardState {
   if (!username) {
     return {
-      title: "Getting your name ready",
-      body: "Making a temporary name so you can start right away.",
+      title: "Getting Your Poop Data . . .",
+      body: "",
     };
   }
 
@@ -178,17 +176,47 @@ function createFallbackUsername(): string {
 }
 
 function readCompletedSessionCount(): number {
+  return readStoredSessionHistory().length;
+}
+
+function readStoredSessionHistory(): StoredSessionRecord[] {
   if (typeof window === "undefined") {
-    return 0;
+    return [];
   }
 
   try {
     return parseStoredSessionHistory(
       window.localStorage.getItem(sessionHistoryStorageKey),
-    ).length;
+    );
   } catch {
-    return 0;
+    return [];
   }
+}
+
+function formatLocalSlashDate(dateString: string | null): string {
+  if (!dateString) {
+    return "--/--/--";
+  }
+
+  const date = new Date(dateString);
+
+  if (Number.isNaN(date.getTime())) {
+    return "--/--/--";
+  }
+
+  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function formatOptionalDuration(durationMs: number | null): string {
+  return durationMs === null ? "--:--" : formatDurationMs(durationMs);
+}
+
+function formatAverageCutNumber(value: number | null): string {
+  if (value === null) {
+    return "--";
+  }
+
+  return Number.isInteger(value) ? value.toString() : value.toFixed(1);
 }
 
 function formatCounterCopy(counter: number): string {
@@ -328,11 +356,15 @@ function LandingView({ onStart }: { onStart: () => void }) {
   return (
     <section className="session-home-panel">
       <header className="session-home-head">
-        <p className="eyebrow">Ready</p>
-        <h2 className="session-home-title">Start fast. Keep it simple.</h2>
-        <p className="session-home-body">
-          Tap the main button and the session starts right away.
-        </p>
+        <div className="session-home-head-row">
+          <p className="eyebrow">Ready</p>
+          <Link
+            href="/i-pooped"
+            className="session-secondary-action session-secondary-action-compact"
+          >
+            I Pooped
+          </Link>
+        </div>
       </header>
 
       <div className="session-home-actions">
@@ -413,10 +445,12 @@ function ActiveSessionView({
   confettiToken,
   encouragementMessage,
   liveFeedMessages,
+  isDiarrhea,
   feedDraft,
   feedNotice,
   onHoldStart,
   onHoldEnd,
+  onDiarrheaToggle,
   onFeedDraftChange,
   onFeedSubmit,
   onFlush,
@@ -426,10 +460,12 @@ function ActiveSessionView({
   confettiToken: number;
   encouragementMessage: string;
   liveFeedMessages: LiveFeedMessage[];
+  isDiarrhea: boolean;
   feedDraft: string;
   feedNotice: InlineNoticeState;
   onHoldStart: (event: PointerEvent<HTMLButtonElement>) => void;
   onHoldEnd: (event: PointerEvent<HTMLButtonElement>) => void;
+  onDiarrheaToggle: () => void;
   onFeedDraftChange: (nextDraft: string) => void;
   onFeedSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onFlush: () => void;
@@ -514,6 +550,14 @@ function ActiveSessionView({
       <p className="session-encouragement">{encouragementMessage}</p>
 
       <div className="session-live-footer">
+        <button
+          type="button"
+          className={`session-secondary-action session-diarrhea-toggle${isDiarrhea ? " is-selected" : ""}`}
+          aria-pressed={isDiarrhea}
+          onClick={onDiarrheaToggle}
+        >
+          This was a diarrhea
+        </button>
         <button
           type="button"
           className="session-flush-button"
@@ -662,11 +706,20 @@ export function SessionHome() {
   const [dailyPoopCounter, setDailyPoopCounter] = useState(() =>
     getDailyPoopCounterSeed(),
   );
+  const [isRealtimeStatsActive, setIsRealtimeStatsActive] = useState(
+    typeof navigator === "undefined" ? true : navigator.onLine,
+  );
+  const [hasLoadedPreviousLocalData, setHasLoadedPreviousLocalData] =
+    useState(false);
+  const [sessionHistoryRecords, setSessionHistoryRecords] = useState<
+    StoredSessionRecord[]
+  >([]);
   const [liveFeedMessages, setLiveFeedMessages] = useState<LiveFeedMessage[]>(
     [],
   );
   const [feedDraft, setFeedDraft] = useState("");
   const [feedNotice, setFeedNotice] = useState<InlineNoticeState>(null);
+  const [isDiarrheaSession, setIsDiarrheaSession] = useState(false);
   const [emailPromptDraft, setEmailPromptDraft] = useState("");
   const [emailPromptNotice, setEmailPromptNotice] =
     useState<InlineNoticeState>(null);
@@ -692,6 +745,7 @@ export function SessionHome() {
       const localIdentity = await ensureAnonymousProfile(
         browserIdentityStorage,
       );
+      const existingRecords = readStoredSessionHistory();
 
       if (!isMounted) {
         return;
@@ -700,7 +754,9 @@ export function SessionHome() {
       setIdentityProfile(localIdentity.profile);
       setIdentityUsername(localIdentity.profile.username);
       setEmailPromptDraft(localIdentity.profile.email ?? "");
-      setCompletedSessionCount(readCompletedSessionCount());
+      setSessionHistoryRecords(existingRecords);
+      setHasLoadedPreviousLocalData(existingRecords.length > 0);
+      setCompletedSessionCount(existingRecords.length);
       setIdentityCard(
         createIdentityCardState(
           localIdentity.profile.username,
@@ -717,7 +773,10 @@ export function SessionHome() {
 
       setIdentityUsername(null);
       setIdentityProfile(null);
-      setCompletedSessionCount(readCompletedSessionCount());
+      const existingRecords = readStoredSessionHistory();
+      setSessionHistoryRecords(existingRecords);
+      setHasLoadedPreviousLocalData(existingRecords.length > 0);
+      setCompletedSessionCount(existingRecords.length);
       setIdentityCard({
         title: "Anonymous record unavailable",
         body: "Local storage is unavailable, so identity will be recreated until storage access succeeds.",
@@ -726,6 +785,21 @@ export function SessionHome() {
 
     return () => {
       isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    function syncRealtimeStatus() {
+      setIsRealtimeStatsActive(navigator.onLine);
+    }
+
+    syncRealtimeStatus();
+    window.addEventListener("online", syncRealtimeStatus);
+    window.addEventListener("offline", syncRealtimeStatus);
+
+    return () => {
+      window.removeEventListener("online", syncRealtimeStatus);
+      window.removeEventListener("offline", syncRealtimeStatus);
     };
   }, []);
 
@@ -761,13 +835,13 @@ export function SessionHome() {
         );
         const nextTickTime = new Date();
         const nextDayKey = getEasternDayKey(nextTickTime);
-        const didCounterIncrease =
-          nextSnapshot.count > simulatedCounterRef.current;
+        const didCounterDecrease =
+          nextSnapshot.count < simulatedCounterRef.current;
 
         if (nextDayKey !== dailyPoopCounterDayRef.current) {
           dailyPoopCounterDayRef.current = nextDayKey;
-          setDailyPoopCounter(didCounterIncrease ? 1 : 0);
-        } else if (didCounterIncrease) {
+          setDailyPoopCounter(didCounterDecrease ? 1 : 0);
+        } else if (didCounterDecrease) {
           setDailyPoopCounter((current) => current + 1);
         }
 
@@ -833,6 +907,7 @@ export function SessionHome() {
     setTimerNow(sessionStart);
     setConfettiToken(0);
     setLiveFeedMessages(createInitialLiveFeedMessages(sessionStart));
+    setIsDiarrheaSession(false);
     setFeedDraft("");
     setFeedNotice(null);
   }
@@ -849,12 +924,17 @@ export function SessionHome() {
       endedAt,
     );
 
-    void recordCompletedSession(browserIdentityStorage, nextCertificate)
+    void recordCompletedSession(browserIdentityStorage, nextCertificate, undefined, {
+      wasDiarrhea: isDiarrheaSession,
+    })
       .then((nextRecords) => {
+        setSessionHistoryRecords(nextRecords);
         setCompletedSessionCount(nextRecords.length);
       })
       .catch(() => {
-        setCompletedSessionCount(readCompletedSessionCount());
+        const existingRecords = readStoredSessionHistory();
+        setSessionHistoryRecords(existingRecords);
+        setCompletedSessionCount(existingRecords.length);
       });
 
     setTimerNow(endedAt);
@@ -862,6 +942,7 @@ export function SessionHome() {
     setFlowState(createSessionFlowState());
     setCertificate(nextCertificate);
     setFlushConfettiToken((current) => current + 1);
+    setIsDiarrheaSession(false);
     setFeedNotice(null);
   }
 
@@ -1025,6 +1106,29 @@ export function SessionHome() {
       ]
     : [];
 
+  const totalPoops = sessionHistoryRecords.length;
+  const totalSessionDurationMs = sessionHistoryRecords.reduce(
+    (sum, record) => sum + record.durationMs,
+    0,
+  );
+  const totalActivePushMs = sessionHistoryRecords.reduce(
+    (sum, record) => sum + record.totalPushMs,
+    0,
+  );
+  const totalCutCount = sessionHistoryRecords.reduce(
+    (sum, record) => sum + record.pushCount,
+    0,
+  );
+  const diarrheaCount = sessionHistoryRecords.filter(
+    (record) => record.wasDiarrhea,
+  ).length;
+  const averageSessionDurationMs =
+    totalPoops > 0 ? Math.round(totalSessionDurationMs / totalPoops) : null;
+  const averageActivePushDurationMs =
+    totalPoops > 0 ? Math.round(totalActivePushMs / totalPoops) : null;
+  const averageCutNumber =
+    totalPoops > 0 ? totalCutCount / totalPoops : null;
+
   return (
     <main className="shell-page shell-home-page">
       <FlushConfettiOverlay token={flushConfettiToken} />
@@ -1088,10 +1192,14 @@ export function SessionHome() {
                   encouragementMessage ?? "hang in there, champ"
                 }
                 liveFeedMessages={liveFeedMessages}
+                isDiarrhea={isDiarrheaSession}
                 feedDraft={feedDraft}
                 feedNotice={feedNotice}
                 onHoldStart={handleHoldStart}
                 onHoldEnd={handleHoldEnd}
+                onDiarrheaToggle={() => {
+                  setIsDiarrheaSession((current) => !current);
+                }}
                 onFeedDraftChange={(nextDraft) => {
                   setFeedDraft(nextDraft);
 
@@ -1109,10 +1217,67 @@ export function SessionHome() {
             <aside
               className={`shell-aside${isLandingState ? " is-landing-layout" : ""}`}
             >
-              <section className="shell-aside-card">
-                <h3>{identityCard.title}</h3>
-                <p>{identityCard.body}</p>
-              </section>
+              {identityProfile ? (
+                <section className="shell-aside-card shell-user-stats-card">
+                  <p className="session-user-stats-line">
+                    <span className="session-user-stats-label">username:</span>{" "}
+                    <strong className="session-user-stats-value">
+                      {identityProfile.username}
+                    </strong>
+                  </p>
+                  <p className="session-user-stats-line">
+                    <span className="session-user-stats-label">
+                      started pooping:
+                    </span>{" "}
+                    <strong className="session-user-stats-value">
+                      {formatLocalSlashDate(identityProfile.createdAt)}
+                    </strong>
+                  </p>
+                  <p className="session-user-stats-line">
+                    <span className="session-user-stats-label">pooped:</span>{" "}
+                    <strong className="session-user-stats-value">
+                      {totalPoops.toLocaleString()} {totalPoops === 1 ? "time" : "times"}
+                    </strong>
+                  </p>
+                  <p className="session-user-stats-line">
+                    <span className="session-user-stats-label">
+                      average poop session time:
+                    </span>{" "}
+                    <strong className="session-user-stats-value">
+                      {formatOptionalDuration(averageSessionDurationMs)}
+                    </strong>
+                  </p>
+                  <p className="session-user-stats-line">
+                    <span className="session-user-stats-label">
+                      average poop time:
+                    </span>{" "}
+                    <strong className="session-user-stats-value">
+                      {formatOptionalDuration(averageActivePushDurationMs)}
+                    </strong>
+                  </p>
+                  <p className="session-user-stats-line">
+                    <span className="session-user-stats-label">
+                      average poop cut number:
+                    </span>{" "}
+                    <strong className="session-user-stats-value">
+                      {formatAverageCutNumber(averageCutNumber)}
+                    </strong>
+                  </p>
+                  <p className="session-user-stats-line">
+                    <span className="session-user-stats-label">
+                      diarrhea rate:
+                    </span>{" "}
+                    <strong className="session-user-stats-value">
+                      {diarrheaCount}/{totalPoops}
+                    </strong>
+                  </p>
+                </section>
+              ) : (
+                <section className="shell-aside-card">
+                  <h3>{identityCard.title}</h3>
+                  {identityCard.body ? <p>{identityCard.body}</p> : null}
+                </section>
+              )}
 
               {isCertificateVisible || isActiveSession ? (
                 <>
@@ -1140,64 +1305,31 @@ export function SessionHome() {
                     </div>
                   </section>
                 </>
-              ) : (
-                <section className="shell-aside-card">
-                  <h3>Log later</h3>
-                  <p>
-                    If you already finished, the manual log button lives here.
-                    It is not built yet.
-                  </p>
-
-                  <div className="shell-aside-actions">
-                    <button
-                      type="button"
-                      className="session-secondary-action"
-                      onClick={() =>
-                        setFlowState((current) =>
-                          openRetroactiveSessionStub(current),
-                        )
-                      }
-                    >
-                      I Pooped
-                    </button>
-
-                    {flowState.retroactiveStub ? (
-                      <div
-                        className="session-stub-card"
-                        role="status"
-                        aria-live="polite"
-                      >
-                        <div>
-                          <p className="eyebrow">Manual logging</p>
-                          <h3>{flowState.retroactiveStub.title}</h3>
-                          <p>{flowState.retroactiveStub.body}</p>
-                        </div>
-                        <button
-                          type="button"
-                          className="session-inline-dismiss"
-                          onClick={() =>
-                            setFlowState((current) =>
-                              dismissRetroactiveSessionStub(current),
-                            )
-                          }
-                        >
-                          Dismiss
-                        </button>
-                      </div>
-                    ) : null}
-                  </div>
-                </section>
-              )}
+              ) : null}
             </aside>
           </div>
         </section>
 
         <footer className="shell-footer">
-          <span>
-            <strong>Status:</strong> the web session flow, local stats, and the
-            browse page are live.
-          </span>
-          <span>Sharing and location-based extras can come later.</span>
+          <p className="session-status-line" aria-live="polite">
+            <strong>Status:</strong>
+            <span className="session-status-item-inline">
+              real-time stats
+              <span
+                className={`session-status-dot${isRealtimeStatsActive ? " is-active" : " is-inactive"}`}
+                aria-label={isRealtimeStatsActive ? "active" : "inactive"}
+                title={isRealtimeStatsActive ? "active" : "inactive"}
+              />
+            </span>
+            <span className="session-status-item-inline">
+              local data loaded
+              <span
+                className={`session-status-dot${hasLoadedPreviousLocalData ? " is-active" : " is-inactive"}`}
+                aria-label={hasLoadedPreviousLocalData ? "active" : "inactive"}
+                title={hasLoadedPreviousLocalData ? "active" : "inactive"}
+              />
+            </span>
+          </p>
         </footer>
       </div>
     </main>

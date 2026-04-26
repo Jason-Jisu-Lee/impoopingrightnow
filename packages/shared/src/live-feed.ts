@@ -1,3 +1,5 @@
+import { masterWordBank } from "./word-bank";
+
 export type LiveFeedPhase = "early" | "middle" | "push" | "victory";
 
 export type LiveFeedMessage = {
@@ -30,12 +32,8 @@ const seededUsernames = [
   "SneakyPebble_44",
 ] as const;
 
-const seededMessagesByPhase: Record<LiveFeedPhase, readonly string[]> = {
-  early: ["seat's still cold", "stall check-in", "phone at 12%"],
-  middle: ["false alarm", "we're negotiating", "this is all paperwork"],
-  push: ["LOCK IN", "OH WOW", "THIS IS IT"],
-  victory: ["light as air", "worth the wait", "goodbye old self"],
-};
+const seededMessagesByPhase: Record<LiveFeedPhase, readonly string[]> =
+  masterWordBank.fake_user_feed;
 
 function createFeedId(now: Date, random: () => number): string {
   return `${now.getTime()}-${Math.floor(random() * 1_000_000)}`;

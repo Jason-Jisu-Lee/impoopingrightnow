@@ -38,27 +38,27 @@ const easternClockFormatter = new Intl.DateTimeFormat("en-US", {
 const averageSessionDurationMinutes = 8;
 
 const simulatedCounterAnchors: SimulatedCounterAnchor[] = [
-  { minutes: 0, count: 82, volatility: 0.24 },
-  { minutes: 60, count: 62, volatility: 0.18 },
-  { minutes: 180, count: 46, volatility: 0.12 },
-  { minutes: 285, count: 34, volatility: 0.08 },
-  { minutes: 360, count: 48, volatility: 0.14 },
-  { minutes: 420, count: 78, volatility: 0.22 },
-  { minutes: 480, count: 180, volatility: 0.62 },
-  { minutes: 510, count: 238, volatility: 0.82 },
-  { minutes: 600, count: 190, volatility: 0.58 },
-  { minutes: 720, count: 120, volatility: 0.34 },
-  { minutes: 795, count: 186, volatility: 0.66 },
-  { minutes: 870, count: 150, volatility: 0.48 },
-  { minutes: 1020, count: 108, volatility: 0.28 },
-  { minutes: 1140, count: 136, volatility: 0.36 },
-  { minutes: 1260, count: 156, volatility: 0.42 },
-  { minutes: 1380, count: 102, volatility: 0.24 },
-  { minutes: 1440, count: 82, volatility: 0.24 },
+  { minutes: 0, count: 7, volatility: 0.24 },
+  { minutes: 60, count: 5, volatility: 0.18 },
+  { minutes: 180, count: 4, volatility: 0.12 },
+  { minutes: 285, count: 3, volatility: 0.08 },
+  { minutes: 360, count: 4, volatility: 0.14 },
+  { minutes: 420, count: 7, volatility: 0.22 },
+  { minutes: 480, count: 16, volatility: 0.62 },
+  { minutes: 510, count: 21, volatility: 0.82 },
+  { minutes: 600, count: 17, volatility: 0.58 },
+  { minutes: 720, count: 11, volatility: 0.34 },
+  { minutes: 795, count: 16, volatility: 0.66 },
+  { minutes: 870, count: 13, volatility: 0.48 },
+  { minutes: 1020, count: 10, volatility: 0.28 },
+  { minutes: 1140, count: 12, volatility: 0.36 },
+  { minutes: 1260, count: 14, volatility: 0.42 },
+  { minutes: 1380, count: 9, volatility: 0.24 },
+  { minutes: 1440, count: 7, volatility: 0.24 },
 ];
 
-export const simulatedCounterFloor = 34;
-const simulatedCounterCeiling = 238;
+export const simulatedCounterFloor = 3;
+const simulatedCounterCeiling = 21;
 
 function clampCounterCount(count: number): number {
   return Math.min(
@@ -253,8 +253,7 @@ export function simulateCounterTick(
   const burstThreshold = 0.1 + pressure * 0.14 + volatility * 0.1;
   const pauseThreshold = 0.76 - pressure * 0.06;
   let nextDelayMs =
-    520 +
-    Math.floor(tempoJitterRoll * (680 + (1 - volatility) * 520));
+    520 + Math.floor(tempoJitterRoll * (680 + (1 - volatility) * 520));
 
   if (tempoRoll < burstThreshold) {
     nextDelayMs = 140 + Math.floor(tempoJitterRoll * 280);

@@ -208,13 +208,12 @@ export default function SettingsPage() {
     };
   }, []);
 
-  if (profile === undefined) {
-    return null;
-  }
-
   const isSupabaseConfigured = Boolean(getWebPublicSupabaseEnv());
   const showPassivePrompt =
-    profile !== null && shouldShowEmailCapturePrompt(profile, sessionCount);
+    profile !== null &&
+    profile !== undefined &&
+    shouldShowEmailCapturePrompt(profile, sessionCount);
+  const isProfileLoading = profile === undefined;
 
   function handleUsernameSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -449,6 +448,11 @@ export default function SettingsPage() {
                     ) : null}
                   </article>
                 </div>
+              ) : isProfileLoading ? (
+                <article className="settings-card">
+                  <h3>Loading your identity</h3>
+                  <p>Reading the local anonymous profile for this device.</p>
+                </article>
               ) : (
                 <article className="settings-card">
                   <h3>Local profile unavailable</h3>
@@ -465,7 +469,9 @@ export default function SettingsPage() {
               <section className="shell-aside-card">
                 <h3>Anonymous Identity</h3>
                 <p>
-                  {profile
+                  {isProfileLoading
+                    ? "Loading the local anonymous record for this device."
+                    : profile
                     ? `UUID ${profile.id} stays local-first, and ${profile.username} remains usable without account creation.`
                     : "The local anonymous record is currently unavailable."}
                 </p>
@@ -474,8 +480,9 @@ export default function SettingsPage() {
               <section className="shell-aside-card">
                 <h3>Prompt State</h3>
                 <p>
-                  {profile &&
-                  shouldShowEmailCapturePrompt(profile, sessionCount)
+                  {isProfileLoading
+                    ? "Checking whether the passive recovery prompt should appear."
+                    : profile && shouldShowEmailCapturePrompt(profile, sessionCount)
                     ? "The passive recovery banner is currently eligible because the device has reached three completed sessions without a submitted or dismissed email prompt."
                     : "The passive recovery banner is currently resolved, not yet eligible, or intentionally dismissed."}
                 </p>
