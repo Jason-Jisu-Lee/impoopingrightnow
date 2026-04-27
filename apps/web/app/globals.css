@@ -80,10 +80,10 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 10px 6px 0;
+  padding: 6px 14px 8px 0;
   border: 0;
   background: transparent;
-  color: rgba(103, 80, 62, 0.9);
+  color: rgba(103, 80, 62, 0.88);
   cursor: pointer;
   transition:
     color 120ms ease,
@@ -94,7 +94,7 @@ select {
 .shell-back-button:hover {
   opacity: 1;
   color: var(--ink);
-  transform: translateX(-1px);
+  transform: translateX(-2px);
 }
 
 .shell-back-button:focus-visible {
@@ -104,11 +104,11 @@ select {
 
 .shell-top-icon {
   stroke: currentColor;
-  stroke-width: 2.1;
+  stroke-width: 2.15;
   stroke-linecap: round;
   stroke-linejoin: round;
-  width: 21px;
-  height: 21px;
+  width: 28px;
+  height: 28px;
 }
 
 .shell-home-logo {
@@ -146,8 +146,8 @@ select {
 
 .shell-main-back-anchor {
   position: absolute;
-  top: -30px;
-  left: 18px;
+  top: -36px;
+  left: 0;
   z-index: 2;
 }
 
@@ -230,6 +230,21 @@ select {
   letter-spacing: 0.04em;
   text-align: center;
   max-width: 100%;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.banner-counter-figure {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1.35em;
+  height: 1.35em;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
 }
 
 .banner-domain {
@@ -277,43 +292,154 @@ select {
   padding: 18px;
 }
 
+.shell-frame {
+  position: relative;
+}
+
 .shell-nav {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 18px);
+  transform: translateY(-50%);
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  align-content: start;
+  gap: 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  z-index: 3;
+}
+
+.shell-nav::before {
+  content: none;
+}
+
+.shell-nav:hover,
+.shell-nav:focus-within {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .shell-nav-link {
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.46);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 999px;
+  background: transparent;
   text-align: left;
+  color: rgba(35, 23, 13, 0.55);
+  overflow: hidden;
   transition:
-    transform 120ms ease,
-    background-color 120ms ease,
-    border-color 120ms ease;
+    width 220ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
 }
 
-.shell-nav-link:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.68);
-  border-color: rgba(140, 90, 43, 0.3);
+.shell-nav-link:hover,
+.shell-nav-link:focus-visible {
+  width: 200px;
+  background: rgba(255, 248, 235, 0.78);
+  color: var(--ink);
+  box-shadow: 0 12px 28px rgba(35, 23, 13, 0.1);
+  outline: none;
+}
+
+.shell-nav-link.is-active {
+  color: var(--ink);
+  background: rgba(255, 248, 235, 0.55);
+}
+
+.shell-nav-link.is-active:hover,
+.shell-nav-link.is-active:focus-visible {
+  background: rgba(255, 248, 235, 0.85);
+}
+
+.shell-nav-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  flex: 0 0 auto;
+  transition: color 160ms ease;
+}
+
+.shell-nav-link:hover .shell-nav-glyph,
+.shell-nav-link:focus-visible .shell-nav-glyph,
+.shell-nav-link.is-active .shell-nav-glyph {
+  background: transparent;
+  border: 0;
+  transform: none;
+  color: var(--ink);
+}
+
+.shell-nav-icon {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.shell-nav-glyph-fallback {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.shell-nav-copy {
+  min-width: 0;
+  padding-right: 16px;
+  opacity: 0;
+  transform: translateX(-8px);
+  white-space: nowrap;
+  transition:
+    opacity 160ms ease,
+    transform 200ms ease;
+}
+
+.shell-nav-link:hover .shell-nav-copy,
+.shell-nav-link:focus-visible .shell-nav-copy {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .shell-nav-label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 0.76rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--muted);
+  display: none;
 }
 
 .shell-nav-title {
   display: block;
   font-family: var(--font-display), Georgia, serif;
-  font-size: 1.35rem;
+  font-size: 1.05rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 1180px) {
+  .shell-nav {
+    position: static;
+    transform: none;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin: 0 auto;
+    padding: 4px 0 0;
+  }
 }
 
 .shell-content-grid {
@@ -441,7 +567,7 @@ select {
 
 .shell-user-stats-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 148px;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 260px);
   gap: 18px;
   align-items: start;
 }
@@ -455,7 +581,7 @@ select {
 .shell-user-stats-streak-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
 }
 
 .shell-user-stats-streak-card,
@@ -463,7 +589,7 @@ select {
   border: 1px solid rgba(35, 23, 13, 0.08);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.48);
-  padding: 10px;
+  padding: 12px;
 }
 
 .shell-user-stats-streak-card {
@@ -472,24 +598,37 @@ select {
 }
 
 .shell-user-stats-side-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
   font-family: var(--font-display), Georgia, serif;
-  font-size: 1.45rem;
+  font-size: 1.55rem;
   line-height: 1;
+  white-space: nowrap;
+}
+
+.shell-user-stats-side-unit {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 0.95rem;
+  color: var(--muted);
+  white-space: nowrap;
 }
 
 .shell-user-stats-heatmap-head {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  flex-wrap: nowrap;
 }
 
 .shell-user-stats-heatmap-caption {
   color: var(--muted);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .shell-user-stats-heatmap {
@@ -683,12 +822,16 @@ select {
   font-size: clamp(1.15rem, 4vw, 1.6rem);
   line-height: 1;
   box-shadow: 0 18px 34px rgba(140, 90, 43, 0.22);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .session-primary-action .shell-top-logo-mark {
   width: 34px;
   height: 34px;
   color: inherit;
+  display: block;
 }
 
 .session-primary-action:hover,
@@ -1739,8 +1882,8 @@ select {
   }
 
   .shell-main-back-anchor {
-    top: -26px;
-    left: 14px;
+    top: -30px;
+    left: 0;
   }
 
   .shell-daily-poop-counter {
@@ -1762,9 +1905,25 @@ select {
     padding-inline: 12px;
   }
 
-  .shell-nav,
+  .shell-main,
   .shell-content-grid {
     grid-template-columns: 1fr;
+  }
+
+  .shell-nav-link,
+  .shell-nav-link.is-active {
+    width: auto;
+    height: 44px;
+    padding: 0 14px 0 4px;
+    background: rgba(255, 248, 235, 0.78);
+    color: var(--ink);
+    box-shadow: 0 8px 18px rgba(35, 23, 13, 0.06);
+  }
+
+  .shell-nav-copy {
+    opacity: 1;
+    transform: translateX(0);
+    padding-right: 0;
   }
 
   .session-metric-grid {
@@ -1795,8 +1954,8 @@ select {
   }
 
   .shell-main-back-anchor {
-    top: -22px;
-    left: 12px;
+    top: -26px;
+    left: 0;
   }
 
   .shell-top-logo-mark {
@@ -1845,12 +2004,14 @@ select {
     letter-spacing: 0.06em;
   }
 
-  .shell-nav-link {
-    padding: 12px 14px;
+  .shell-nav-link,
+  .shell-nav-link.is-active {
+    padding: 0 12px 0 4px;
+    height: 40px;
   }
 
   .shell-nav-title {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   .shell-panel-title {

@@ -155,7 +155,6 @@ export function ShellScreen({
 
         <section className="shell-main">
           <PageBackControl />
-          <ShellNav />
 
           <div className="shell-content-grid">
             <section className="shell-panel">
@@ -204,6 +203,8 @@ export function ShellScreen({
             </aside>
           </div>
         </section>
+
+        <ShellNav />
 
         <footer className="shell-footer">
           <span>

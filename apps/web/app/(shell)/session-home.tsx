@@ -177,10 +177,6 @@ function createFallbackUsername(): string {
   return "FiledWitness_00";
 }
 
-function readCompletedSessionCount(): number {
-  return readStoredSessionHistory().length;
-}
-
 function readStoredSessionHistory(): StoredSessionRecord[] {
   if (typeof window === "undefined") {
     return [];
@@ -221,8 +217,31 @@ function formatAverageCutNumber(value: number | null): string {
   return Number.isInteger(value) ? value.toString() : value.toFixed(1);
 }
 
-function formatCounterCopy(counter: number): string {
-  return `${counter.toLocaleString()} humans pooping right now`;
+function formatCounterCopyPrefix(counter: number): string {
+  return `${counter.toLocaleString()} people `;
+}
+
+function formatCounterCopySuffix(): string {
+  return ` right now`;
+}
+
+function SquattingPooperIcon() {
+  return (
+    <svg
+      className="banner-counter-figure"
+      viewBox="0 0 32 32"
+      fill="none"
+      aria-label="pooping"
+      role="img"
+    >
+      <circle cx="16" cy="7" r="3" />
+      <path d="M16 10v7" />
+      <path d="M16 17l-5 6" />
+      <path d="M16 17l5 6" />
+      <path d="M16 14l-5 -2" />
+      <path d="M16 14l5 -2" />
+    </svg>
+  );
 }
 
 function createInitialLiveFeedMessages(sessionStart: Date): LiveFeedMessage[] {
@@ -1113,16 +1132,6 @@ export function SessionHome() {
       });
   }
 
-  const activeChecklist = sessionActivity
-    ? [
-        `Session timer is live at ${formatDurationMs(getSessionElapsedMs(sessionActivity, timerNow))}.`,
-        `${sessionActivity.pushCount} logs recorded with ${formatDurationMs(sessionActivity.totalPushMs)} of total push time.`,
-        `Counter currently displays ${simulatedCounter.toLocaleString()} live humans.`,
-        `Encouragement line: “${encouragementMessage}”`,
-        `${liveFeedMessages.length} notes have been dropped into this session so far.`,
-      ]
-    : [];
-
   const certificateChecklist = certificate
     ? [
         `${certificate.pushCount} logs certified across ${certificate.durationLabel}.`,
@@ -1174,7 +1183,9 @@ export function SessionHome() {
         <section className="shell-banner shell-banner-home">
           <div className="shell-banner-row is-centered">
             <span className="banner-counter">
-              {formatCounterCopy(simulatedCounter)}
+              {formatCounterCopyPrefix(simulatedCounter)}
+              <SquattingPooperIcon />
+              {formatCounterCopySuffix()}
             </span>
           </div>
         </section>
@@ -1183,7 +1194,6 @@ export function SessionHome() {
           {!isLandingState ? (
             <PageBackControl onBack={handleReturnHome} />
           ) : null}
-          <ShellNav />
 
           {isEmailPromptVisible ? (
             <ProtectHistoryBanner
@@ -1317,7 +1327,13 @@ export function SessionHome() {
                               Current streak
                             </span>
                             <strong className="shell-user-stats-side-value">
-                              {sessionStatsSnapshot?.streaks.current ?? 0}d
+                              {sessionStatsSnapshot?.streaks.current ?? 0}
+                              <span className="shell-user-stats-side-unit">
+                                {(sessionStatsSnapshot?.streaks.current ??
+                                  0) === 1
+                                  ? "day"
+                                  : "days"}
+                              </span>
                             </strong>
                           </div>
                           <div className="shell-user-stats-streak-card">
@@ -1325,7 +1341,12 @@ export function SessionHome() {
                               Best streak
                             </span>
                             <strong className="shell-user-stats-side-value">
-                              {sessionStatsSnapshot?.streaks.best ?? 0}d
+                              {sessionStatsSnapshot?.streaks.best ?? 0}
+                              <span className="shell-user-stats-side-unit">
+                                {(sessionStatsSnapshot?.streaks.best ?? 0) === 1
+                                  ? "day"
+                                  : "days"}
+                              </span>
                             </strong>
                           </div>
                         </div>
@@ -1334,7 +1355,7 @@ export function SessionHome() {
                           <div className="shell-user-stats-heatmap-head">
                             <span className="stats-record-label">Heatmap</span>
                             <span className="shell-user-stats-heatmap-caption">
-                              Last 9 weeks
+                              Last 9 weeks
                             </span>
                           </div>
                           <div
@@ -1385,6 +1406,8 @@ export function SessionHome() {
             ) : null}
           </div>
         </section>
+
+        <ShellNav />
 
         <footer className="shell-footer">
           <p className="session-status-line" aria-live="polite">

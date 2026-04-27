@@ -19,8 +19,8 @@ function BackArrowIcon() {
       fill="none"
       aria-hidden="true"
     >
-      <path d="M15.5 6.75 9.25 12l6.25 5.25" />
-      <path d="M9.75 12h7.75" />
+      <path d="M11.25 6.5 5.5 12l5.75 5.5" />
+      <path d="M6.25 12H19" />
     </svg>
   );
 }

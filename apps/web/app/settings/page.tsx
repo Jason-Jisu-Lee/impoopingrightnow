@@ -327,7 +327,6 @@ export default function SettingsPage() {
 
         <section className="shell-main">
           <PageBackControl />
-          <ShellNav />
 
           {showPassivePrompt ? (
             <PassiveRecoveryBanner
@@ -493,6 +492,8 @@ export default function SettingsPage() {
             </aside>
           </div>
         </section>
+
+        <ShellNav />
 
         <footer className="shell-footer">
           <span>
