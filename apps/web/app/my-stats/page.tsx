@@ -80,7 +80,6 @@ export default function MyStatsPage() {
 
         <section className="shell-main">
           <PageBackControl />
-          <ShellNav />
 
           <div className="shell-content-grid">
             <section className="stats-panel">
@@ -219,13 +218,19 @@ export default function MyStatsPage() {
                   <div>
                     <span className="stats-record-label">Current</span>
                     <strong>
-                      {hasStats ? statsSnapshot.streaks.current : 0} days
+                      {hasStats ? statsSnapshot.streaks.current : 0}{" "}
+                      {(hasStats ? statsSnapshot.streaks.current : 0) === 1
+                        ? "day"
+                        : "days"}
                     </strong>
                   </div>
                   <div>
                     <span className="stats-record-label">Best</span>
                     <strong>
-                      {hasStats ? statsSnapshot.streaks.best : 0} days
+                      {hasStats ? statsSnapshot.streaks.best : 0}{" "}
+                      {(hasStats ? statsSnapshot.streaks.best : 0) === 1
+                        ? "day"
+                        : "days"}
                     </strong>
                   </div>
                 </div>
@@ -242,6 +247,8 @@ export default function MyStatsPage() {
             </aside>
           </div>
         </section>
+
+        <ShellNav />
 
         <footer className="shell-footer">
           <span>

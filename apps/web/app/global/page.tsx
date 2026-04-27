@@ -76,7 +76,6 @@ export default function GlobalPage() {
 
         <section className="shell-main">
           <PageBackControl />
-          <ShellNav />
 
           <div className="shell-content-grid">
             <section className="global-panel">
@@ -243,6 +242,8 @@ export default function GlobalPage() {
             </aside>
           </div>
         </section>
+
+        <ShellNav />
 
         <footer className="shell-footer">
           <span>

@@ -121,7 +121,6 @@ export default function IPoopedPage() {
       <div className="shell-frame">
         <section className="shell-main">
           <PageBackControl />
-          <ShellNav />
 
           <section className="shell-panel">
             <div className="shell-panel-head">
@@ -134,6 +133,8 @@ export default function IPoopedPage() {
             ) : null}
           </section>
         </section>
+
+        <ShellNav />
       </div>
     </main>
   );
