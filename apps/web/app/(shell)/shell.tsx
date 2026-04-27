@@ -1,12 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import {
   ensureAnonymousIdentity,
   getWebPublicSupabaseEnv,
 } from "@impoopingrightnow/shared";
+
+import {
+  PageBackControl,
+  PageChromeControls,
+} from "../_components/page-chrome-controls";
+import { ShellNav } from "../_components/shell-nav";
 
 type ShellScreenProps = {
   eyebrow: string;
@@ -20,13 +25,6 @@ type ShellScreenProps = {
   asideTitle: string;
   asideBody: string;
 };
-
-const navItems = [
-  { href: "/", label: "Primary", title: "Home / Session" },
-  { href: "/my-stats", label: "Records", title: "My Stats" },
-  { href: "/global", label: "Browse", title: "World Board" },
-  { href: "/settings", label: "Identity", title: "Settings" },
-];
 
 type IdentityCardState = {
   title: string;
@@ -133,6 +131,8 @@ export function ShellScreen({
 
   return (
     <main className="shell-page">
+      <PageChromeControls />
+
       <div className="shell-frame">
         <section className="shell-banner">
           <div className="shell-banner-row">
@@ -141,7 +141,6 @@ export function ShellScreen({
           </div>
           <div className="shell-banner-row">
             <div>
-              <p className="eyebrow">impoopingrightnow.com</p>
               <h1 className="banner-title">
                 Deadpan infrastructure for an absurd product.
               </h1>
@@ -155,14 +154,8 @@ export function ShellScreen({
         </section>
 
         <section className="shell-main">
-          <nav className="shell-nav" aria-label="Primary navigation">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className="shell-nav-link">
-                <span className="shell-nav-label">{item.label}</span>
-                <span className="shell-nav-title">{item.title}</span>
-              </Link>
-            ))}
-          </nav>
+          <PageBackControl />
+          <ShellNav />
 
           <div className="shell-content-grid">
             <section className="shell-panel">

@@ -505,9 +505,14 @@ describe("session history", () => {
       new Date(2026, 3, 24, 13, 5, 0),
     ).certificate;
 
-    const storedRecords = await recordCompletedSession(storage, certificate, () => 0, {
-      wasDiarrhea: true,
-    });
+    const storedRecords = await recordCompletedSession(
+      storage,
+      certificate,
+      () => 0,
+      {
+        wasDiarrhea: true,
+      },
+    );
 
     expect(storedRecords[0]).toMatchObject({
       wasDiarrhea: true,

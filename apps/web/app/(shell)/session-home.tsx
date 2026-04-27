@@ -12,6 +12,7 @@ import {
 
 import {
   appendLiveFeedMessage,
+  buildSessionStats,
   completeSession,
   createUserLiveFeedMessage,
   createSessionActivityState,
@@ -45,11 +46,12 @@ import {
   validateLiveFeedInput,
 } from "@impoopingrightnow/shared";
 
-const navItems = [
-  { href: "/my-stats", label: "Records", title: "My Stats" },
-  { href: "/global", label: "Browse", title: "World Board" },
-  { href: "/settings", label: "Identity", title: "Settings" },
-];
+import {
+  PageBackControl,
+  PageChromeControls,
+  PoopLogoIcon,
+} from "../_components/page-chrome-controls";
+import { ShellNav } from "../_components/shell-nav";
 
 type IdentityCardState = {
   title: string;
@@ -357,10 +359,12 @@ function LandingView({ onStart }: { onStart: () => void }) {
     <section className="session-home-panel">
       <header className="session-home-head">
         <div className="session-home-head-row">
-          <p className="eyebrow">Ready</p>
+          <p className="eyebrow session-home-eyebrow-centered">
+            I&apos;m Pooping Right Now
+          </p>
           <Link
             href="/i-pooped"
-            className="session-secondary-action session-secondary-action-compact"
+            className="session-secondary-action session-secondary-action-compact session-home-head-link"
           >
             I Pooped
           </Link>
@@ -372,8 +376,9 @@ function LandingView({ onStart }: { onStart: () => void }) {
           type="button"
           className="session-primary-action"
           onClick={onStart}
+          aria-label="Start pooping session"
         >
-          I&apos;m Pooping Right Now
+          <PoopLogoIcon />
         </button>
       </div>
     </section>
@@ -706,9 +711,7 @@ export function SessionHome() {
   const [dailyPoopCounter, setDailyPoopCounter] = useState(() =>
     getDailyPoopCounterSeed(),
   );
-  const [isRealtimeStatsActive, setIsRealtimeStatsActive] = useState(
-    typeof navigator === "undefined" ? true : navigator.onLine,
-  );
+  const [isRealtimeStatsActive, setIsRealtimeStatsActive] = useState(true);
   const [hasLoadedPreviousLocalData, setHasLoadedPreviousLocalData] =
     useState(false);
   const [sessionHistoryRecords, setSessionHistoryRecords] = useState<
@@ -789,17 +792,21 @@ export function SessionHome() {
   }, []);
 
   useEffect(() => {
-    function syncRealtimeStatus() {
-      setIsRealtimeStatsActive(navigator.onLine);
+    function handleOnline() {
+      setIsRealtimeStatsActive(true);
     }
 
-    syncRealtimeStatus();
-    window.addEventListener("online", syncRealtimeStatus);
-    window.addEventListener("offline", syncRealtimeStatus);
+    function handleOffline() {
+      setIsRealtimeStatsActive(false);
+    }
+
+    setIsRealtimeStatsActive(true);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener("online", syncRealtimeStatus);
-      window.removeEventListener("offline", syncRealtimeStatus);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
@@ -924,9 +931,14 @@ export function SessionHome() {
       endedAt,
     );
 
-    void recordCompletedSession(browserIdentityStorage, nextCertificate, undefined, {
-      wasDiarrhea: isDiarrheaSession,
-    })
+    void recordCompletedSession(
+      browserIdentityStorage,
+      nextCertificate,
+      undefined,
+      {
+        wasDiarrhea: isDiarrheaSession,
+      },
+    )
       .then((nextRecords) => {
         setSessionHistoryRecords(nextRecords);
         setCompletedSessionCount(nextRecords.length);
@@ -944,6 +956,19 @@ export function SessionHome() {
     setFlushConfettiToken((current) => current + 1);
     setIsDiarrheaSession(false);
     setFeedNotice(null);
+  }
+
+  function handleReturnHome() {
+    setFlowState(createSessionFlowState());
+    setSessionActivity(null);
+    setCertificate(null);
+    setTimerNow(new Date());
+    setConfettiToken(0);
+    setFlushConfettiToken(0);
+    setLiveFeedMessages([]);
+    setFeedDraft("");
+    setFeedNotice(null);
+    setIsDiarrheaSession(false);
   }
 
   function handleHoldStart(event: PointerEvent<HTMLButtonElement>) {
@@ -1122,15 +1147,24 @@ export function SessionHome() {
   const diarrheaCount = sessionHistoryRecords.filter(
     (record) => record.wasDiarrhea,
   ).length;
+  const sessionStatsSnapshot = buildSessionStats(sessionHistoryRecords);
+  const userStatsHeatmap =
+    sessionStatsSnapshot?.heatmap.slice(-63) ??
+    Array.from({ length: 63 }, (_, index) => ({
+      dateKey: `empty-${index}`,
+      count: 0,
+      level: 0 as const,
+    }));
   const averageSessionDurationMs =
     totalPoops > 0 ? Math.round(totalSessionDurationMs / totalPoops) : null;
   const averageActivePushDurationMs =
     totalPoops > 0 ? Math.round(totalActivePushMs / totalPoops) : null;
-  const averageCutNumber =
-    totalPoops > 0 ? totalCutCount / totalPoops : null;
+  const averageCutNumber = totalPoops > 0 ? totalCutCount / totalPoops : null;
 
   return (
     <main className="shell-page shell-home-page">
+      <PageChromeControls onHome={handleReturnHome} />
+
       <FlushConfettiOverlay token={flushConfettiToken} />
       <div className="shell-daily-poop-counter" aria-live="polite">
         Daily Poop Counter: {dailyPoopCounter.toLocaleString()}
@@ -1143,20 +1177,13 @@ export function SessionHome() {
               {formatCounterCopy(simulatedCounter)}
             </span>
           </div>
-          <div className="shell-banner-row is-centered">
-            <p className="banner-domain">IMPOOPINGRIGHTNOW.COM</p>
-          </div>
         </section>
 
         <section className="shell-main">
-          <nav className="shell-nav" aria-label="Primary navigation">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className="shell-nav-link">
-                <span className="shell-nav-label">{item.label}</span>
-                <span className="shell-nav-title">{item.title}</span>
-              </Link>
-            ))}
-          </nav>
+          {!isLandingState ? (
+            <PageBackControl onBack={handleReturnHome} />
+          ) : null}
+          <ShellNav />
 
           {isEmailPromptVisible ? (
             <ProtectHistoryBanner
@@ -1176,7 +1203,7 @@ export function SessionHome() {
           ) : null}
 
           <div
-            className={`shell-content-grid${isLandingState ? " is-landing-layout" : ""}`}
+            className={`shell-content-grid${isLandingState || isActiveSession ? " is-landing-layout" : ""}`}
           >
             {isCertificateVisible && certificate ? (
               <CertificateView
@@ -1214,99 +1241,148 @@ export function SessionHome() {
               <LandingView onStart={handleStartSession} />
             )}
 
-            <aside
-              className={`shell-aside${isLandingState ? " is-landing-layout" : ""}`}
-            >
-              {identityProfile ? (
-                <section className="shell-aside-card shell-user-stats-card">
-                  <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">username:</span>{" "}
-                    <strong className="session-user-stats-value">
-                      {identityProfile.username}
-                    </strong>
-                  </p>
-                  <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">
-                      started pooping:
-                    </span>{" "}
-                    <strong className="session-user-stats-value">
-                      {formatLocalSlashDate(identityProfile.createdAt)}
-                    </strong>
-                  </p>
-                  <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">pooped:</span>{" "}
-                    <strong className="session-user-stats-value">
-                      {totalPoops.toLocaleString()} {totalPoops === 1 ? "time" : "times"}
-                    </strong>
-                  </p>
-                  <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">
-                      average poop session time:
-                    </span>{" "}
-                    <strong className="session-user-stats-value">
-                      {formatOptionalDuration(averageSessionDurationMs)}
-                    </strong>
-                  </p>
-                  <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">
-                      average poop time:
-                    </span>{" "}
-                    <strong className="session-user-stats-value">
-                      {formatOptionalDuration(averageActivePushDurationMs)}
-                    </strong>
-                  </p>
-                  <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">
-                      average poop cut number:
-                    </span>{" "}
-                    <strong className="session-user-stats-value">
-                      {formatAverageCutNumber(averageCutNumber)}
-                    </strong>
-                  </p>
-                  <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">
-                      diarrhea rate:
-                    </span>{" "}
-                    <strong className="session-user-stats-value">
-                      {diarrheaCount}/{totalPoops}
-                    </strong>
-                  </p>
-                </section>
-              ) : (
-                <section className="shell-aside-card">
-                  <h3>{identityCard.title}</h3>
-                  {identityCard.body ? <p>{identityCard.body}</p> : null}
-                </section>
-              )}
+            {!isActiveSession ? (
+              <aside
+                className={`shell-aside${isLandingState ? " is-landing-layout" : ""}`}
+              >
+                {identityProfile ? (
+                  <section className="shell-aside-card shell-user-stats-card">
+                    <div className="shell-user-stats-layout">
+                      <div className="shell-user-stats-copy">
+                        <p className="session-user-stats-line">
+                          <span className="session-user-stats-label">
+                            username:
+                          </span>{" "}
+                          <strong className="session-user-stats-value">
+                            {identityProfile.username}
+                          </strong>
+                        </p>
+                        <p className="session-user-stats-line">
+                          <span className="session-user-stats-label">
+                            started pooping:
+                          </span>{" "}
+                          <strong className="session-user-stats-value">
+                            {formatLocalSlashDate(identityProfile.createdAt)}
+                          </strong>
+                        </p>
+                        <p className="session-user-stats-line">
+                          <span className="session-user-stats-label">
+                            pooped:
+                          </span>{" "}
+                          <strong className="session-user-stats-value">
+                            {totalPoops.toLocaleString()}{" "}
+                            {totalPoops === 1 ? "time" : "times"}
+                          </strong>
+                        </p>
+                        <p className="session-user-stats-line">
+                          <span className="session-user-stats-label">
+                            average poop session time:
+                          </span>{" "}
+                          <strong className="session-user-stats-value">
+                            {formatOptionalDuration(averageSessionDurationMs)}
+                          </strong>
+                        </p>
+                        <p className="session-user-stats-line">
+                          <span className="session-user-stats-label">
+                            average poop time:
+                          </span>{" "}
+                          <strong className="session-user-stats-value">
+                            {formatOptionalDuration(
+                              averageActivePushDurationMs,
+                            )}
+                          </strong>
+                        </p>
+                        <p className="session-user-stats-line">
+                          <span className="session-user-stats-label">
+                            average poop cut number:
+                          </span>{" "}
+                          <strong className="session-user-stats-value">
+                            {formatAverageCutNumber(averageCutNumber)}
+                          </strong>
+                        </p>
+                        <p className="session-user-stats-line">
+                          <span className="session-user-stats-label">
+                            diarrhea rate:
+                          </span>{" "}
+                          <strong className="session-user-stats-value">
+                            {diarrheaCount}/{totalPoops}
+                          </strong>
+                        </p>
+                      </div>
 
-              {isCertificateVisible || isActiveSession ? (
-                <>
-                  <section className="shell-aside-card">
-                    <h3>
-                      {isCertificateVisible
-                        ? "Certificate notes"
-                        : "Session notes"}
-                    </h3>
-                    <ul className="shell-checklist">
-                      {(isCertificateVisible
-                        ? certificateChecklist
-                        : activeChecklist
-                      ).map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </section>
+                      <div className="shell-user-stats-side">
+                        <div className="shell-user-stats-streak-grid">
+                          <div className="shell-user-stats-streak-card">
+                            <span className="stats-record-label">
+                              Current streak
+                            </span>
+                            <strong className="shell-user-stats-side-value">
+                              {sessionStatsSnapshot?.streaks.current ?? 0}d
+                            </strong>
+                          </div>
+                          <div className="shell-user-stats-streak-card">
+                            <span className="stats-record-label">
+                              Best streak
+                            </span>
+                            <strong className="shell-user-stats-side-value">
+                              {sessionStatsSnapshot?.streaks.best ?? 0}d
+                            </strong>
+                          </div>
+                        </div>
 
-                  <section className="shell-aside-card">
-                    <div className="shell-stamp">
-                      {isCertificateVisible
-                        ? "Certificate placeholder"
-                        : "Live room"}
+                        <div className="shell-user-stats-heatmap-wrap">
+                          <div className="shell-user-stats-heatmap-head">
+                            <span className="stats-record-label">Heatmap</span>
+                            <span className="shell-user-stats-heatmap-caption">
+                              Last 9 weeks
+                            </span>
+                          </div>
+                          <div
+                            className="shell-user-stats-heatmap"
+                            role="img"
+                            aria-label="Recent session heatmap"
+                          >
+                            {userStatsHeatmap.map((cell) => (
+                              <span
+                                key={cell.dateKey}
+                                className={`stats-heatmap-cell level-${cell.level}`}
+                                title={
+                                  sessionStatsSnapshot
+                                    ? `${cell.dateKey}: ${cell.count} session${cell.count === 1 ? "" : "s"}`
+                                    : undefined
+                                }
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </section>
-                </>
-              ) : null}
-            </aside>
+                ) : (
+                  <section className="shell-aside-card">
+                    <h3>{identityCard.title}</h3>
+                    {identityCard.body ? <p>{identityCard.body}</p> : null}
+                  </section>
+                )}
+
+                {isCertificateVisible ? (
+                  <>
+                    <section className="shell-aside-card">
+                      <h3>Certificate notes</h3>
+                      <ul className="shell-checklist">
+                        {certificateChecklist.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </section>
+
+                    <section className="shell-aside-card">
+                      <div className="shell-stamp">Certificate placeholder</div>
+                    </section>
+                  </>
+                ) : null}
+              </aside>
+            ) : null}
           </div>
         </section>
 

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import {
@@ -8,15 +7,13 @@ import {
   masterWordBank,
 } from "@impoopingrightnow/shared";
 
-const navItems = [
-  { href: "/", label: "Primary", title: "Home / Session" },
-  { href: "/my-stats", label: "Records", title: "My Stats" },
-  { href: "/global", label: "Browse", title: "World Board" },
-  { href: "/settings", label: "Identity", title: "Settings" },
-];
+import {
+  PageBackControl,
+  PageChromeControls,
+} from "../_components/page-chrome-controls";
+import { ShellNav } from "../_components/shell-nav";
 
-const poopedMessageVisitStorageKey =
-  "impoopingrightnow.pooped-message-visits";
+const poopedMessageVisitStorageKey = "impoopingrightnow.pooped-message-visits";
 
 const browserIdentityStorage = {
   getItem(key: string) {
@@ -49,7 +46,9 @@ function readPoopedMessageVisitCount(): number {
   }
 
   try {
-    const storedValue = window.localStorage.getItem(poopedMessageVisitStorageKey);
+    const storedValue = window.localStorage.getItem(
+      poopedMessageVisitStorageKey,
+    );
     const visitCount = Number(storedValue);
 
     return Number.isFinite(visitCount) && visitCount >= 0 ? visitCount : 0;
@@ -71,9 +70,11 @@ function getPoopedHeadline(visitCount: number): string {
     return messages[0] ?? "Good Job";
   }
 
-  return rotatingMessages[(visitCount - 1) % rotatingMessages.length] ??
+  return (
+    rotatingMessages[(visitCount - 1) % rotatingMessages.length] ??
     messages[0] ??
-    "Good Job";
+    "Good Job"
+  );
 }
 
 export default function IPoopedPage() {
@@ -115,16 +116,12 @@ export default function IPoopedPage() {
 
   return (
     <main className="shell-page">
+      <PageChromeControls />
+
       <div className="shell-frame">
         <section className="shell-main">
-          <nav className="shell-nav" aria-label="Primary navigation">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className="shell-nav-link">
-                <span className="shell-nav-label">{item.label}</span>
-                <span className="shell-nav-title">{item.title}</span>
-              </Link>
-            ))}
-          </nav>
+          <PageBackControl />
+          <ShellNav />
 
           <section className="shell-panel">
             <div className="shell-panel-head">

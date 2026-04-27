@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import {
@@ -11,12 +10,11 @@ import {
   type SessionStatsSnapshot,
 } from "@impoopingrightnow/shared";
 
-const navItems = [
-  { href: "/", label: "Primary", title: "Home / Session" },
-  { href: "/my-stats", label: "Records", title: "My Stats" },
-  { href: "/global", label: "Browse", title: "World Board" },
-  { href: "/settings", label: "Identity", title: "Settings" },
-];
+import {
+  PageBackControl,
+  PageChromeControls,
+} from "../_components/page-chrome-controls";
+import { ShellNav } from "../_components/shell-nav";
 
 function readStatsSnapshot(): SessionStatsSnapshot | null {
   if (typeof window === "undefined") {
@@ -58,6 +56,8 @@ export default function MyStatsPage() {
 
   return (
     <main className="shell-page stats-page">
+      <PageChromeControls />
+
       <div className="shell-frame">
         <section className="shell-banner">
           <div className="shell-banner-row">
@@ -68,7 +68,6 @@ export default function MyStatsPage() {
           </div>
           <div className="shell-banner-row">
             <div>
-              <p className="eyebrow">impoopingrightnow.com</p>
               <h1 className="banner-title">Your local stool ledger.</h1>
             </div>
           </div>
@@ -80,14 +79,8 @@ export default function MyStatsPage() {
         </section>
 
         <section className="shell-main">
-          <nav className="shell-nav" aria-label="Primary navigation">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className="shell-nav-link">
-                <span className="shell-nav-label">{item.label}</span>
-                <span className="shell-nav-title">{item.title}</span>
-              </Link>
-            ))}
-          </nav>
+          <PageBackControl />
+          <ShellNav />
 
           <div className="shell-content-grid">
             <section className="stats-panel">
@@ -149,7 +142,10 @@ export default function MyStatsPage() {
                       <p>
                         Logged by {statsSnapshot.records.fastest.username} with{" "}
                         {statsSnapshot.records.fastest.pushCount} log
-                        {statsSnapshot.records.fastest.pushCount === 1 ? "" : "s"}.
+                        {statsSnapshot.records.fastest.pushCount === 1
+                          ? ""
+                          : "s"}
+                        .
                       </p>
                     </article>
 
@@ -171,7 +167,9 @@ export default function MyStatsPage() {
 
                     <article className="stats-record-card">
                       <span className="stats-record-label">Most logs</span>
-                      <strong>{statsSnapshot.records.mostLogs.pushCount}</strong>
+                      <strong>
+                        {statsSnapshot.records.mostLogs.pushCount}
+                      </strong>
                       <p>
                         Completed over{" "}
                         {formatDurationMs(
@@ -184,7 +182,9 @@ export default function MyStatsPage() {
                 </>
               ) : (
                 <section className="shell-aside-card stats-summary-card">
-                  <h3>{isStatsLoading ? "Loading your records" : "No records yet"}</h3>
+                  <h3>
+                    {isStatsLoading ? "Loading your records" : "No records yet"}
+                  </h3>
                   <p className="stats-summary-text">
                     {isStatsLoading
                       ? "Reading saved sessions from this browser."
@@ -218,11 +218,15 @@ export default function MyStatsPage() {
                 <div className="stats-streak-grid">
                   <div>
                     <span className="stats-record-label">Current</span>
-                    <strong>{hasStats ? statsSnapshot.streaks.current : 0} days</strong>
+                    <strong>
+                      {hasStats ? statsSnapshot.streaks.current : 0} days
+                    </strong>
                   </div>
                   <div>
                     <span className="stats-record-label">Best</span>
-                    <strong>{hasStats ? statsSnapshot.streaks.best : 0} days</strong>
+                    <strong>
+                      {hasStats ? statsSnapshot.streaks.best : 0} days
+                    </strong>
                   </div>
                 </div>
               </section>

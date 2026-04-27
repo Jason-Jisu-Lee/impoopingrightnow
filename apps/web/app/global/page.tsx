@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import {
@@ -9,12 +8,11 @@ import {
   sessionHistoryStorageKey,
 } from "@impoopingrightnow/shared";
 
-const navItems = [
-  { href: "/", label: "Primary", title: "Home / Session" },
-  { href: "/my-stats", label: "Records", title: "My Stats" },
-  { href: "/global", label: "Browse", title: "World Board" },
-  { href: "/settings", label: "Identity", title: "Settings" },
-];
+import {
+  PageBackControl,
+  PageChromeControls,
+} from "../_components/page-chrome-controls";
+import { ShellNav } from "../_components/shell-nav";
 
 const globalAnalytics = buildGlobalAnalyticsSnapshot();
 
@@ -54,6 +52,8 @@ export default function GlobalPage() {
 
   return (
     <main className="shell-page global-page">
+      <PageChromeControls />
+
       <div className="shell-frame">
         <section className="shell-banner">
           <div className="shell-banner-row">
@@ -65,7 +65,6 @@ export default function GlobalPage() {
           </div>
           <div className="shell-banner-row">
             <div>
-              <p className="eyebrow">impoopingrightnow.com</p>
               <h1 className="banner-title">Something to read while you sit.</h1>
             </div>
           </div>
@@ -76,14 +75,8 @@ export default function GlobalPage() {
         </section>
 
         <section className="shell-main">
-          <nav className="shell-nav" aria-label="Primary navigation">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className="shell-nav-link">
-                <span className="shell-nav-label">{item.label}</span>
-                <span className="shell-nav-title">{item.title}</span>
-              </Link>
-            ))}
-          </nav>
+          <PageBackControl />
+          <ShellNav />
 
           <div className="shell-content-grid">
             <section className="global-panel">

@@ -39,6 +39,18 @@ body {
   font-family: var(--font-mono), "Courier New", monospace;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -56,8 +68,87 @@ select {
   padding: 24px 16px 48px;
 }
 
+.shell-top-controls-wrap {
+  position: sticky;
+  top: 12px;
+  z-index: 8;
+  width: min(100%, 1100px);
+  margin: 0 auto 6px;
+}
+
+.shell-back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px 6px 0;
+  border: 0;
+  background: transparent;
+  color: rgba(103, 80, 62, 0.9);
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    transform 120ms ease,
+    opacity 120ms ease;
+}
+
+.shell-back-button:hover {
+  opacity: 1;
+  color: var(--ink);
+  transform: translateX(-1px);
+}
+
+.shell-back-button:focus-visible {
+  outline: 2px solid rgba(35, 23, 13, 0.22);
+  outline-offset: 2px;
+}
+
+.shell-top-icon {
+  stroke: currentColor;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  width: 21px;
+  height: 21px;
+}
+
+.shell-home-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(17, 17, 17, 0.92);
+  cursor: pointer;
+}
+
+.shell-home-logo:hover {
+  opacity: 0.78;
+}
+
+.shell-home-logo:focus-visible {
+  outline: 2px solid rgba(35, 23, 13, 0.22);
+  outline-offset: 3px;
+}
+
+.shell-top-logo-mark {
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  width: 30px;
+  height: 30px;
+}
+
 .shell-home-page {
   position: relative;
+}
+
+.shell-main-back-anchor {
+  position: absolute;
+  top: -30px;
+  left: 18px;
+  z-index: 2;
 }
 
 .shell-frame {
@@ -137,6 +228,8 @@ select {
   font-size: clamp(1.15rem, 3.05vw, 1.75rem);
   line-height: 1;
   letter-spacing: 0.04em;
+  text-align: center;
+  max-width: 100%;
 }
 
 .banner-domain {
@@ -146,6 +239,7 @@ select {
   letter-spacing: 0.32em;
   text-transform: uppercase;
   align-self: end;
+  white-space: nowrap;
 }
 
 .shell-daily-poop-counter {
@@ -176,6 +270,7 @@ select {
 }
 
 .shell-main {
+  position: relative;
   border-radius: 30px;
   display: grid;
   gap: 18px;
@@ -184,7 +279,7 @@ select {
 
 .shell-nav {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -341,6 +436,73 @@ select {
 .shell-user-stats-card {
   display: grid;
   gap: 10px;
+  grid-column: 1 / -1;
+}
+
+.shell-user-stats-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 148px;
+  gap: 18px;
+  align-items: start;
+}
+
+.shell-user-stats-copy,
+.shell-user-stats-side {
+  display: grid;
+  gap: 10px;
+}
+
+.shell-user-stats-streak-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.shell-user-stats-streak-card,
+.shell-user-stats-heatmap-wrap {
+  border: 1px solid rgba(35, 23, 13, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.48);
+  padding: 10px;
+}
+
+.shell-user-stats-streak-card {
+  display: grid;
+  gap: 6px;
+}
+
+.shell-user-stats-side-value {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.shell-user-stats-heatmap-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.shell-user-stats-heatmap-caption {
+  color: var(--muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.shell-user-stats-heatmap {
+  display: grid;
+  grid-template-rows: repeat(7, 1fr);
+  grid-auto-flow: column;
+  gap: 4px;
+}
+
+.shell-user-stats-heatmap .stats-heatmap-cell {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
 }
 
 .session-user-stats-line {
@@ -403,6 +565,7 @@ select {
   gap: 14px;
   margin: 0;
   min-width: 0;
+  max-width: 100%;
   flex-wrap: nowrap;
   overflow-x: auto;
   white-space: nowrap;
@@ -444,10 +607,24 @@ select {
 }
 
 .session-home-head-row {
+  position: relative;
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: center;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+.session-home-eyebrow-centered {
+  width: 100%;
+  margin: 0;
+  text-align: center;
+}
+
+.session-home-head-link {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .session-home-title {
@@ -470,7 +647,8 @@ select {
 .session-home-actions {
   display: grid;
   gap: 12px;
-  margin-top: 24px;
+  justify-items: center;
+  margin-top: 12px;
 }
 
 .session-primary-action,
@@ -499,9 +677,18 @@ select {
 .session-primary-action {
   background: linear-gradient(135deg, #8c5a2b 0%, #a86d2f 100%);
   color: #fff8eb;
-  font-size: clamp(1.5rem, 5vw, 2.4rem);
+  width: min(100%, 320px);
+  min-height: 52px;
+  padding: 10px 20px;
+  font-size: clamp(1.15rem, 4vw, 1.6rem);
   line-height: 1;
   box-shadow: 0 18px 34px rgba(140, 90, 43, 0.22);
+}
+
+.session-primary-action .shell-top-logo-mark {
+  width: 34px;
+  height: 34px;
+  color: inherit;
 }
 
 .session-primary-action:hover,
@@ -522,6 +709,7 @@ select {
   border-radius: 16px;
   line-height: 1;
   flex: 0 0 auto;
+  font-size: 0.95rem;
 }
 
 .session-diarrhea-toggle {
@@ -1542,10 +1730,28 @@ select {
 }
 
 @media (max-width: 860px) {
+  .shell-top-controls-wrap {
+    top: 10px;
+  }
+
+  .shell-user-stats-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .shell-main-back-anchor {
+    top: -26px;
+    left: 14px;
+  }
+
   .shell-daily-poop-counter {
     position: static;
     justify-self: end;
     margin-inline: auto 0;
+  }
+
+  .shell-banner-home {
+    min-height: 134px;
+    padding-top: 18px;
   }
 
   .shell-aside.is-landing-layout {
@@ -1579,6 +1785,29 @@ select {
 }
 
 @media (max-width: 560px) {
+  .shell-page {
+    padding: 14px 10px 32px;
+  }
+
+  .shell-top-controls-wrap {
+    top: 8px;
+    margin-bottom: 4px;
+  }
+
+  .shell-main-back-anchor {
+    top: -22px;
+    left: 12px;
+  }
+
+  .shell-top-logo-mark {
+    width: 26px;
+    height: 26px;
+  }
+
+  .shell-frame {
+    gap: 12px;
+  }
+
   .shell-banner,
   .shell-main,
   .shell-panel,
@@ -1588,12 +1817,109 @@ select {
     border-radius: 20px;
   }
 
+  .shell-main,
+  .shell-panel,
+  .session-home-panel,
+  .shell-aside-card,
+  .shell-footer {
+    padding: 14px;
+  }
+
+  .shell-banner-home {
+    min-height: 104px;
+    padding-top: 10px;
+  }
+
+  .shell-banner-home .banner-counter {
+    font-size: clamp(1rem, 4.9vw, 1.22rem);
+    line-height: 1.12;
+  }
+
+  .banner-domain {
+    font-size: 0.54rem;
+    letter-spacing: 0.16em;
+  }
+
+  .shell-daily-poop-counter {
+    font-size: 0.56rem;
+    letter-spacing: 0.06em;
+  }
+
   .shell-nav-link {
     padding: 12px 14px;
   }
 
+  .shell-nav-title {
+    font-size: 1.1rem;
+  }
+
+  .shell-panel-title {
+    font-size: clamp(1.7rem, 9vw, 2.35rem);
+  }
+
   .banner-title {
     font-size: clamp(2.5rem, 14vw, 4rem);
+  }
+
+  .session-home-head {
+    gap: 10px;
+  }
+
+  .session-home-head-link {
+    position: static;
+  }
+
+  .session-secondary-action-compact {
+    padding: 8px 12px;
+    border-radius: 14px;
+    font-size: 0.88rem;
+  }
+
+  .session-primary-action {
+    width: min(100%, 240px);
+    min-height: 46px;
+    padding: 8px 16px;
+    font-size: 1rem;
+  }
+
+  .session-primary-action .shell-top-logo-mark {
+    width: 28px;
+    height: 28px;
+  }
+
+  .session-live-stamp,
+  .session-feed-notice,
+  .session-live-footer p {
+    font-size: 0.78rem;
+    line-height: 1.55;
+  }
+
+  .session-user-stats-line {
+    font-size: 0.94rem;
+    line-height: 1.4;
+  }
+
+  .shell-user-stats-side-value {
+    font-size: 1.2rem;
+  }
+
+  .shell-user-stats-heatmap .stats-heatmap-cell {
+    width: 8px;
+    height: 8px;
+  }
+
+  .session-status-line {
+    gap: 8px;
+    font-size: 0.72rem;
+  }
+
+  .session-status-item-inline {
+    gap: 5px;
+  }
+
+  .session-status-dot {
+    width: 8px;
+    height: 8px;
   }
 
   .session-feed-placeholder {

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 
 import {
@@ -17,12 +16,11 @@ import {
   type AnonymousProfile,
 } from "@impoopingrightnow/shared";
 
-const navItems = [
-  { href: "/", label: "Primary", title: "Home / Session" },
-  { href: "/my-stats", label: "Records", title: "My Stats" },
-  { href: "/global", label: "Browse", title: "World Board" },
-  { href: "/settings", label: "Identity", title: "Settings" },
-];
+import {
+  PageBackControl,
+  PageChromeControls,
+} from "../_components/page-chrome-controls";
+import { ShellNav } from "../_components/shell-nav";
 
 type SettingsNoticeState = {
   tone: "error" | "success";
@@ -304,6 +302,8 @@ export default function SettingsPage() {
 
   return (
     <main className="shell-page settings-page">
+      <PageChromeControls />
+
       <div className="shell-frame">
         <section className="shell-banner">
           <div className="shell-banner-row">
@@ -314,7 +314,6 @@ export default function SettingsPage() {
           </div>
           <div className="shell-banner-row">
             <div>
-              <p className="eyebrow">impoopingrightnow.com</p>
               <h1 className="banner-title">
                 Quiet profile controls for an anonymous-first product.
               </h1>
@@ -327,14 +326,8 @@ export default function SettingsPage() {
         </section>
 
         <section className="shell-main">
-          <nav className="shell-nav" aria-label="Primary navigation">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className="shell-nav-link">
-                <span className="shell-nav-label">{item.label}</span>
-                <span className="shell-nav-title">{item.title}</span>
-              </Link>
-            ))}
-          </nav>
+          <PageBackControl />
+          <ShellNav />
 
           {showPassivePrompt ? (
             <PassiveRecoveryBanner
@@ -472,8 +465,8 @@ export default function SettingsPage() {
                   {isProfileLoading
                     ? "Loading the local anonymous record for this device."
                     : profile
-                    ? `UUID ${profile.id} stays local-first, and ${profile.username} remains usable without account creation.`
-                    : "The local anonymous record is currently unavailable."}
+                      ? `UUID ${profile.id} stays local-first, and ${profile.username} remains usable without account creation.`
+                      : "The local anonymous record is currently unavailable."}
                 </p>
               </section>
 
@@ -482,9 +475,10 @@ export default function SettingsPage() {
                 <p>
                   {isProfileLoading
                     ? "Checking whether the passive recovery prompt should appear."
-                    : profile && shouldShowEmailCapturePrompt(profile, sessionCount)
-                    ? "The passive recovery banner is currently eligible because the device has reached three completed sessions without a submitted or dismissed email prompt."
-                    : "The passive recovery banner is currently resolved, not yet eligible, or intentionally dismissed."}
+                    : profile &&
+                        shouldShowEmailCapturePrompt(profile, sessionCount)
+                      ? "The passive recovery banner is currently eligible because the device has reached three completed sessions without a submitted or dismissed email prompt."
+                      : "The passive recovery banner is currently resolved, not yet eligible, or intentionally dismissed."}
                 </p>
               </section>
 
