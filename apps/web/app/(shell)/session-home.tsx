@@ -21,7 +21,6 @@ import {
   formatDurationMs,
   getDailyPoopCounterSeed,
   getCurrentPushElapsedMs,
-  getEncouragementMessage,
   getHoldButtonLabel,
   getSimulatedCounterSeed,
   getSeededLiveFeedMessage,
@@ -29,7 +28,6 @@ import {
   getWebPublicSupabaseEnv,
   parseStoredSessionHistory,
   sessionHistoryStorageKey,
-  shouldShowEmailCapturePrompt,
   type LiveFeedMessage,
   type StoredSessionRecord,
   recordCompletedSession,
@@ -38,7 +36,6 @@ import {
   startPush,
   startLiveSession,
   updateAnonymousProfile,
-  validateEmailAddress,
   type AnonymousProfile,
   type SessionActivityState,
   type SessionCertificate,
@@ -163,18 +160,51 @@ function formatStartTime(startedAt: string | null): string {
 
 function createPushHelperText(sessionActivity: SessionActivityState): string {
   if (sessionActivity.activePushStartedAt) {
-    return "Release when done to record this push and fire a mini confetti burst.";
+    return "";
   }
 
   if (sessionActivity.lastPushMs !== null) {
-    return `Last log recorded: ${formatDurationMs(sessionActivity.lastPushMs)}. Hold again for another push.`;
+    return ``;
   }
 
-  return "Hold the button while pushing. Release to record your first log.";
+  return "";
 }
 
 function createFallbackUsername(): string {
   return "FiledWitness_00";
+}
+
+function dayKey(date: Date): string {
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+}
+
+// Computes the current daily streak treating `now` (today) as already logged.
+// Used to feed milestone selectors with the streak value reflecting the session
+// that is about to be completed.
+function computeStreakIncludingNow(
+  records: readonly StoredSessionRecord[],
+  now: Date,
+): number {
+  const dayKeys = new Set<string>();
+
+  for (const record of records) {
+    dayKeys.add(dayKey(new Date(record.completedAt)));
+  }
+
+  const today = new Date(now);
+
+  today.setHours(0, 0, 0, 0);
+  dayKeys.add(dayKey(today));
+
+  let streak = 0;
+  const cursor = new Date(today);
+
+  while (dayKeys.has(dayKey(cursor))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  return streak;
 }
 
 function readStoredSessionHistory(): StoredSessionRecord[] {
@@ -209,6 +239,13 @@ function formatOptionalDuration(durationMs: number | null): string {
   return durationMs === null ? "--:--" : formatDurationMs(durationMs);
 }
 
+function formatTimerSMs(ms: number): string {
+  const safe = Number.isFinite(ms) ? Math.max(0, ms) : 0;
+  const totalSec = Math.floor(safe / 1000);
+  const millis = Math.floor(safe % 1000);
+  return `${totalSec}.${String(millis).padStart(3, "0")}`;
+}
+
 function formatAverageCutNumber(value: number | null): string {
   if (value === null) {
     return "--";
@@ -217,50 +254,89 @@ function formatAverageCutNumber(value: number | null): string {
   return Number.isInteger(value) ? value.toString() : value.toFixed(1);
 }
 
+function formatTimeOfDay(minutes: number | null): string {
+  if (minutes === null) return "--";
+  const safe = ((Math.round(minutes) % 1440) + 1440) % 1440;
+  const h = Math.floor(safe / 60);
+  const m = safe % 60;
+  const period = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(m).padStart(2, "0")} ${period}`;
+}
+
+function formatPerDay(value: number | null): string {
+  if (value === null) return "--";
+  return `${value.toFixed(1)} times / day`;
+}
+
+function toLocalDateKey(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function getHeatmapLevelLocal(count: number): 0 | 1 | 2 | 3 | 4 {
+  if (count <= 0) return 0;
+  if (count === 1) return 1;
+  if (count === 2) return 2;
+  if (count === 3) return 3;
+  return 4;
+}
+
+type YearHeatmapCell = {
+  dateKey: string;
+  count: number;
+  level: 0 | 1 | 2 | 3 | 4;
+  weekday: number; // 0 = Sun
+};
+
+function buildYearHeatmap(
+  records: StoredSessionRecord[],
+  now: Date,
+): YearHeatmapCell[] {
+  const dayCounts = new Map<string, number>();
+  for (const record of records) {
+    const key = toLocalDateKey(new Date(record.completedAt));
+    dayCounts.set(key, (dayCounts.get(key) ?? 0) + 1);
+  }
+  const year = now.getFullYear();
+  const start = new Date(year, 0, 1);
+  const end = new Date(year, 11, 31);
+  const cells: YearHeatmapCell[] = [];
+  const cursor = new Date(start);
+  while (cursor <= end) {
+    const key = toLocalDateKey(cursor);
+    const count = dayCounts.get(key) ?? 0;
+    cells.push({
+      dateKey: key,
+      count,
+      level: getHeatmapLevelLocal(count),
+      weekday: cursor.getDay(),
+    });
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return cells;
+}
+
 function formatCounterCopyPrefix(counter: number): string {
   return `${counter.toLocaleString()} people `;
 }
 
 function formatCounterCopySuffix(): string {
-  return ` right now`;
+  return `ing right now`;
 }
 
 function SquattingPooperIcon() {
   return (
-    <svg
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/logo.png"
+      alt=""
       className="banner-counter-figure"
-      viewBox="0 0 32 32"
-      fill="none"
-      aria-label="pooping"
-      role="img"
-    >
-      <circle cx="16" cy="7" r="3" />
-      <path d="M16 10v7" />
-      <path d="M16 17l-5 6" />
-      <path d="M16 17l5 6" />
-      <path d="M16 14l-5 -2" />
-      <path d="M16 14l5 -2" />
-    </svg>
+      aria-hidden="true"
+    />
   );
-}
-
-function createInitialLiveFeedMessages(sessionStart: Date): LiveFeedMessage[] {
-  const firstSeedTime = new Date(sessionStart.getTime() - 4_000);
-  const secondSeedTime = new Date(sessionStart.getTime() - 1_500);
-  const firstMessage = getSeededLiveFeedMessage({
-    sessionElapsedMs: 0,
-    pushCount: 0,
-    isHolding: false,
-    now: firstSeedTime,
-  });
-  const secondMessage = getSeededLiveFeedMessage({
-    sessionElapsedMs: 45_000,
-    pushCount: 0,
-    isHolding: false,
-    now: secondSeedTime,
-  });
-
-  return appendLiveFeedMessage([firstMessage], secondMessage);
 }
 
 type FloatingFeedStyle = CSSProperties & {
@@ -291,19 +367,21 @@ function createFloatingFeedStyle(message: LiveFeedMessage): FloatingFeedStyle {
     "#8f3058",
   ] as const;
   const lanes = [
-    { topStart: 10, topRange: 12, leftStart: 7, leftRange: 16 },
-    { topStart: 12, topRange: 10, leftStart: 71, leftRange: 12 },
-    { topStart: 34, topRange: 14, leftStart: 4, leftRange: 14 },
-    { topStart: 36, topRange: 14, leftStart: 74, leftRange: 10 },
-    { topStart: 69, topRange: 9, leftStart: 15, leftRange: 18 },
-    { topStart: 71, topRange: 9, leftStart: 58, leftRange: 18 },
+    { topStart: 4, topRange: 14, leftStart: 2, leftRange: 12 },
+    { topStart: 4, topRange: 14, leftStart: 72, leftRange: 20 },
+    { topStart: 22, topRange: 14, leftStart: 5, leftRange: 14 },
+    { topStart: 22, topRange: 14, leftStart: 70, leftRange: 18 },
+    { topStart: 44, topRange: 14, leftStart: 2, leftRange: 10 },
+    { topStart: 44, topRange: 14, leftStart: 76, leftRange: 16 },
+    { topStart: 64, topRange: 14, leftStart: 4, leftRange: 14 },
+    { topStart: 64, topRange: 14, leftStart: 72, leftRange: 18 },
   ] as const;
   const lane = lanes[hash % lanes.length];
   const top = lane.topStart + ((hash >>> 6) % lane.topRange);
   const left = lane.leftStart + ((hash >>> 12) % lane.leftRange);
   const driftX = -16 + ((hash >>> 18) % 33);
   const driftY = -14 - ((hash >>> 24) % 26);
-  const durationMs = 3800 + (hash % 1801);
+  const durationMs = 6000 + (hash % 1801);
 
   return {
     top: `${top}%`,
@@ -324,7 +402,7 @@ function FloatingFeedOverlay({
 }) {
   const visibleMessages = messages
     .filter(
-      (message) => now.getTime() - new Date(message.createdAt).getTime() < 5600,
+      (message) => now.getTime() - new Date(message.createdAt).getTime() < 7800,
     )
     .slice(-4);
 
@@ -369,6 +447,58 @@ function FlushConfettiOverlay({ token }: { token: number }) {
       <span />
       <span />
       <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
     </div>
   );
 }
@@ -376,169 +506,212 @@ function FlushConfettiOverlay({ token }: { token: number }) {
 function LandingView({ onStart }: { onStart: () => void }) {
   return (
     <section className="session-home-panel">
-      <header className="session-home-head">
-        <div className="session-home-head-row">
-          <p className="eyebrow session-home-eyebrow-centered">
-            I&apos;m Pooping Right Now
-          </p>
-          <Link
-            href="/i-pooped"
-            className="session-secondary-action session-secondary-action-compact session-home-head-link"
-          >
-            I Pooped
-          </Link>
-        </div>
-      </header>
-
       <div className="session-home-actions">
+        <p className="session-home-start-label">Start</p>
         <button
           type="button"
           className="session-primary-action"
           onClick={onStart}
           aria-label="Start pooping session"
         >
-          <PoopLogoIcon />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.png"
+            alt=""
+            className="session-hero-logo"
+            aria-hidden="true"
+          />
         </button>
       </div>
     </section>
   );
 }
 
-function ProtectHistoryBanner({
-  sessionCount,
-  emailDraft,
-  notice,
-  onEmailDraftChange,
-  onSubmit,
-  onDismiss,
-}: {
-  sessionCount: number;
-  emailDraft: string;
-  notice: InlineNoticeState;
-  onEmailDraftChange: (nextDraft: string) => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  onDismiss: () => void;
-}) {
-  return (
-    <section className="profile-banner" aria-live="polite">
-      <div className="profile-banner-copy">
-        <p className="eyebrow">Save your history</p>
-        <h2>Protect your poop history - add an email.</h2>
-        <p>
-          {sessionCount.toLocaleString()} completed sessions are now saved on
-          this device. Add one email for recovery later, or skip it and keep
-          going.
-        </p>
-      </div>
+// ---- Live stat computation helpers ----
 
-      <form className="profile-banner-form" onSubmit={onSubmit}>
-        <input
-          className="profile-input"
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          placeholder="you@example.com"
-          value={emailDraft}
-          onChange={(event) => onEmailDraftChange(event.target.value)}
-          aria-label="Recovery email"
-        />
-        <div className="profile-banner-actions">
-          <button type="submit" className="profile-button">
-            Save Email
-          </button>
-          <button
-            type="button"
-            className="profile-button is-secondary"
-            onClick={onDismiss}
-          >
-            Dismiss
-          </button>
-        </div>
-      </form>
+const VELOCITY_MAX_IN_PER_S = 0.42;
+const PUSH_CAP_MS = 8_000;
+const CONSTIPATION_PUSH_MS = 45_000;
+const MASS_OZ_PER_PUSH_S = 0.022;
 
-      {notice ? (
-        <p className={`profile-notice is-${notice.tone}`}>{notice.text}</p>
-      ) : null}
-    </section>
+function computeFlowRawScore(
+  completedPushes: number[],
+  currentPushMs: number,
+): number {
+  const allPushes =
+    currentPushMs > 0 ? [...completedPushes, currentPushMs] : completedPushes;
+
+  if (allPushes.length === 0) return 0;
+
+  const effortTotal = allPushes.reduce(
+    (sum, d) => sum + Math.min(d, PUSH_CAP_MS) / PUSH_CAP_MS,
+    0,
   );
+  const normalizedEffort = 1 - Math.exp(-effortTotal * 0.5);
+
+  let consistency = 0.5;
+  if (allPushes.length >= 2) {
+    const mean = allPushes.reduce((a, b) => a + b, 0) / allPushes.length;
+    const variance =
+      allPushes.reduce((sum, d) => sum + (d - mean) ** 2, 0) / allPushes.length;
+    const cv = mean > 0 ? Math.sqrt(variance) / mean : 1;
+    consistency = Math.max(0, 1 - cv * 0.5);
+  }
+
+  const avgPushMs = allPushes.reduce((a, b) => a + b, 0) / allPushes.length;
+  const fragPenalty = avgPushMs < 1_000 ? 0.4 : avgPushMs < 2_500 ? 0.2 : 0;
+
+  let fatigueFactor = 1.0;
+  if (completedPushes.length >= 4) {
+    const half = Math.floor(completedPushes.length / 2);
+    const firstAvg =
+      completedPushes.slice(0, half).reduce((a, b) => a + b, 0) / half;
+    const secondAvg =
+      completedPushes.slice(half).reduce((a, b) => a + b, 0) /
+      (completedPushes.length - half);
+    fatigueFactor = firstAvg > 0 ? Math.min(1.2, secondAvg / firstAvg) : 1.0;
+  }
+
+  const constipationFactor =
+    currentPushMs > CONSTIPATION_PUSH_MS
+      ? Math.max(0.2, 1 - (currentPushMs - CONSTIPATION_PUSH_MS) / 60_000)
+      : 1.0;
+
+  const raw =
+    normalizedEffort *
+    consistency *
+    (1 - fragPenalty) *
+    fatigueFactor *
+    constipationFactor;
+
+  return Math.min(100, raw * 100);
 }
+
+function formatVelocity(score: number): string {
+  return ((score / 100) * VELOCITY_MAX_IN_PER_S * 60).toFixed(2);
+}
+
+function computeIntestinalPressure(
+  totalPushMs: number,
+  currentPushMs: number,
+  isHolding: boolean,
+): number {
+  const base = 2.1 + (totalPushMs / 60_000) * 1.2;
+  const active = isHolding
+    ? base + (Math.min(currentPushMs, 8_000) / 8_000) * 4.5
+    : base * 0.88;
+  return Math.min(12.0, Math.max(1.2, active));
+}
+
+function computeMassEjectedOz(
+  totalPushMs: number,
+  currentPushMs: number,
+): number {
+  return ((totalPushMs + currentPushMs) / 1_000) * MASS_OZ_PER_PUSH_S;
+}
+
+function computeStrainEfficiency(
+  totalPushMs: number,
+  currentPushMs: number,
+  totalElapsedMs: number,
+): number {
+  if (totalElapsedMs <= 0) return 0;
+  return Math.min(100, ((totalPushMs + currentPushMs) / totalElapsedMs) * 100);
+}
+
+function getStructuralIntegrity(totalElapsedMs: number): string {
+  const min = totalElapsedMs / 60_000;
+  if (min < 3) return "NOMINAL";
+  if (min < 8) return "STRAINED";
+  if (min < 15) return "COMPROMISED";
+  return "CRITICAL";
+}
+
+// ---- Active session view ----
 
 function ActiveSessionView({
   sessionActivity,
   now,
   confettiToken,
-  encouragementMessage,
-  liveFeedMessages,
-  isDiarrhea,
-  feedDraft,
-  feedNotice,
   onHoldStart,
   onHoldEnd,
-  onDiarrheaToggle,
-  onFeedDraftChange,
-  onFeedSubmit,
+  immediateGenEnabled,
+  onToggleImmediateGen,
+  hasPendingFlush,
   onFlush,
 }: {
   sessionActivity: SessionActivityState;
   now: Date;
   confettiToken: number;
-  encouragementMessage: string;
-  liveFeedMessages: LiveFeedMessage[];
-  isDiarrhea: boolean;
-  feedDraft: string;
-  feedNotice: InlineNoticeState;
   onHoldStart: (event: PointerEvent<HTMLButtonElement>) => void;
   onHoldEnd: (event: PointerEvent<HTMLButtonElement>) => void;
-  onDiarrheaToggle: () => void;
-  onFeedDraftChange: (nextDraft: string) => void;
-  onFeedSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  immediateGenEnabled: boolean;
+  onToggleImmediateGen: () => void;
+  hasPendingFlush: boolean;
   onFlush: () => void;
 }) {
   const sessionElapsedLabel = formatDurationMs(
     getSessionElapsedMs(sessionActivity, now),
   );
-  const pushElapsedLabel = formatDurationMs(
+  const pushElapsedLabel = formatTimerSMs(
     getCurrentPushElapsedMs(sessionActivity, now),
   );
-  const totalPushLabel = formatDurationMs(sessionActivity.totalPushMs);
   const isHolding = Boolean(sessionActivity.activePushStartedAt);
+
+  const [pushHistory, setPushHistory] = useState<number[]>([]);
+  const smoothedFlowScoreRef = useRef(0);
+  const [liveVelocity, setLiveVelocity] = useState(0);
+  const [livePushMs, setLivePushMs] = useState(0);
+  const rafRef = useRef(0);
+
+  useEffect(() => {
+    function tick() {
+      const currentMs = getCurrentPushElapsedMs(sessionActivity, new Date());
+      const raw = computeFlowRawScore(pushHistory, currentMs);
+      smoothedFlowScoreRef.current =
+        smoothedFlowScoreRef.current * 0.85 + raw * 0.15;
+      setLiveVelocity(smoothedFlowScoreRef.current);
+      setLivePushMs(currentMs);
+      rafRef.current = requestAnimationFrame(tick);
+    }
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pushHistory, sessionActivity.activePushStartedAt]);
+
+  useEffect(() => {
+    if (sessionActivity.lastPushMs != null) {
+      setPushHistory((prev) => [...prev, sessionActivity.lastPushMs!]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionActivity.pushCount]);
+
+  const currentPushMs = getCurrentPushElapsedMs(sessionActivity, now);
+  const rawFlowScore = computeFlowRawScore(pushHistory, currentPushMs);
+  smoothedFlowScoreRef.current =
+    smoothedFlowScoreRef.current * 0.85 + rawFlowScore * 0.15;
+  const smoothedFlowScore = liveVelocity;
+
+  const totalElapsedMs = getSessionElapsedMs(sessionActivity, now);
+  const pressure = computeIntestinalPressure(
+    sessionActivity.totalPushMs,
+    currentPushMs,
+    isHolding,
+  );
+  const massOz = computeMassEjectedOz(
+    sessionActivity.totalPushMs,
+    currentPushMs,
+  );
+  const efficiency = computeStrainEfficiency(
+    sessionActivity.totalPushMs,
+    currentPushMs,
+    totalElapsedMs,
+  );
+  const integrity = getStructuralIntegrity(totalElapsedMs);
+  const isConstipated = currentPushMs > CONSTIPATION_PUSH_MS;
 
   return (
     <section className="session-home-panel session-live-shell">
-      <FloatingFeedOverlay messages={liveFeedMessages} now={now} />
-
-      <div className="session-live-topline">
-        <span className="eyebrow">In progress</span>
-        <span className="session-live-stamp">
-          Started {formatStartTime(sessionActivity.startedAt)}
-        </span>
-      </div>
-
-      <div className="session-timer-wrap">
-        <span className="session-timer-label">Poop timer</span>
-        <strong className="session-timer-value">{sessionElapsedLabel}</strong>
-        <p className="session-timer-note">
-          The timer is running. Flush when you are done to save this session.
-        </p>
-      </div>
-
-      <div className="session-metric-grid">
-        <div className="session-metric-card">
-          <span className="session-metric-label">Logs</span>
-          <strong className="session-metric-value">
-            {sessionActivity.pushCount}
-          </strong>
-        </div>
-        <div className="session-metric-card">
-          <span className="session-metric-label">Push timer</span>
-          <strong className="session-metric-value">{pushElapsedLabel}</strong>
-        </div>
-        <div className="session-metric-card">
-          <span className="session-metric-label">Total push time</span>
-          <strong className="session-metric-value">{totalPushLabel}</strong>
-        </div>
-      </div>
-
       <div className="session-hold-wrap">
         {confettiToken > 0 ? (
           <div
@@ -557,62 +730,109 @@ function ActiveSessionView({
           </div>
         ) : null}
 
+        <p
+          className="session-home-start-label"
+          style={{ textTransform: "none" }}
+        >
+          Release Each Time You Deploy
+        </p>
         <button
           type="button"
-          className={`session-hold-button${isHolding ? " is-holding" : ""}`}
+          className={`session-hold-button session-primary-action${isHolding ? " is-holding" : ""}`}
           aria-pressed={isHolding}
           onPointerDown={onHoldStart}
           onPointerUp={onHoldEnd}
           onPointerCancel={onHoldEnd}
         >
-          {getHoldButtonLabel(sessionActivity.pushCount)}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.png"
+            alt=""
+            className="session-hero-logo"
+            aria-hidden="true"
+          />
         </button>
       </div>
       <p className="session-push-helper">
         {createPushHelperText(sessionActivity)}
       </p>
-      <p className="session-encouragement">{encouragementMessage}</p>
 
-      <div className="session-live-footer">
-        <button
-          type="button"
-          className={`session-secondary-action session-diarrhea-toggle${isDiarrhea ? " is-selected" : ""}`}
-          aria-pressed={isDiarrhea}
-          onClick={onDiarrheaToggle}
-        >
-          This was a diarrhea
-        </button>
-        <button
-          type="button"
-          className="session-flush-button"
-          onClick={onFlush}
-        >
-          Flush
-        </button>
-        <p>Flush ends the session and saves it to your local history.</p>
+      <div className="session-live-stats">
+        <div className="session-live-stat">
+          <span className="session-live-stat-label">Started time</span>
+          <span className="session-live-stat-value">
+            {formatStartTime(sessionActivity.startedAt)}
+          </span>
+        </div>
+        <div className="session-live-stat">
+          <span className="session-live-stat-label">
+            Total Poop Session Timer
+          </span>
+          <span className="session-live-stat-value">{sessionElapsedLabel}</span>
+        </div>
+        <div className="session-live-stat">
+          <span className="session-live-stat-label">Push timer</span>
+          <span className="session-live-stat-value">
+            {isHolding ? `${formatTimerSMs(livePushMs)} s` : "—"}
+          </span>
+        </div>
+        <div className="session-live-stat">
+          <span className="session-live-stat-label">Expulsion (cut) count</span>
+          <span className="session-live-stat-value">
+            {sessionActivity.pushCount}
+          </span>
+        </div>
+        <div className="session-live-stat">
+          <span className="session-live-stat-label">Estimated velocity</span>
+          <span className="session-live-stat-value">
+            {formatVelocity(smoothedFlowScore)} in/min
+          </span>
+        </div>
+        <div className="session-live-stat">
+          <span className="session-live-stat-label">Strain efficiency</span>
+          <span className="session-live-stat-value">
+            {efficiency.toFixed(1)}%
+          </span>
+        </div>
+        <div className="session-live-stat">
+          <span className="session-live-stat-label">Structural integrity</span>
+          <span className="session-live-stat-value">{integrity}</span>
+        </div>
+        <div className="session-live-stat">
+          <span className="session-live-stat-label">Bristol stool type</span>
+          <span className="session-live-stat-value">—</span>
+        </div>
       </div>
 
-      <div className="session-feed-placeholder">
-        <form className="session-feed-form" onSubmit={onFeedSubmit}>
-          <input
-            value={feedDraft}
-            onChange={(event) => onFeedDraftChange(event.target.value)}
-            maxLength={60}
-            placeholder="drop a note..."
-            aria-label="Send a floating feed message"
-          />
-          <button type="submit">Send</button>
-        </form>
+      {hasPendingFlush ? (
+        <div className="session-flush-wrap">
+          <p className="session-flush-label">Done?</p>
+          <button
+            type="button"
+            className="session-flush-button"
+            onClick={onFlush}
+          >
+            Flush
+          </button>
+        </div>
+      ) : null}
 
-        {feedNotice ? (
-          <p className={`session-feed-notice is-${feedNotice.tone}`}>
-            {feedNotice.text}
-          </p>
-        ) : (
-          <p className="session-feed-notice">
-            Notes drift through the room for a few seconds.
-          </p>
-        )}
+      <div className="session-bottom-controls">
+        {!(hasPendingFlush && !immediateGenEnabled) ? (
+          <button
+            type="button"
+            className={`session-cert-gen-switch${immediateGenEnabled ? " is-on" : ""}`}
+            onClick={onToggleImmediateGen}
+            aria-pressed={immediateGenEnabled}
+          >
+            <span className="session-cert-gen-switch-track">
+              <span className="session-cert-gen-switch-thumb" />
+            </span>
+            <span className="session-cert-gen-switch-label">
+              Immediate Certificate Generation
+            </span>
+          </button>
+        ) : null}
       </div>
     </section>
   );
@@ -620,85 +840,75 @@ function ActiveSessionView({
 
 function CertificateView({
   certificate,
-  onStartAnotherSession,
+  onGoAgain,
+  onDone,
 }: {
   certificate: SessionCertificate;
-  onStartAnotherSession: () => void;
+  onGoAgain: () => void;
+  onDone: () => void;
 }) {
   return (
     <section className="session-home-panel session-certificate-panel">
       <div className="certificate-topline">
-        <span className="eyebrow">Session ended</span>
-        <span className="session-live-stamp">
-          Issued {certificate.issuedAtLabel}
-        </span>
+        <span className="session-live-stamp">{certificate.issuedAtLabel}</span>
       </div>
 
       <div className="certificate-paper">
-        <p className="eyebrow">Official record</p>
-        <h2 className="certificate-title">Certificate of Completed Movement</h2>
-        <p className="certificate-body">
-          This document certifies that the undersigned citizen completed a live
-          bathroom session and is hereby cleared for re-entry into polite
-          society.
-        </p>
+        <h2 className="certificate-title">{certificate.certHeadline}</h2>
+        <p className="certificate-body">{certificate.certSubline}</p>
 
-        <div className="certificate-grid">
-          <div className="certificate-stat-card">
-            <span className="session-metric-label">Username</span>
-            <strong className="certificate-stat-value">
-              {certificate.username}
-            </strong>
+        <div className="session-live-stats">
+          <div className="session-live-stat">
+            <span className="session-live-stat-label">Started</span>
+            <span className="session-live-stat-value">
+              {formatStartTime(certificate.startedAt)}
+            </span>
           </div>
-          <div className="certificate-stat-card">
-            <span className="session-metric-label">Total poop time</span>
-            <strong className="certificate-stat-value">
+          <div className="session-live-stat">
+            <span className="session-live-stat-label">Duration</span>
+            <span className="session-live-stat-value">
               {certificate.durationLabel}
-            </strong>
+            </span>
           </div>
-          <div className="certificate-stat-card">
-            <span className="session-metric-label">Logs</span>
-            <strong className="certificate-stat-value">
+          <div className="session-live-stat">
+            <span className="session-live-stat-label">Cuts</span>
+            <span className="session-live-stat-value">
               {certificate.pushCount}
-            </strong>
+            </span>
           </div>
-          <div className="certificate-stat-card">
-            <span className="session-metric-label">Total push time</span>
-            <strong className="certificate-stat-value">
+          <div className="session-live-stat">
+            <span className="session-live-stat-label">Push time</span>
+            <span className="session-live-stat-value">
               {certificate.totalPushLabel}
-            </strong>
+            </span>
           </div>
         </div>
 
-        <div className="certificate-rank-card">
-          <span className="session-metric-label">Global rank</span>
-          <strong className="certificate-rank-value">
-            {certificate.rankLabel}
-          </strong>
-          <p>Live ranking can come later.</p>
+        <div className="certificate-seal-row">
+          <span className="certificate-seal">{certificate.sealLabel}</span>
         </div>
+      </div>
 
-        <div className="certificate-footer-row">
-          <div className="certificate-issued-card">
-            <span className="session-metric-label">Filed at</span>
-            <strong className="certificate-issued-value">
-              {certificate.issuedAtLabel}
-            </strong>
-          </div>
-          <div className="certificate-seal">{certificate.sealLabel}</div>
-        </div>
+      <div className="certificate-poop-thoughts">
+        <p className="certificate-poop-thoughts-prompt">
+          Someone out there is pooping <em>right now</em>. Drop them a poop
+          thought — they deserve it.
+        </p>
+        <button type="button" className="certificate-poop-thought-btn" disabled>
+          Send a Poop Thought · coming soon
+        </button>
       </div>
 
       <div className="certificate-actions">
         <button
           type="button"
           className="session-primary-action"
-          onClick={onStartAnotherSession}
+          onClick={onGoAgain}
         >
-          Start Another Session
+          IT&apos;S COMING OUT AGAIN
         </button>
-        <button type="button" className="certificate-share-button" disabled>
-          Share Image · later slice
+        <button type="button" className="certificate-done-btn" onClick={onDone}>
+          I&apos;m Done
         </button>
       </div>
     </section>
@@ -721,6 +931,8 @@ export function SessionHome() {
   const [certificate, setCertificate] = useState<SessionCertificate | null>(
     null,
   );
+  const [immediateGenEnabled, setImmediateGenEnabled] = useState(true);
+  const [isYearHeatmapOpen, setIsYearHeatmapOpen] = useState(false);
   const [timerNow, setTimerNow] = useState<Date>(() => new Date());
   const [confettiToken, setConfettiToken] = useState(0);
   const [flushConfettiToken, setFlushConfettiToken] = useState(0);
@@ -731,6 +943,10 @@ export function SessionHome() {
     getDailyPoopCounterSeed(),
   );
   const [isRealtimeStatsActive, setIsRealtimeStatsActive] = useState(true);
+  const isRealtimeStatsActiveRef = useRef(isRealtimeStatsActive);
+  useEffect(() => {
+    isRealtimeStatsActiveRef.current = isRealtimeStatsActive;
+  }, [isRealtimeStatsActive]);
   const [hasLoadedPreviousLocalData, setHasLoadedPreviousLocalData] =
     useState(false);
   const [sessionHistoryRecords, setSessionHistoryRecords] = useState<
@@ -742,9 +958,6 @@ export function SessionHome() {
   const [feedDraft, setFeedDraft] = useState("");
   const [feedNotice, setFeedNotice] = useState<InlineNoticeState>(null);
   const [isDiarrheaSession, setIsDiarrheaSession] = useState(false);
-  const [emailPromptDraft, setEmailPromptDraft] = useState("");
-  const [emailPromptNotice, setEmailPromptNotice] =
-    useState<InlineNoticeState>(null);
   const simulatedCounterRef = useRef(simulatedCounter);
   const dailyPoopCounterDayRef = useRef(getEasternDayKey(new Date()));
   const lastFeedMessageId =
@@ -755,10 +968,6 @@ export function SessionHome() {
     flowState.stage === "active" &&
     sessionActivity !== null;
   const isLandingState = !isCertificateVisible && !isActiveSession;
-  const isEmailPromptVisible =
-    !isActiveSession &&
-    identityProfile !== null &&
-    shouldShowEmailCapturePrompt(identityProfile, completedSessionCount);
 
   useEffect(() => {
     let isMounted = true;
@@ -775,7 +984,6 @@ export function SessionHome() {
 
       setIdentityProfile(localIdentity.profile);
       setIdentityUsername(localIdentity.profile.username);
-      setEmailPromptDraft(localIdentity.profile.email ?? "");
       setSessionHistoryRecords(existingRecords);
       setHasLoadedPreviousLocalData(existingRecords.length > 0);
       setCompletedSessionCount(existingRecords.length);
@@ -873,6 +1081,27 @@ export function SessionHome() {
 
         simulatedCounterRef.current = nextSnapshot.count;
         setSimulatedCounter(nextSnapshot.count);
+
+        if (didCounterDecrease) {
+          const feedDelayMs = 3000 + Math.floor(Math.random() * 3001);
+          window.setTimeout(() => {
+            if (!isActive) return;
+            const msg = getSeededLiveFeedMessage({});
+            setLiveFeedMessages((current) => {
+              const last = current[current.length - 1];
+              const lastTime = last ? new Date(last.createdAt).getTime() : 0;
+              const now2 = new Date();
+              const safeTime = new Date(
+                Math.max(now2.getTime(), lastTime + 150),
+              );
+              return appendLiveFeedMessage(current, {
+                ...msg,
+                createdAt: safeTime.toISOString(),
+              });
+            });
+          }, feedDelayMs);
+        }
+
         scheduleNextTick(nextSnapshot.nextDelayMs);
       }, delayMs);
     }
@@ -887,38 +1116,6 @@ export function SessionHome() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!isActiveSession || !sessionActivity) {
-      return;
-    }
-
-    const delayMs = 1600 + Math.floor(Math.random() * 1801);
-    const timeoutId = window.setTimeout(() => {
-      const seededMessage = getSeededLiveFeedMessage({
-        sessionElapsedMs: getSessionElapsedMs(sessionActivity, new Date()),
-        pushCount: sessionActivity.pushCount,
-        isHolding: Boolean(sessionActivity.activePushStartedAt),
-      });
-
-      setLiveFeedMessages((current) =>
-        appendLiveFeedMessage(current, seededMessage),
-      );
-    }, delayMs);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [
-    isActiveSession,
-    lastFeedMessageId,
-    sessionActivity?.activePushStartedAt,
-    sessionActivity?.pushCount,
-    sessionActivity?.startedAt,
-  ]);
-  const encouragementMessage = sessionActivity
-    ? getEncouragementMessage(getSessionElapsedMs(sessionActivity, timerNow))
-    : null;
-
   function handleStartSession() {
     const sessionStart = new Date();
     const nextFlowState = startLiveSession(sessionStart);
@@ -932,13 +1129,24 @@ export function SessionHome() {
     );
     setTimerNow(sessionStart);
     setConfettiToken(0);
-    setLiveFeedMessages(createInitialLiveFeedMessages(sessionStart));
     setIsDiarrheaSession(false);
     setFeedDraft("");
     setFeedNotice(null);
   }
 
-  function handleFlushSession() {
+  function handleReturnHome() {
+    setFlowState(createSessionFlowState());
+    setSessionActivity(null);
+    setCertificate(null);
+    setTimerNow(new Date());
+    setConfettiToken(0);
+    setFlushConfettiToken(0);
+    setFeedDraft("");
+    setFeedNotice(null);
+    setIsDiarrheaSession(false);
+  }
+
+  function handleFlush() {
     if (!sessionActivity) {
       return;
     }
@@ -948,16 +1156,16 @@ export function SessionHome() {
       sessionActivity,
       identityUsername ?? createFallbackUsername(),
       endedAt,
+      {
+        poopedCountIncludingThis: sessionHistoryRecords.length + 1,
+        streakIncludingThis: computeStreakIncludingNow(
+          sessionHistoryRecords,
+          endedAt,
+        ),
+      },
     );
 
-    void recordCompletedSession(
-      browserIdentityStorage,
-      nextCertificate,
-      undefined,
-      {
-        wasDiarrhea: isDiarrheaSession,
-      },
-    )
+    void recordCompletedSession(browserIdentityStorage, nextCertificate)
       .then((nextRecords) => {
         setSessionHistoryRecords(nextRecords);
         setCompletedSessionCount(nextRecords.length);
@@ -969,25 +1177,11 @@ export function SessionHome() {
       });
 
     setTimerNow(endedAt);
-    setSessionActivity(null);
-    setFlowState(createSessionFlowState());
     setCertificate(nextCertificate);
-    setFlushConfettiToken((current) => current + 1);
-    setIsDiarrheaSession(false);
-    setFeedNotice(null);
-  }
-
-  function handleReturnHome() {
-    setFlowState(createSessionFlowState());
     setSessionActivity(null);
-    setCertificate(null);
-    setTimerNow(new Date());
+    setFlowState(createSessionFlowState());
+    setFlushConfettiToken((current) => current + 1);
     setConfettiToken(0);
-    setFlushConfettiToken(0);
-    setLiveFeedMessages([]);
-    setFeedDraft("");
-    setFeedNotice(null);
-    setIsDiarrheaSession(false);
   }
 
   function handleHoldStart(event: PointerEvent<HTMLButtonElement>) {
@@ -1030,8 +1224,42 @@ export function SessionHome() {
     }
 
     setTimerNow(pushReleasedAt);
-    setSessionActivity(nextState);
-    setConfettiToken((current) => current + 1);
+
+    if (immediateGenEnabled) {
+      const { certificate: nextCertificate } = completeSession(
+        nextState,
+        identityUsername ?? createFallbackUsername(),
+        pushReleasedAt,
+        {
+          poopedCountIncludingThis: sessionHistoryRecords.length + 1,
+          streakIncludingThis: computeStreakIncludingNow(
+            sessionHistoryRecords,
+            pushReleasedAt,
+          ),
+        },
+      );
+
+      void recordCompletedSession(browserIdentityStorage, nextCertificate)
+        .then((nextRecords) => {
+          setSessionHistoryRecords(nextRecords);
+          setCompletedSessionCount(nextRecords.length);
+        })
+        .catch(() => {
+          const existingRecords = readStoredSessionHistory();
+          setSessionHistoryRecords(existingRecords);
+          setCompletedSessionCount(existingRecords.length);
+        });
+
+      setCertificate(nextCertificate);
+      setSessionActivity(null);
+      setFlowState(createSessionFlowState());
+      setFlushConfettiToken((current) => current + 1);
+      setConfettiToken(0);
+    } else {
+      // Keep session alive — user must press Flush to generate cert
+      setSessionActivity(nextState);
+      setConfettiToken(0);
+    }
   }
 
   function handleFeedSubmit(event: FormEvent<HTMLFormElement>) {
@@ -1062,79 +1290,9 @@ export function SessionHome() {
     });
   }
 
-  function handleEmailPromptSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const validationResult = validateEmailAddress(emailPromptDraft);
-
-    if (validationResult.status === "invalid") {
-      setEmailPromptNotice({
-        tone: "error",
-        text: validationResult.errorMessage,
-      });
-      return;
-    }
-
-    const submittedAt =
-      identityProfile?.emailPromptSubmittedAt ?? new Date().toISOString();
-
-    void updateAnonymousProfile(browserIdentityStorage, {
-      email: validationResult.normalizedEmail,
-      emailPromptSubmittedAt: submittedAt,
-    })
-      .then((nextProfile) => {
-        setIdentityProfile(nextProfile);
-        setIdentityUsername(nextProfile.username);
-        setEmailPromptDraft(nextProfile.email ?? "");
-        setEmailPromptNotice({
-          tone: "success",
-          text: "Recovery email saved.",
-        });
-        setIdentityCard(
-          createIdentityCardState(
-            nextProfile.username,
-            Boolean(getWebPublicSupabaseEnv()),
-            nextProfile.email,
-          ),
-        );
-      })
-      .catch(() => {
-        setEmailPromptNotice({
-          tone: "error",
-          text: "Email could not be saved because local storage is unavailable.",
-        });
-      });
-  }
-
-  function handleEmailPromptDismiss() {
-    const dismissedAt =
-      identityProfile?.emailPromptDismissedAt ?? new Date().toISOString();
-
-    void updateAnonymousProfile(browserIdentityStorage, {
-      emailPromptDismissedAt: dismissedAt,
-    })
-      .then((nextProfile) => {
-        setIdentityProfile(nextProfile);
-        setIdentityCard(
-          createIdentityCardState(
-            nextProfile.username,
-            Boolean(getWebPublicSupabaseEnv()),
-            nextProfile.email,
-          ),
-        );
-        setEmailPromptNotice(null);
-      })
-      .catch(() => {
-        setEmailPromptNotice({
-          tone: "error",
-          text: "Could not save that choice on this device.",
-        });
-      });
-  }
-
   const certificateChecklist = certificate
     ? [
-        `${certificate.pushCount} logs certified across ${certificate.durationLabel}.`,
+        `${certificate.pushCount} cuts certified across ${certificate.durationLabel}.`,
         `${certificate.totalPushLabel} of total push time recorded on the certificate.`,
         "Sharing and live ranking can come later.",
       ]
@@ -1170,6 +1328,31 @@ export function SessionHome() {
     totalPoops > 0 ? Math.round(totalActivePushMs / totalPoops) : null;
   const averageCutNumber = totalPoops > 0 ? totalCutCount / totalPoops : null;
 
+  const uniqueDayKeys = new Set(
+    sessionHistoryRecords.map((record) =>
+      toLocalDateKey(new Date(record.completedAt)),
+    ),
+  );
+  const uniqueDayCount = uniqueDayKeys.size;
+  const averagePoopsPerDay =
+    uniqueDayCount > 0 ? totalPoops / uniqueDayCount : null;
+
+  const startMinuteValues = sessionHistoryRecords.map((record) => {
+    const start = new Date(
+      new Date(record.completedAt).getTime() - record.durationMs,
+    );
+    return start.getHours() * 60 + start.getMinutes();
+  });
+  const averageStartMinutes =
+    startMinuteValues.length > 0
+      ? startMinuteValues.reduce((sum, value) => sum + value, 0) /
+        startMinuteValues.length
+      : null;
+
+  const yearHeatmapNow = new Date();
+  const yearHeatmap = buildYearHeatmap(sessionHistoryRecords, yearHeatmapNow);
+  const yearLabel = yearHeatmapNow.getFullYear();
+
   return (
     <main className="shell-page shell-home-page">
       <PageChromeControls onHome={handleReturnHome} />
@@ -1195,168 +1378,144 @@ export function SessionHome() {
             <PageBackControl onBack={handleReturnHome} />
           ) : null}
 
-          {isEmailPromptVisible ? (
-            <ProtectHistoryBanner
-              sessionCount={completedSessionCount}
-              emailDraft={emailPromptDraft}
-              notice={emailPromptNotice}
-              onEmailDraftChange={(nextDraft) => {
-                setEmailPromptDraft(nextDraft);
-
-                if (emailPromptNotice?.tone === "error") {
-                  setEmailPromptNotice(null);
-                }
-              }}
-              onSubmit={handleEmailPromptSubmit}
-              onDismiss={handleEmailPromptDismiss}
-            />
-          ) : null}
-
           <div
-            className={`shell-content-grid${isLandingState || isActiveSession ? " is-landing-layout" : ""}`}
+            className={`shell-content-grid${isLandingState || isActiveSession || isCertificateVisible ? " is-landing-layout" : ""}`}
           >
-            {isCertificateVisible && certificate ? (
-              <CertificateView
-                certificate={certificate}
-                onStartAnotherSession={handleStartSession}
-              />
-            ) : isActiveSession && sessionActivity ? (
-              <ActiveSessionView
-                sessionActivity={sessionActivity}
-                now={timerNow}
-                confettiToken={confettiToken}
-                encouragementMessage={
-                  encouragementMessage ?? "hang in there, champ"
-                }
-                liveFeedMessages={liveFeedMessages}
-                isDiarrhea={isDiarrheaSession}
-                feedDraft={feedDraft}
-                feedNotice={feedNotice}
-                onHoldStart={handleHoldStart}
-                onHoldEnd={handleHoldEnd}
-                onDiarrheaToggle={() => {
-                  setIsDiarrheaSession((current) => !current);
-                }}
-                onFeedDraftChange={(nextDraft) => {
-                  setFeedDraft(nextDraft);
+            <div className="session-panel-stack">
+              {!isCertificateVisible ? (
+                <FloatingFeedOverlay
+                  messages={liveFeedMessages}
+                  now={timerNow}
+                />
+              ) : null}
 
-                  if (feedNotice?.tone === "error") {
-                    setFeedNotice(null);
+              {isActiveSession && sessionActivity ? (
+                <ActiveSessionView
+                  sessionActivity={sessionActivity}
+                  now={timerNow}
+                  confettiToken={confettiToken}
+                  onHoldStart={handleHoldStart}
+                  onHoldEnd={handleHoldEnd}
+                  immediateGenEnabled={immediateGenEnabled}
+                  onToggleImmediateGen={() => setImmediateGenEnabled((v) => !v)}
+                  hasPendingFlush={
+                    !immediateGenEnabled && sessionActivity.pushCount > 0
                   }
-                }}
-                onFeedSubmit={handleFeedSubmit}
-                onFlush={handleFlushSession}
-              />
-            ) : (
-              <LandingView onStart={handleStartSession} />
-            )}
+                  onFlush={handleFlush}
+                />
+              ) : !isCertificateVisible ? (
+                <LandingView onStart={handleStartSession} />
+              ) : null}
 
-            {!isActiveSession ? (
+              {isCertificateVisible && certificate ? (
+                <CertificateView
+                  certificate={certificate}
+                  onGoAgain={handleStartSession}
+                  onDone={handleReturnHome}
+                />
+              ) : null}
+            </div>
+
+            {!isActiveSession && !isCertificateVisible ? (
               <aside
                 className={`shell-aside${isLandingState ? " is-landing-layout" : ""}`}
               >
                 {identityProfile ? (
                   <section className="shell-aside-card shell-user-stats-card">
                     <div className="shell-user-stats-layout">
-                      <div className="shell-user-stats-copy">
-                        <p className="session-user-stats-line">
-                          <span className="session-user-stats-label">
-                            username:
-                          </span>{" "}
-                          <strong className="session-user-stats-value">
-                            {identityProfile.username}
-                          </strong>
-                        </p>
-                        <p className="session-user-stats-line">
-                          <span className="session-user-stats-label">
-                            started pooping:
-                          </span>{" "}
-                          <strong className="session-user-stats-value">
-                            {formatLocalSlashDate(identityProfile.createdAt)}
-                          </strong>
-                        </p>
-                        <p className="session-user-stats-line">
-                          <span className="session-user-stats-label">
-                            pooped:
-                          </span>{" "}
-                          <strong className="session-user-stats-value">
-                            {totalPoops.toLocaleString()}{" "}
-                            {totalPoops === 1 ? "time" : "times"}
-                          </strong>
-                        </p>
-                        <p className="session-user-stats-line">
-                          <span className="session-user-stats-label">
-                            average poop session time:
-                          </span>{" "}
-                          <strong className="session-user-stats-value">
-                            {formatOptionalDuration(averageSessionDurationMs)}
-                          </strong>
-                        </p>
-                        <p className="session-user-stats-line">
-                          <span className="session-user-stats-label">
-                            average poop time:
-                          </span>{" "}
-                          <strong className="session-user-stats-value">
-                            {formatOptionalDuration(
-                              averageActivePushDurationMs,
-                            )}
-                          </strong>
-                        </p>
-                        <p className="session-user-stats-line">
-                          <span className="session-user-stats-label">
-                            average poop cut number:
-                          </span>{" "}
-                          <strong className="session-user-stats-value">
-                            {formatAverageCutNumber(averageCutNumber)}
-                          </strong>
-                        </p>
-                        <p className="session-user-stats-line">
-                          <span className="session-user-stats-label">
-                            diarrhea rate:
-                          </span>{" "}
-                          <strong className="session-user-stats-value">
-                            {diarrheaCount}/{totalPoops}
-                          </strong>
-                        </p>
+                      <div className="shell-user-stats-text-cols">
+                        <div className="shell-user-stats-col">
+                          <p className="session-user-stats-line">
+                            <span className="session-user-stats-label">
+                              username:
+                            </span>{" "}
+                            <strong className="session-user-stats-value">
+                              {identityProfile.username}
+                            </strong>
+                          </p>
+                          <p className="session-user-stats-line">
+                            <span className="session-user-stats-label">
+                              pooped:
+                            </span>{" "}
+                            <strong className="session-user-stats-value">
+                              {totalPoops.toLocaleString()}{" "}
+                              {totalPoops === 1 ? "time" : "times"}
+                            </strong>
+                          </p>
+                          <p className="session-user-stats-line">
+                            <span className="session-user-stats-label">
+                              average session time:
+                            </span>{" "}
+                            <strong className="session-user-stats-value">
+                              {formatOptionalDuration(averageSessionDurationMs)}
+                            </strong>
+                          </p>
+                          <p className="session-user-stats-line">
+                            <span className="session-user-stats-label">
+                              average poop time:
+                            </span>{" "}
+                            <strong className="session-user-stats-value">
+                              {formatOptionalDuration(
+                                averageActivePushDurationMs,
+                              )}
+                            </strong>
+                          </p>
+                        </div>
+                        <div className="shell-user-stats-col">
+                          <p className="session-user-stats-line">
+                            <span className="session-user-stats-label">
+                              average session start time:
+                            </span>{" "}
+                            <strong className="session-user-stats-value">
+                              {formatTimeOfDay(averageStartMinutes)}
+                            </strong>
+                          </p>
+                          <p className="session-user-stats-line">
+                            <span className="session-user-stats-label">
+                              average poop a day:
+                            </span>{" "}
+                            <strong className="session-user-stats-value">
+                              {formatPerDay(averagePoopsPerDay)}
+                            </strong>
+                          </p>
+                          <p className="session-user-stats-line">
+                            <span className="session-user-stats-label">
+                              current streak:
+                            </span>{" "}
+                            <strong className="session-user-stats-value">
+                              {sessionStatsSnapshot?.streaks.current ?? 0}{" "}
+                              {(sessionStatsSnapshot?.streaks.current ?? 0) ===
+                              1
+                                ? "day"
+                                : "days"}
+                            </strong>
+                          </p>
+                          <p className="session-user-stats-line">
+                            <span className="session-user-stats-label">
+                              best streak:
+                            </span>{" "}
+                            <strong className="session-user-stats-value">
+                              {sessionStatsSnapshot?.streaks.best ?? 0}{" "}
+                              {(sessionStatsSnapshot?.streaks.best ?? 0) === 1
+                                ? "day"
+                                : "days"}
+                            </strong>
+                          </p>
+                        </div>
                       </div>
 
                       <div className="shell-user-stats-side">
-                        <div className="shell-user-stats-streak-grid">
-                          <div className="shell-user-stats-streak-card">
-                            <span className="stats-record-label">
-                              Current streak
-                            </span>
-                            <strong className="shell-user-stats-side-value">
-                              {sessionStatsSnapshot?.streaks.current ?? 0}
-                              <span className="shell-user-stats-side-unit">
-                                {(sessionStatsSnapshot?.streaks.current ??
-                                  0) === 1
-                                  ? "day"
-                                  : "days"}
-                              </span>
-                            </strong>
-                          </div>
-                          <div className="shell-user-stats-streak-card">
-                            <span className="stats-record-label">
-                              Best streak
-                            </span>
-                            <strong className="shell-user-stats-side-value">
-                              {sessionStatsSnapshot?.streaks.best ?? 0}
-                              <span className="shell-user-stats-side-unit">
-                                {(sessionStatsSnapshot?.streaks.best ?? 0) === 1
-                                  ? "day"
-                                  : "days"}
-                              </span>
-                            </strong>
-                          </div>
-                        </div>
+                        <div className="shell-user-stats-streak-grid"></div>
 
                         <div className="shell-user-stats-heatmap-wrap">
                           <div className="shell-user-stats-heatmap-head">
-                            <span className="stats-record-label">Heatmap</span>
-                            <span className="shell-user-stats-heatmap-caption">
-                              Last 9 weeks
-                            </span>
+                            <button
+                              type="button"
+                              className="shell-user-stats-heatmap-trigger"
+                              onClick={() => setIsYearHeatmapOpen(true)}
+                            >
+                              Heatmap
+                            </button>
                           </div>
                           <div
                             className="shell-user-stats-heatmap"
@@ -1367,17 +1526,62 @@ export function SessionHome() {
                               <span
                                 key={cell.dateKey}
                                 className={`stats-heatmap-cell level-${cell.level}`}
-                                title={
-                                  sessionStatsSnapshot
-                                    ? `${cell.dateKey}: ${cell.count} session${cell.count === 1 ? "" : "s"}`
-                                    : undefined
-                                }
+                                data-tip={`${cell.dateKey.replace(/-/g, "/")} · ${cell.count} ${cell.count === 1 ? "time" : "times"}`}
                               />
                             ))}
                           </div>
                         </div>
                       </div>
                     </div>
+
+                    {isYearHeatmapOpen ? (
+                      <div className="shell-year-heatmap-overlay">
+                        <div className="shell-year-heatmap-head">
+                          <h3 className="shell-year-heatmap-title">
+                            {yearLabel} Heatmap
+                          </h3>
+                          <button
+                            type="button"
+                            className="shell-year-heatmap-close"
+                            onClick={() => setIsYearHeatmapOpen(false)}
+                            aria-label="Close year heatmap"
+                          >
+                            ×
+                          </button>
+                        </div>
+                        <div
+                          className="shell-year-heatmap-grid"
+                          role="img"
+                          aria-label={`${yearLabel} session heatmap`}
+                        >
+                          {yearHeatmap.map((cell, index) => (
+                            <span
+                              key={cell.dateKey}
+                              className={`stats-heatmap-cell level-${cell.level}`}
+                              style={
+                                index === 0
+                                  ? { gridRowStart: cell.weekday + 1 }
+                                  : undefined
+                              }
+                              title={`${cell.dateKey.replace(/-/g, "/")}: ${cell.count} ${cell.count === 1 ? "time" : "times"}`}
+                            />
+                          ))}
+                        </div>
+                        <div className="shell-year-heatmap-legend">
+                          <span className="shell-year-heatmap-legend-label">
+                            Less
+                          </span>
+                          <span className="stats-heatmap-cell level-0" />
+                          <span className="stats-heatmap-cell level-1" />
+                          <span className="stats-heatmap-cell level-2" />
+                          <span className="stats-heatmap-cell level-3" />
+                          <span className="stats-heatmap-cell level-4" />
+                          <span className="shell-year-heatmap-legend-label">
+                            More
+                          </span>
+                        </div>
+                      </div>
+                    ) : null}
                   </section>
                 ) : (
                   <section className="shell-aside-card">
@@ -1408,29 +1612,29 @@ export function SessionHome() {
         </section>
 
         <ShellNav />
-
-        <footer className="shell-footer">
-          <p className="session-status-line" aria-live="polite">
-            <strong>Status:</strong>
-            <span className="session-status-item-inline">
-              real-time stats
-              <span
-                className={`session-status-dot${isRealtimeStatsActive ? " is-active" : " is-inactive"}`}
-                aria-label={isRealtimeStatsActive ? "active" : "inactive"}
-                title={isRealtimeStatsActive ? "active" : "inactive"}
-              />
-            </span>
-            <span className="session-status-item-inline">
-              local data loaded
-              <span
-                className={`session-status-dot${hasLoadedPreviousLocalData ? " is-active" : " is-inactive"}`}
-                aria-label={hasLoadedPreviousLocalData ? "active" : "inactive"}
-                title={hasLoadedPreviousLocalData ? "active" : "inactive"}
-              />
-            </span>
-          </p>
-        </footer>
       </div>
+
+      <footer className="shell-footer">
+        <p className="session-status-line" aria-live="polite">
+          <strong>Status:</strong>
+          <span className="session-status-item-inline">
+            real-time stats
+            <span
+              className={`session-status-dot${isRealtimeStatsActive ? " is-active" : " is-inactive"}`}
+              aria-label={isRealtimeStatsActive ? "active" : "inactive"}
+              title={isRealtimeStatsActive ? "active" : "inactive"}
+            />
+          </span>
+          <span className="session-status-item-inline">
+            local data loaded
+            <span
+              className={`session-status-dot${hasLoadedPreviousLocalData ? " is-active" : " is-inactive"}`}
+              aria-label={hasLoadedPreviousLocalData ? "active" : "inactive"}
+              title={hasLoadedPreviousLocalData ? "active" : "inactive"}
+            />
+          </span>
+        </p>
+      </footer>
     </main>
   );
 }

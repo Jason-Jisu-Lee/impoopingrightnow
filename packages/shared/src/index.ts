@@ -56,7 +56,6 @@ export type {
 export {
   getDailyPoopCounterSeed,
   getSimulatedCounterSeed,
-  getEncouragementMessage,
   simulateCounterTick,
   simulatedCounterFloor,
 } from "./session-ambience";
@@ -65,13 +64,11 @@ export type { SimulatedCounterSnapshot } from "./session-ambience";
 export {
   appendLiveFeedMessage,
   createUserLiveFeedMessage,
-  getLiveFeedPhase,
   getSeededLiveFeedMessage,
   validateLiveFeedInput,
 } from "./live-feed";
 export type {
   LiveFeedMessage,
-  LiveFeedPhase,
   LiveFeedValidationResult,
 } from "./live-feed";
 

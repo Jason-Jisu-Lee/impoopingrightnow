@@ -11,10 +11,21 @@ type ShellNavItem = {
 };
 
 const shellNavItems: ShellNavItem[] = [
+  { href: "/", label: "Home", title: "Home", glyph: "H" },
   { href: "/my-stats", label: "Records", title: "My Stats", glyph: "R" },
   { href: "/global", label: "World", title: "World Board", glyph: "W" },
   { href: "/settings", label: "Settings", title: "Settings", glyph: "S" },
 ];
+
+function HomeIcon() {
+  return (
+    <svg className="shell-nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 11.5 12 4.5l8 7" />
+      <path d="M5.5 10.8V19.5h13V10.8" />
+      <path d="M10 19.5v-5h4v5" />
+    </svg>
+  );
+}
 
 function RecordsIcon() {
   return (
@@ -48,6 +59,10 @@ function SettingsIcon() {
 }
 
 function NavIcon({ href, glyph }: Pick<ShellNavItem, "href" | "glyph">) {
+  if (href === "/") {
+    return <HomeIcon />;
+  }
+
   if (href === "/my-stats") {
     return <RecordsIcon />;
   }
@@ -71,7 +86,7 @@ export function ShellNav() {
       {shellNavItems.map((item) => (
         <Link
           key={item.href}
-          href={item.href}
+          href={item.href === "/" ? "/" : "/under-construction"}
           className={`shell-nav-link${pathname === item.href ? " is-active" : ""}`}
           aria-current={pathname === item.href ? "page" : undefined}
         >

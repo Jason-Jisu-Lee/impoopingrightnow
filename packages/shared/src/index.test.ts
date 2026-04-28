@@ -220,8 +220,8 @@ describe("session runtime", () => {
       activePushStartedAt: null,
       lastPushMs: 3250,
     });
-    expect(getHoldButtonLabel(releasedPush.pushCount)).toBe(
-      "IT'S COMING OUT AGAIN",
+    expect(getHoldButtonLabel(releasedPush.pushCount, false)).toBe(
+      "I'M NOT DONE",
     );
   });
 
@@ -229,7 +229,9 @@ describe("session runtime", () => {
     const idleState = createSessionActivityState("2026-04-24T12:00:00.000Z");
 
     expect(releasePush(idleState)).toBe(idleState);
-    expect(getHoldButtonLabel(idleState.pushCount)).toBe("IT'S COMING OUT");
+    expect(getHoldButtonLabel(idleState.pushCount, false)).toBe(
+      "IT'S COMING OUT",
+    );
     expect(formatDurationMs(0)).toBe("00:00");
     expect(formatDurationMs(125000)).toBe("02:05");
     expect(formatDurationMs(3661000)).toBe("1:01:01");

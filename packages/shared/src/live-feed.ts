@@ -1,7 +1,5 @@
 import { masterWordBank } from "./word-bank";
 
-export type LiveFeedPhase = "early" | "middle" | "push" | "victory";
-
 export type LiveFeedMessage = {
   id: string;
   username: string;
@@ -20,7 +18,7 @@ export type LiveFeedValidationResult =
       errorMessage: string;
     };
 
-const maxLiveFeedMessageLength = 60;
+const maxLiveFeedMessageLength = 20;
 
 const profanityBlocklist = ["fuck", "shit", "bitch", "asshole"];
 
@@ -32,8 +30,7 @@ const seededUsernames = [
   "SneakyPebble_44",
 ] as const;
 
-const seededMessagesByPhase: Record<LiveFeedPhase, readonly string[]> =
-  masterWordBank.fake_user_feed;
+const seededMessages: readonly string[] = masterWordBank.fake_user_feed;
 
 function createFeedId(now: Date, random: () => number): string {
   return `${now.getTime()}-${Math.floor(random() * 1_000_000)}`;
@@ -45,41 +42,17 @@ function pickRandomItem<T>(items: readonly T[], random: () => number): T {
   return items[index] ?? items[0];
 }
 
-export function getLiveFeedPhase(options: {
-  sessionElapsedMs: number;
-  pushCount: number;
-  isHolding: boolean;
-}): LiveFeedPhase {
-  if (options.isHolding) {
-    return "push";
-  }
-
-  if (options.pushCount >= 2) {
-    return "victory";
-  }
-
-  if (options.sessionElapsedMs >= 2 * 60 * 1000 || options.pushCount > 0) {
-    return "middle";
-  }
-
-  return "early";
-}
-
 export function getSeededLiveFeedMessage(options: {
-  sessionElapsedMs: number;
-  pushCount: number;
-  isHolding: boolean;
   now?: Date;
   random?: () => number;
 }): LiveFeedMessage {
   const random = options.random ?? Math.random;
   const now = options.now ?? new Date();
-  const phase = getLiveFeedPhase(options);
 
   return {
     id: createFeedId(now, random),
     username: pickRandomItem(seededUsernames, random),
-    message: pickRandomItem(seededMessagesByPhase[phase], random),
+    message: pickRandomItem(seededMessages, random),
     createdAt: now.toISOString(),
     source: "seed",
   };
