@@ -931,7 +931,7 @@ export function SessionHome() {
   const [certificate, setCertificate] = useState<SessionCertificate | null>(
     null,
   );
-  const [immediateGenEnabled, setImmediateGenEnabled] = useState(true);
+  const [immediateGenEnabled, setImmediateGenEnabled] = useState(false);
   const [isYearHeatmapOpen, setIsYearHeatmapOpen] = useState(false);
   const [timerNow, setTimerNow] = useState<Date>(() => new Date());
   const [confettiToken, setConfettiToken] = useState(0);

@@ -67,10 +67,7 @@ export {
   getSeededLiveFeedMessage,
   validateLiveFeedInput,
 } from "./live-feed";
-export type {
-  LiveFeedMessage,
-  LiveFeedValidationResult,
-} from "./live-feed";
+export type { LiveFeedMessage, LiveFeedValidationResult } from "./live-feed";
 
 export { masterWordBank } from "./word-bank";
 
