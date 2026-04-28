@@ -404,7 +404,7 @@ function FloatingFeedOverlay({
     .filter(
       (message) => now.getTime() - new Date(message.createdAt).getTime() < 7800,
     )
-    .slice(-4);
+    .slice(-5);
 
   if (visibleMessages.length === 0) {
     return null;
@@ -1083,23 +1083,28 @@ export function SessionHome() {
         setSimulatedCounter(nextSnapshot.count);
 
         if (didCounterDecrease) {
-          const feedDelayMs = 3000 + Math.floor(Math.random() * 3001);
-          window.setTimeout(() => {
-            if (!isActive) return;
-            const msg = getSeededLiveFeedMessage({});
-            setLiveFeedMessages((current) => {
-              const last = current[current.length - 1];
-              const lastTime = last ? new Date(last.createdAt).getTime() : 0;
-              const now2 = new Date();
-              const safeTime = new Date(
-                Math.max(now2.getTime(), lastTime + 150),
-              );
-              return appendLiveFeedMessage(current, {
-                ...msg,
-                createdAt: safeTime.toISOString(),
+          const sessionDurationMs =
+            30_000 + Math.floor(Math.random() * 270_001);
+          const messageCount = Math.floor(Math.random() * 3); // 0, 1, or 2
+          for (let msgIndex = 0; msgIndex < messageCount; msgIndex += 1) {
+            const msgDelayMs = Math.floor(Math.random() * sessionDurationMs);
+            window.setTimeout(() => {
+              if (!isActive) return;
+              const msg = getSeededLiveFeedMessage({});
+              setLiveFeedMessages((current) => {
+                const last = current[current.length - 1];
+                const lastTime = last ? new Date(last.createdAt).getTime() : 0;
+                const now2 = new Date();
+                const safeTime = new Date(
+                  Math.max(now2.getTime(), lastTime + 150),
+                );
+                return appendLiveFeedMessage(current, {
+                  ...msg,
+                  createdAt: safeTime.toISOString(),
+                });
               });
-            });
-          }, feedDelayMs);
+            }, msgDelayMs);
+          }
         }
 
         scheduleNextTick(nextSnapshot.nextDelayMs);
@@ -1514,13 +1519,13 @@ export function SessionHome() {
                               className="shell-user-stats-heatmap-trigger"
                               onClick={() => setIsYearHeatmapOpen(true)}
                             >
-                              Heatmap
+                              Poop Calendar
                             </button>
                           </div>
                           <div
                             className="shell-user-stats-heatmap"
                             role="img"
-                            aria-label="Recent session heatmap"
+                            aria-label="Recent poop calendar"
                           >
                             {userStatsHeatmap.map((cell) => (
                               <span
@@ -1538,13 +1543,13 @@ export function SessionHome() {
                       <div className="shell-year-heatmap-overlay">
                         <div className="shell-year-heatmap-head">
                           <h3 className="shell-year-heatmap-title">
-                            {yearLabel} Heatmap
+                            {yearLabel} Poop Calendar
                           </h3>
                           <button
                             type="button"
                             className="shell-year-heatmap-close"
                             onClick={() => setIsYearHeatmapOpen(false)}
-                            aria-label="Close year heatmap"
+                            aria-label="Close poop calendar"
                           >
                             ×
                           </button>
@@ -1552,7 +1557,7 @@ export function SessionHome() {
                         <div
                           className="shell-year-heatmap-grid"
                           role="img"
-                          aria-label={`${yearLabel} session heatmap`}
+                          aria-label={`${yearLabel} poop calendar`}
                         >
                           {yearHeatmap.map((cell, index) => (
                             <span

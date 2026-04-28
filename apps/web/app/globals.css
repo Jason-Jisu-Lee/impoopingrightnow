@@ -37,6 +37,7 @@ body {
   min-height: 100vh;
   color: var(--ink);
   font-family: var(--font-mono), "Courier New", monospace;
+  overflow-x: hidden;
 }
 
 .sr-only {
@@ -1969,6 +1970,7 @@ select {
   inset: 0;
   z-index: 5;
   pointer-events: none;
+  overflow: hidden;
 }
 
 .session-floating-feed-note {
@@ -3295,8 +3297,109 @@ select {
 }
 
 @media (max-width: 560px) {
+  /* ---- Bottom tab nav ---- */
+  .shell-nav {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: none;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+    padding: 0 0 env(safe-area-inset-bottom, 0px);
+    background: rgba(243, 234, 216, 0.97);
+    border-top: 1px solid rgba(35, 23, 13, 0.12);
+    backdrop-filter: blur(14px);
+    z-index: 10;
+  }
+
+  .shell-nav::before {
+    content: none;
+  }
+
+  .shell-nav-link {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    width: auto;
+    height: 56px;
+    padding: 6px 4px;
+    border-radius: 0;
+    background: transparent;
+    color: rgba(35, 23, 13, 0.45);
+    overflow: visible;
+    transition: color 140ms ease;
+  }
+
+  .shell-nav-link:hover,
+  .shell-nav-link:focus-visible {
+    width: auto;
+    background: transparent;
+    color: var(--ink);
+    box-shadow: none;
+    outline: none;
+  }
+
+  .shell-nav-link.is-active {
+    color: var(--accent);
+  }
+
+  .shell-nav-link.is-active:hover,
+  .shell-nav-link.is-active:focus-visible {
+    background: transparent;
+  }
+
+  .shell-nav-glyph {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 auto;
+  }
+
+  .shell-nav-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .shell-nav-copy {
+    opacity: 1;
+    transform: none;
+    padding: 0;
+  }
+
+  .shell-nav-link:hover .shell-nav-copy,
+  .shell-nav-link:focus-visible .shell-nav-copy {
+    opacity: 1;
+    transform: none;
+  }
+
+  .shell-nav-label {
+    display: block;
+    font-family: var(--font-mono), "Courier New", monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .shell-nav-title {
+    display: none;
+  }
+
+  /* ---- Page layout ---- */
   .shell-page {
-    padding: 14px 10px 32px 68px;
+    padding: 12px 12px 80px 12px;
+  }
+
+  /* Bottom nav needs extra clearance */
+  .shell-page > .shell-frame > .shell-footer {
+    margin-bottom: 0;
   }
 
   .shell-top-controls-wrap {
@@ -3355,16 +3458,6 @@ select {
     letter-spacing: 0.06em;
   }
 
-  .shell-nav-link,
-  .shell-nav-link.is-active {
-    padding: 0 12px 0 4px;
-    height: 40px;
-  }
-
-  .shell-nav-title {
-    font-size: 1rem;
-  }
-
   .shell-panel-title {
     font-size: clamp(1.7rem, 9vw, 2.35rem);
   }
@@ -3387,11 +3480,17 @@ select {
     font-size: 0.88rem;
   }
 
+  /* ---- Touch targets ---- */
   .session-primary-action {
-    width: min(100%, 240px);
-    min-height: 46px;
-    padding: 8px 16px;
+    width: min(100%, 260px);
+    min-height: 56px;
+    padding: 10px 16px;
     font-size: 1rem;
+  }
+
+  .session-flush-button {
+    min-height: 52px;
+    padding: 10px 28px;
   }
 
   .session-primary-action .shell-top-logo-mark {
@@ -3399,6 +3498,56 @@ select {
     height: 28px;
   }
 
+  /* ---- Live stats ---- */
+  .session-live-stats {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .session-live-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    border-bottom: 1px solid rgba(35, 23, 13, 0.08);
+  }
+
+  .session-live-stat-label {
+    font-size: 0.68rem;
+    padding-right: 8px;
+  }
+
+  .session-live-stat-value {
+    font-size: 0.95rem;
+    text-align: right;
+  }
+
+  /* ---- Certificate ---- */
+  .certificate-title {
+    font-size: clamp(1.5rem, 7.5vw, 2.4rem);
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .certificate-paper {
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .certificate-seal {
+    width: 110px;
+    min-height: 110px;
+    font-size: 0.72rem;
+    padding: 14px;
+  }
+
+  /* ---- Feed notes ---- */
+  .session-floating-feed-message {
+    font-size: clamp(0.9rem, 2.4vw, 1.1rem);
+  }
+
+  /* ---- Misc ---- */
   .session-live-stamp,
   .session-feed-notice,
   .session-live-footer p {

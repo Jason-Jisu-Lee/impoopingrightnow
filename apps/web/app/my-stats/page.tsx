@@ -72,7 +72,7 @@ export default function MyStatsPage() {
             </div>
           </div>
           <p className="banner-subtitle">
-            Heatmap, streaks, personal records, and the weekly summary are now
+            Your poop calendar, streaks, personal records, and the weekly summary are now
             derived from sessions completed in this browser. Nothing here is
             faked.
           </p>
@@ -86,7 +86,7 @@ export default function MyStatsPage() {
               <header className="shell-panel-head">
                 <p className="eyebrow">Retention surfaces</p>
                 <h2 className="shell-panel-title">
-                  Heatmap, streaks, and records now have real data.
+                  Your poop calendar, streaks, and records now have real data.
                 </h2>
                 <p className="shell-panel-body">
                   This slice stays local-first: completed sessions are stored on
@@ -99,14 +99,14 @@ export default function MyStatsPage() {
                 <>
                   <section className="stats-heatmap-card">
                     <div className="stats-section-head">
-                      <h3>Heatmap</h3>
+                      <h3>Poop Calendar</h3>
                       <p>Last 12 weeks of completed sessions.</p>
                     </div>
 
                     <div
                       className="stats-heatmap-grid"
                       role="img"
-                      aria-label="Session heatmap"
+                      aria-label="Poop calendar"
                     >
                       {statsSnapshot.heatmap.map((cell) => (
                         <span
@@ -187,7 +187,7 @@ export default function MyStatsPage() {
                   <p className="stats-summary-text">
                     {isStatsLoading
                       ? "Reading saved sessions from this browser."
-                      : "Finish at least one session and flush it to populate heatmap, streaks, and personal records."}
+                      ? "Finish at least one session and flush it to populate your poop calendar, streaks, and personal records."
                   </p>
                 </section>
               )}
