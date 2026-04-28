@@ -119,6 +119,7 @@ export default function MyStatsPage() {
     pageData?.snapshot ?? (pageData === undefined ? undefined : null);
   const isStatsLoading = pageData === undefined;
   const hasStats = pageData !== undefined && pageData.snapshot !== null;
+  const snapshot = hasStats ? pageData!.snapshot! : null;
   const totalSessions = pageData?.snapshot?.totalSessions ?? 0;
   const username = pageData?.username ?? null;
   const averages = computeAverages(pageData?.records ?? []);
@@ -218,7 +219,7 @@ export default function MyStatsPage() {
                       role="img"
                       aria-label="Poop calendar"
                     >
-                      {statsSnapshot.heatmap.map((cell) => (
+                      {snapshot?.heatmap.map((cell) => (
                         <span
                           key={cell.dateKey}
                           className={`stats-heatmap-cell level-${cell.level}`}
@@ -245,13 +246,13 @@ export default function MyStatsPage() {
                       <span className="stats-record-label">Fastest poop</span>
                       <strong>
                         {formatDurationMs(
-                          statsSnapshot.records.fastest.durationMs,
+                          snapshot!.records.fastest.durationMs,
                         )}
                       </strong>
                       <p>
-                        Logged by {statsSnapshot.records.fastest.username} with{" "}
-                        {statsSnapshot.records.fastest.pushCount} log
-                        {statsSnapshot.records.fastest.pushCount === 1
+                        Logged by {snapshot!.records.fastest.username} with{" "}
+                        {snapshot!.records.fastest.pushCount} log
+                        {snapshot!.records.fastest.pushCount === 1
                           ? ""
                           : "s"}
                         .
@@ -262,13 +263,13 @@ export default function MyStatsPage() {
                       <span className="stats-record-label">Longest poop</span>
                       <strong>
                         {formatDurationMs(
-                          statsSnapshot.records.longest.durationMs,
+                          snapshot!.records.longest.durationMs,
                         )}
                       </strong>
                       <p>
                         Total push time:{" "}
                         {formatDurationMs(
-                          statsSnapshot.records.longest.totalPushMs,
+                          snapshot!.records.longest.totalPushMs,
                         )}
                         .
                       </p>
@@ -277,12 +278,12 @@ export default function MyStatsPage() {
                     <article className="stats-record-card">
                       <span className="stats-record-label">Most logs</span>
                       <strong>
-                        {statsSnapshot.records.mostLogs.pushCount}
+                        {snapshot!.records.mostLogs.pushCount}
                       </strong>
                       <p>
                         Completed over{" "}
                         {formatDurationMs(
-                          statsSnapshot.records.mostLogs.durationMs,
+                          snapshot!.records.mostLogs.durationMs,
                         )}
                         .
                       </p>
@@ -308,7 +309,7 @@ export default function MyStatsPage() {
                 <h3>Weekly Summary</h3>
                 <p className="stats-summary-text">
                   {hasStats
-                    ? statsSnapshot.weeklySummary.summaryText
+                    ? snapshot!.weeklySummary.summaryText
                     : isStatsLoading
                       ? "Loading local session history."
                       : "No weekly summary yet because this browser has no completed flushed sessions."}
@@ -328,8 +329,8 @@ export default function MyStatsPage() {
                   <div>
                     <span className="stats-record-label">Current</span>
                     <strong>
-                      {hasStats ? statsSnapshot.streaks.current : 0}{" "}
-                      {(hasStats ? statsSnapshot.streaks.current : 0) === 1
+                      {hasStats ? snapshot!.streaks.current : 0}{" "}
+                      {(hasStats ? snapshot!.streaks.current : 0) === 1
                         ? "day"
                         : "days"}
                     </strong>
@@ -337,8 +338,8 @@ export default function MyStatsPage() {
                   <div>
                     <span className="stats-record-label">Best</span>
                     <strong>
-                      {hasStats ? statsSnapshot.streaks.best : 0}{" "}
-                      {(hasStats ? statsSnapshot.streaks.best : 0) === 1
+                      {hasStats ? snapshot!.streaks.best : 0}{" "}
+                      {(hasStats ? snapshot!.streaks.best : 0) === 1
                         ? "day"
                         : "days"}
                     </strong>
