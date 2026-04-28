@@ -245,26 +245,19 @@ export default function MyStatsPage() {
                     <article className="stats-record-card">
                       <span className="stats-record-label">Fastest poop</span>
                       <strong>
-                        {formatDurationMs(
-                          snapshot!.records.fastest.durationMs,
-                        )}
+                        {formatDurationMs(snapshot!.records.fastest.durationMs)}
                       </strong>
                       <p>
                         Logged by {snapshot!.records.fastest.username} with{" "}
                         {snapshot!.records.fastest.pushCount} log
-                        {snapshot!.records.fastest.pushCount === 1
-                          ? ""
-                          : "s"}
-                        .
+                        {snapshot!.records.fastest.pushCount === 1 ? "" : "s"}.
                       </p>
                     </article>
 
                     <article className="stats-record-card">
                       <span className="stats-record-label">Longest poop</span>
                       <strong>
-                        {formatDurationMs(
-                          snapshot!.records.longest.durationMs,
-                        )}
+                        {formatDurationMs(snapshot!.records.longest.durationMs)}
                       </strong>
                       <p>
                         Total push time:{" "}
@@ -277,9 +270,7 @@ export default function MyStatsPage() {
 
                     <article className="stats-record-card">
                       <span className="stats-record-label">Most logs</span>
-                      <strong>
-                        {snapshot!.records.mostLogs.pushCount}
-                      </strong>
+                      <strong>{snapshot!.records.mostLogs.pushCount}</strong>
                       <p>
                         Completed over{" "}
                         {formatDurationMs(

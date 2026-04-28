@@ -1238,7 +1238,9 @@ select {
 }
 
 .session-hold-button.is-holding {
-  animation: session-hold-pulse 900ms ease-in-out infinite;
+  animation:
+    session-hold-pulse 900ms ease-in-out infinite,
+    session-hold-darken 7s ease-out forwards;
 }
 
 .session-push-helper {
@@ -3208,6 +3210,23 @@ select {
 
   50% {
     transform: scale(1.061);
+  }
+}
+
+@keyframes session-hold-darken {
+  0% {
+    background: linear-gradient(
+      135deg,
+      rgba(140, 90, 43, 0.26),
+      rgba(140, 90, 43, 0.18)
+    );
+  }
+  100% {
+    background: linear-gradient(
+      135deg,
+      rgba(140, 90, 43, 0.58),
+      rgba(140, 90, 43, 0.46)
+    );
   }
 }
 

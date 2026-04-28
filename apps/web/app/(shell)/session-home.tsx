@@ -773,7 +773,7 @@ function ActiveSessionView({
         <div className="session-live-stat">
           <span className="session-live-stat-label">Push timer</span>
           <span className="session-live-stat-value">
-            {isHolding ? `${formatTimerSMs(livePushMs)} s` : "—"}
+            {formatTimerSMs(sessionActivity.totalPushMs + (isHolding ? livePushMs : 0))} s
           </span>
         </div>
         <div className="session-live-stat">
