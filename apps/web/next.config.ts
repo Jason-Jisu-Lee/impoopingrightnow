@@ -6,6 +6,7 @@ const workspaceRoot = path.resolve(process.cwd(), "../..");
 const nextConfig: NextConfig = {
   transpilePackages: ["@impoopingrightnow/shared"],
   outputFileTracingRoot: workspaceRoot,
+  devIndicators: false,
   turbopack: {
     root: workspaceRoot,
   },

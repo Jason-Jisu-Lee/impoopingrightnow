@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, IBM_Plex_Mono } from "next/font/google";
+import {
+  Cormorant_Garamond,
+  IBM_Plex_Mono,
+  Playfair_Display,
+} from "next/font/google";
 
 import "./globals.css";
 
@@ -7,6 +11,12 @@ const displayFont = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-display",
   weight: ["500", "600", "700"],
+});
+
+const timerFont = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-timer",
+  weight: ["700", "800", "900"],
 });
 
 const monoFont = IBM_Plex_Mono({
@@ -27,7 +37,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${displayFont.variable} ${monoFont.variable}`}>
+      <body
+        className={`${displayFont.variable} ${monoFont.variable} ${timerFont.variable}`}
+      >
         {children}
       </body>
     </html>

@@ -9,23 +9,6 @@ type SimulatedCounterAnchor = {
   volatility: number;
 };
 
-const rotatingEncouragementMessages = [
-  "hang in there, champ",
-  "official business is underway",
-  "steady breathing. steady purpose.",
-  "gravity is doing its part.",
-] as const;
-
-const milestoneMessages = [
-  { thresholdMs: 2 * 60 * 1000, message: "Still going?" },
-  { thresholdMs: 5 * 60 * 1000, message: "You okay in there?" },
-  { thresholdMs: 10 * 60 * 1000, message: "Try squatting. Seriously." },
-  { thresholdMs: 15 * 60 * 1000, message: "You should call someone." },
-  { thresholdMs: 20 * 60 * 1000, message: "This is a medical situation." },
-] as const;
-
-const encouragementRotationBucketMs = 20 * 1000;
-
 const easternTimeZone = "America/New_York";
 const easternClockFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: easternTimeZone,
@@ -196,30 +179,6 @@ export function getDailyPoopCounterSeed(now: Date = new Date()): number {
       integrateCounterArea(getEasternClockMinutesFloat(now)) /
         averageSessionDurationMinutes,
     ),
-  );
-}
-
-export function getEncouragementMessage(sessionElapsedMs: number): string {
-  const safeElapsedMs = Math.max(0, sessionElapsedMs);
-  let activeMilestoneMessage: string | null = null;
-
-  for (const milestone of milestoneMessages) {
-    if (safeElapsedMs >= milestone.thresholdMs) {
-      activeMilestoneMessage = milestone.message;
-    }
-  }
-
-  if (activeMilestoneMessage) {
-    return activeMilestoneMessage;
-  }
-
-  const encouragementIndex =
-    Math.floor(safeElapsedMs / encouragementRotationBucketMs) %
-    rotatingEncouragementMessages.length;
-
-  return (
-    rotatingEncouragementMessages[encouragementIndex] ??
-    rotatingEncouragementMessages[0]
   );
 }
 
