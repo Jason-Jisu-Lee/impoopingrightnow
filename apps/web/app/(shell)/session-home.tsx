@@ -507,7 +507,7 @@ function LandingView({ onStart }: { onStart: () => void }) {
   return (
     <section className="session-home-panel">
       <div className="session-home-actions">
-        <p className="session-home-start-label">Press It In The Bathroom</p>
+        <p className="session-home-start-label">Ready to poop?</p>
         <button
           type="button"
           className="session-primary-action"
@@ -746,7 +746,16 @@ function ActiveSessionView({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/logo.png"
+            src={
+              isHolding
+                ? [
+                    "/logo-push-1.png",
+                    "/logo-push-2.png",
+                    "/logo-push-3.png",
+                    "/logo-push-4.png",
+                  ][Math.min(3, Math.floor(livePushMs / 1000))] ?? "/logo-push-4.png"
+                : "/logo.png"
+            }
             alt=""
             className="session-hero-logo"
             aria-hidden="true"
