@@ -187,7 +187,7 @@ export default function MyStatsPage() {
                   <p className="stats-summary-text">
                     {isStatsLoading
                       ? "Reading saved sessions from this browser."
-                      ? "Finish at least one session and flush it to populate your poop calendar, streaks, and personal records."
+                      : "Finish at least one session and flush it to populate your poop calendar, streaks, and personal records."}
                   </p>
                 </section>
               )}
