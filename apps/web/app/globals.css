@@ -1728,6 +1728,27 @@ select {
   background: rgba(46, 91, 62, 0.08);
 }
 
+.stats-profile-card {
+  padding: 16px;
+}
+
+.stats-profile-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+}
+
+.stats-profile-item {
+  display: grid;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.stats-profile-item strong {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.05rem;
+}
+
 .profile-banner-copy {
   display: grid;
   gap: 8px;
@@ -3297,7 +3318,10 @@ select {
 }
 
 @media (max-width: 560px) {
-  /* ---- Bottom tab nav ---- */
+  /* ---- Hide home aside (user stats) — lives in Records on mobile ---- */
+  .shell-home-page .shell-aside {
+    display: none;
+  }
   .shell-nav {
     position: fixed;
     top: auto;
@@ -3588,7 +3612,7 @@ select {
   }
 
   .session-floating-feed-layer {
-    inset: 0;
+    inset: 0 0 64px 0;
   }
 
   .session-feed-form {

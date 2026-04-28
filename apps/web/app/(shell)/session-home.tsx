@@ -507,7 +507,7 @@ function LandingView({ onStart }: { onStart: () => void }) {
   return (
     <section className="session-home-panel">
       <div className="session-home-actions">
-        <p className="session-home-start-label">Start</p>
+        <p className="session-home-start-label">Press It In The Bathroom</p>
         <button
           type="button"
           className="session-primary-action"

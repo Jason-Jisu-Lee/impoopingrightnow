@@ -124,7 +124,7 @@ export default function UnderConstructionPage() {
               textAlign: "center",
             }}
           >
-            Under Construction . . .
+            Collecting Data . . .
           </div>
         </section>
       </div>

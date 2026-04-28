@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 
 import {
+  anonymousIdentityStorageKey,
   buildSessionStats,
   formatDurationMs,
   parseStoredSessionHistory,
   sessionHistoryStorageKey,
   type SessionStatsSnapshot,
+  type StoredSessionRecord,
 } from "@impoopingrightnow/shared";
 
 import {
@@ -16,30 +18,93 @@ import {
 } from "../_components/page-chrome-controls";
 import { ShellNav } from "../_components/shell-nav";
 
-function readStatsSnapshot(): SessionStatsSnapshot | null {
+type StatsPageData = {
+  snapshot: SessionStatsSnapshot | null;
+  records: StoredSessionRecord[];
+  username: string | null;
+};
+
+function readPageData(): StatsPageData {
   if (typeof window === "undefined") {
-    return null;
+    return { snapshot: null, records: [], username: null };
   }
 
   try {
-    return buildSessionStats(
-      parseStoredSessionHistory(
-        window.localStorage.getItem(sessionHistoryStorageKey),
-      ),
+    const records = parseStoredSessionHistory(
+      window.localStorage.getItem(sessionHistoryStorageKey),
     );
+    const snapshot = buildSessionStats(records);
+    let username: string | null = null;
+    try {
+      const raw = window.localStorage.getItem(anonymousIdentityStorageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw) as { username?: string };
+        username = typeof parsed.username === "string" ? parsed.username : null;
+      }
+    } catch {
+      // ignore
+    }
+    return { snapshot, records, username };
   } catch {
-    return null;
+    return { snapshot: null, records: [], username: null };
   }
 }
 
+function computeAverages(records: StoredSessionRecord[]) {
+  const total = records.length;
+  if (total === 0) {
+    return {
+      avgDurationMs: null as number | null,
+      avgPushMs: null as number | null,
+      avgStartMinutes: null as number | null,
+      avgPerDay: null as number | null,
+    };
+  }
+  const avgDurationMs = Math.round(
+    records.reduce((s, r) => s + r.durationMs, 0) / total,
+  );
+  const avgPushMs = Math.round(
+    records.reduce((s, r) => s + r.totalPushMs, 0) / total,
+  );
+  const startMins = records.map((r) => {
+    const d = new Date(new Date(r.completedAt).getTime() - r.durationMs);
+    return d.getHours() * 60 + d.getMinutes();
+  });
+  const avgStartMinutes =
+    startMins.reduce((s, v) => s + v, 0) / startMins.length;
+  const uniqueDays = new Set(
+    records.map((r) => {
+      const d = new Date(r.completedAt);
+      return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    }),
+  ).size;
+  const avgPerDay = uniqueDays > 0 ? total / uniqueDays : null;
+  return { avgDurationMs, avgPushMs, avgStartMinutes, avgPerDay };
+}
+
+function formatTimeOfDay(minutes: number | null): string {
+  if (minutes === null) return "--";
+  const safe = ((Math.round(minutes) % 1440) + 1440) % 1440;
+  const h = Math.floor(safe / 60);
+  const m = safe % 60;
+  const period = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(m).padStart(2, "0")} ${period}`;
+}
+
+function formatPerDay(value: number | null): string {
+  if (value === null) return "--";
+  return `${value.toFixed(1)}x / day`;
+}
+
 export default function MyStatsPage() {
-  const [statsSnapshot, setStatsSnapshot] = useState<
-    SessionStatsSnapshot | null | undefined
-  >(undefined);
+  const [pageData, setPageData] = useState<StatsPageData | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     function syncStats() {
-      setStatsSnapshot(readStatsSnapshot());
+      setPageData(readPageData());
     }
 
     syncStats();
@@ -50,9 +115,13 @@ export default function MyStatsPage() {
     };
   }, []);
 
-  const isStatsLoading = statsSnapshot === undefined;
-  const hasStats = statsSnapshot !== undefined && statsSnapshot !== null;
-  const totalSessions = statsSnapshot?.totalSessions ?? 0;
+  const statsSnapshot =
+    pageData?.snapshot ?? (pageData === undefined ? undefined : null);
+  const isStatsLoading = pageData === undefined;
+  const hasStats = pageData !== undefined && pageData.snapshot !== null;
+  const totalSessions = pageData?.snapshot?.totalSessions ?? 0;
+  const username = pageData?.username ?? null;
+  const averages = computeAverages(pageData?.records ?? []);
 
   return (
     <main className="shell-page stats-page">
@@ -72,14 +141,55 @@ export default function MyStatsPage() {
             </div>
           </div>
           <p className="banner-subtitle">
-            Your poop calendar, streaks, personal records, and the weekly summary are now
-            derived from sessions completed in this browser. Nothing here is
-            faked.
+            Your poop calendar, streaks, personal records, and the weekly
+            summary are now derived from sessions completed in this browser.
+            Nothing here is faked.
           </p>
         </section>
 
         <section className="shell-main">
           <PageBackControl />
+
+          {username !== null || hasStats ? (
+            <section className="shell-aside-card stats-profile-card">
+              <div className="stats-profile-row">
+                {username !== null ? (
+                  <div className="stats-profile-item">
+                    <span className="stats-record-label">Username</span>
+                    <strong>{username}</strong>
+                  </div>
+                ) : null}
+                <div className="stats-profile-item">
+                  <span className="stats-record-label">Total sessions</span>
+                  <strong>{totalSessions.toLocaleString()}</strong>
+                </div>
+                {averages.avgDurationMs !== null ? (
+                  <div className="stats-profile-item">
+                    <span className="stats-record-label">Avg session</span>
+                    <strong>{formatDurationMs(averages.avgDurationMs)}</strong>
+                  </div>
+                ) : null}
+                {averages.avgPushMs !== null ? (
+                  <div className="stats-profile-item">
+                    <span className="stats-record-label">Avg push time</span>
+                    <strong>{formatDurationMs(averages.avgPushMs)}</strong>
+                  </div>
+                ) : null}
+                {averages.avgStartMinutes !== null ? (
+                  <div className="stats-profile-item">
+                    <span className="stats-record-label">Avg start time</span>
+                    <strong>{formatTimeOfDay(averages.avgStartMinutes)}</strong>
+                  </div>
+                ) : null}
+                {averages.avgPerDay !== null ? (
+                  <div className="stats-profile-item">
+                    <span className="stats-record-label">Per day</span>
+                    <strong>{formatPerDay(averages.avgPerDay)}</strong>
+                  </div>
+                ) : null}
+              </div>
+            </section>
+          ) : null}
 
           <div className="shell-content-grid">
             <section className="stats-panel">
