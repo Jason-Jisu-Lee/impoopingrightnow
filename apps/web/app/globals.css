@@ -1216,6 +1216,28 @@ select {
   transform: translateY(-7px);
 }
 
+.my-stats-desktop-uc {
+  display: none;
+}
+
+@media (min-width: 561px) {
+  .my-stats-desktop-uc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40vh;
+    font-family: Georgia, serif;
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    text-align: center;
+  }
+
+  .stats-page .shell-main > :not(.my-stats-desktop-uc) {
+    display: none;
+  }
+}
+
 .session-hold-button {
   background: linear-gradient(
     135deg,
@@ -3499,6 +3521,34 @@ select {
   .shell-daily-poop-counter {
     font-size: 0.56rem;
     letter-spacing: 0.06em;
+  }
+
+  /* ---- Landing hero: full-screen centered button ---- */
+  .shell-home-page .shell-main {
+    position: static;
+  }
+
+  .session-landing-panel {
+    position: fixed;
+    inset: 0 0 64px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    background: transparent;
+    padding: 0;
+    z-index: 1;
+  }
+
+  /* Counter: fixed at 25% from top, centered */
+  .shell-home-page .shell-daily-poop-counter {
+    position: fixed;
+    top: 25vh;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 5;
+    font-size: 0.62rem;
   }
 
   .shell-panel-title {

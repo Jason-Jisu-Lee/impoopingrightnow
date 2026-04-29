@@ -326,170 +326,20 @@ export default function SettingsPage() {
         </section>
 
         <section className="shell-main">
-          <PageBackControl />
-
-          {showPassivePrompt ? (
-            <PassiveRecoveryBanner
-              emailDraft={emailDraft}
-              notice={emailNotice}
-              sessionCount={sessionCount}
-              onEmailDraftChange={(nextDraft) => {
-                setEmailDraft(nextDraft);
-
-                if (emailNotice?.tone === "error") {
-                  setEmailNotice(null);
-                }
-              }}
-              onSubmit={handleEmailSubmit}
-              onDismiss={handleDismissPrompt}
-            />
-          ) : null}
-
-          <div className="shell-content-grid">
-            <section className="settings-panel">
-              <header className="shell-panel-head">
-                <p className="eyebrow">Local profile controls</p>
-                <h2 className="shell-panel-title">
-                  Optional edits, no coercion.
-                </h2>
-                <p className="shell-panel-body">
-                  These fields stay local-first for now. They support the
-                  current anonymous flow without adding any auth ceremony to the
-                  app.
-                </p>
-              </header>
-
-              {profile ? (
-                <div className="settings-grid">
-                  <article className="settings-card">
-                    <h3>Username</h3>
-                    <p>
-                      Change the auto-generated alias if you want something less
-                      assigned by the bathroom state.
-                    </p>
-                    <form
-                      className="settings-form"
-                      onSubmit={handleUsernameSubmit}
-                    >
-                      <label className="settings-field">
-                        <span className="stats-record-label">Display name</span>
-                        <input
-                          className="profile-input"
-                          value={usernameDraft}
-                          onChange={(event) => {
-                            setUsernameDraft(event.target.value);
-
-                            if (usernameNotice?.tone === "error") {
-                              setUsernameNotice(null);
-                            }
-                          }}
-                          maxLength={24}
-                          aria-label="Username"
-                        />
-                      </label>
-                      <button type="submit" className="profile-button">
-                        Save Username
-                      </button>
-                    </form>
-                    {usernameNotice ? (
-                      <p className={`profile-notice is-${usernameNotice.tone}`}>
-                        {usernameNotice.text}
-                      </p>
-                    ) : null}
-                  </article>
-
-                  <article className="settings-card">
-                    <h3>Recovery Email</h3>
-                    <p>
-                      Optional and passive. It only exists to protect local poop
-                      history later without forcing a login flow now.
-                    </p>
-                    <form
-                      className="settings-form"
-                      onSubmit={handleEmailSubmit}
-                    >
-                      <label className="settings-field">
-                        <span className="stats-record-label">
-                          Email address
-                        </span>
-                        <input
-                          className="profile-input"
-                          type="email"
-                          inputMode="email"
-                          autoComplete="email"
-                          value={emailDraft}
-                          onChange={(event) => {
-                            setEmailDraft(event.target.value);
-
-                            if (emailNotice?.tone === "error") {
-                              setEmailNotice(null);
-                            }
-                          }}
-                          placeholder="you@example.com"
-                          aria-label="Recovery email"
-                        />
-                      </label>
-                      <button type="submit" className="profile-button">
-                        Save Email
-                      </button>
-                    </form>
-                    {emailNotice ? (
-                      <p className={`profile-notice is-${emailNotice.tone}`}>
-                        {emailNotice.text}
-                      </p>
-                    ) : null}
-                  </article>
-                </div>
-              ) : isProfileLoading ? (
-                <article className="settings-card">
-                  <h3>Loading your identity</h3>
-                  <p>Reading the local anonymous profile for this device.</p>
-                </article>
-              ) : (
-                <article className="settings-card">
-                  <h3>Local profile unavailable</h3>
-                  <p>
-                    Local storage is blocked right now, so username and email
-                    edits cannot persist until browser storage becomes
-                    available.
-                  </p>
-                </article>
-              )}
-            </section>
-
-            <aside className="shell-aside">
-              <section className="shell-aside-card">
-                <h3>Anonymous Identity</h3>
-                <p>
-                  {isProfileLoading
-                    ? "Loading the local anonymous record for this device."
-                    : profile
-                      ? `UUID ${profile.id} stays local-first, and ${profile.username} remains usable without account creation.`
-                      : "The local anonymous record is currently unavailable."}
-                </p>
-              </section>
-
-              <section className="shell-aside-card">
-                <h3>Prompt State</h3>
-                <p>
-                  {isProfileLoading
-                    ? "Checking whether the passive recovery prompt should appear."
-                    : profile &&
-                        shouldShowEmailCapturePrompt(profile, sessionCount)
-                      ? "The passive recovery banner is currently eligible because the device has reached three completed sessions without a submitted or dismissed email prompt."
-                      : "The passive recovery banner is currently resolved, not yet eligible, or intentionally dismissed."}
-                </p>
-              </section>
-
-              <section className="shell-aside-card">
-                <h3>Environment</h3>
-                <p>
-                  {isSupabaseConfigured
-                    ? "Supabase public env is configured. Local settings remain anonymous-first and optional."
-                    : "Supabase public env is still optional here. These settings persist locally either way."}
-                </p>
-              </section>
-            </aside>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "40vh",
+              fontFamily: "Georgia, serif",
+              fontSize: "clamp(1.1rem, 3vw, 1.6rem)",
+              letterSpacing: "0.04em",
+              color: "var(--ink)",
+              textAlign: "center",
+            }}
+          >
+            Under Construction . . .
           </div>
         </section>
 

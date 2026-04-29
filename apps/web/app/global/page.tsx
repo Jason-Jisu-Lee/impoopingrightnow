@@ -75,171 +75,20 @@ export default function GlobalPage() {
         </section>
 
         <section className="shell-main">
-          <PageBackControl />
-
-          <div className="shell-content-grid">
-            <section className="global-panel">
-              <header className="shell-panel-head">
-                <p className="eyebrow">Read-only preview</p>
-                <h2 className="shell-panel-title">
-                  A simple world board for now.
-                </h2>
-                <p className="shell-panel-body">
-                  These country and region cards are still preview data. Real
-                  location-based totals can come later.
-                </p>
-              </header>
-
-              <section className="global-summary-grid">
-                <article className="global-summary-card">
-                  <span className="stats-record-label">This Device</span>
-                  <strong>{localSessionCount.toLocaleString()}</strong>
-                  <p className="global-summary-copy">
-                    Completed sessions saved in this browser. They show up in My
-                    Stats, not on this preview board.
-                  </p>
-                </article>
-
-                <article className="global-summary-card">
-                  <span className="stats-record-label">Threshold</span>
-                  <strong>{globalAnalytics.minimumSessions} sessions</strong>
-                  <p className="global-summary-copy">
-                    Countries and regions stay off the board until they clear
-                    the minimum session count.
-                  </p>
-                </article>
-
-                <article className="global-summary-card">
-                  <span className="stats-record-label">Mode</span>
-                  <strong>Preview-only</strong>
-                  <p className="global-summary-copy">
-                    {globalAnalytics.previewNotice}
-                  </p>
-                </article>
-              </section>
-
-              <section className="global-leaderboard-card">
-                <div className="stats-section-head">
-                  <h3>Countries</h3>
-                  <p>
-                    Average time, peak hour, log rate, and push time are all in
-                    one place.
-                  </p>
-                </div>
-
-                <div className="global-leaderboard-list">
-                  {globalAnalytics.countryLeaderboard.map((row, index) => (
-                    <article key={row.name} className="global-leaderboard-row">
-                      <div className="global-row-head">
-                        <span className="global-rank-badge">
-                          #{String(index + 1).padStart(2, "0")}
-                        </span>
-                        <div className="global-row-title">
-                          <h3>{row.name}</h3>
-                          <p>
-                            {row.sessionCount.toLocaleString()} counted sessions
-                          </p>
-                        </div>
-                      </div>
-
-                      <dl className="global-metric-grid">
-                        <div>
-                          <dt>Avg total time</dt>
-                          <dd>{row.averageDurationLabel}</dd>
-                        </div>
-                        <div>
-                          <dt>Peak hour</dt>
-                          <dd>{row.averagePeakHourLabel}</dd>
-                        </div>
-                        <div>
-                          <dt>Avg logs</dt>
-                          <dd>
-                            {formatAverageLogs(row.averageLogsPerSession)}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>Avg push time</dt>
-                          <dd>{row.averagePushLabel}</dd>
-                        </div>
-                      </dl>
-                    </article>
-                  ))}
-                </div>
-              </section>
-
-              <section className="global-leaderboard-card">
-                <div className="stats-section-head">
-                  <h3>Regions</h3>
-                  <p>
-                    Same preview rules, plus placeholder food profiles for each
-                    region.
-                  </p>
-                </div>
-
-                <div className="global-region-grid">
-                  {globalAnalytics.regionalStats.map((row, index) => (
-                    <article key={row.name} className="global-region-card">
-                      <div className="global-row-head">
-                        <span className="global-rank-badge">
-                          R{String(index + 1).padStart(2, "0")}
-                        </span>
-                        <div className="global-row-title">
-                          <h3>{row.name}</h3>
-                          <p>
-                            {row.sessionCount.toLocaleString()} counted sessions
-                          </p>
-                        </div>
-                      </div>
-
-                      <p className="global-region-food">{row.foodProfile}</p>
-
-                      <dl className="global-metric-grid">
-                        <div>
-                          <dt>Avg total time</dt>
-                          <dd>{row.averageDurationLabel}</dd>
-                        </div>
-                        <div>
-                          <dt>Peak hour</dt>
-                          <dd>{row.averagePeakHourLabel}</dd>
-                        </div>
-                        <div>
-                          <dt>Avg logs</dt>
-                          <dd>
-                            {formatAverageLogs(row.averageLogsPerSession)}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>Avg push time</dt>
-                          <dd>{row.averagePushLabel}</dd>
-                        </div>
-                      </dl>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            </section>
-
-            <aside className="shell-aside">
-              <section className="shell-aside-card">
-                <h3>Preview only</h3>
-                <p>{globalAnalytics.previewNotice}</p>
-              </section>
-
-              <section className="shell-aside-card">
-                <h3>Just for browsing</h3>
-                <p>
-                  No settings live here. It is just a page of numbers to scroll
-                  through.
-                </p>
-              </section>
-
-              <section className="shell-aside-card">
-                <h3>Later</h3>
-                <p>
-                  Real location-based totals and live updates can come later.
-                </p>
-              </section>
-            </aside>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "40vh",
+              fontFamily: "Georgia, serif",
+              fontSize: "clamp(1.1rem, 3vw, 1.6rem)",
+              letterSpacing: "0.04em",
+              color: "var(--ink)",
+              textAlign: "center",
+            }}
+          >
+            Collecting Data . . .
           </div>
         </section>
 

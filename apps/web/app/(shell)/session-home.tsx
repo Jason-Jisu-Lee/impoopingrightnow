@@ -505,7 +505,7 @@ function FlushConfettiOverlay({ token }: { token: number }) {
 
 function LandingView({ onStart }: { onStart: () => void }) {
   return (
-    <section className="session-home-panel">
+    <section className="session-home-panel session-landing-panel">
       <div className="session-home-actions">
         <p className="session-home-start-label">Ready to poop?</p>
         <button

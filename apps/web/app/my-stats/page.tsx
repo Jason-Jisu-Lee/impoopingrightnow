@@ -149,6 +149,7 @@ export default function MyStatsPage() {
         </section>
 
         <section className="shell-main">
+          <div className="my-stats-desktop-uc">Under Construction . . .</div>
           <PageBackControl />
 
           {username !== null || hasStats ? (
