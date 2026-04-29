@@ -94,10 +94,61 @@ function formatPerDay(value: number | null): string {
   return `${value.toFixed(10)} / day`;
 }
 
+function toLocalDateKey(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function getHeatmapLevelLocal(count: number): 0 | 1 | 2 | 3 | 4 {
+  if (count <= 0) return 0;
+  if (count === 1) return 1;
+  if (count === 2) return 2;
+  if (count === 3) return 3;
+  return 4;
+}
+
+type YearHeatmapCell = {
+  dateKey: string;
+  count: number;
+  level: 0 | 1 | 2 | 3 | 4;
+  weekday: number;
+};
+
+function buildYearHeatmap(
+  records: StoredSessionRecord[],
+  now: Date,
+): YearHeatmapCell[] {
+  const dayCounts = new Map<string, number>();
+  for (const record of records) {
+    const key = toLocalDateKey(new Date(record.completedAt));
+    dayCounts.set(key, (dayCounts.get(key) ?? 0) + 1);
+  }
+  const year = now.getFullYear();
+  const start = new Date(year, 0, 1);
+  const end = new Date(year, 11, 31);
+  const cells: YearHeatmapCell[] = [];
+  const cursor = new Date(start);
+  while (cursor <= end) {
+    const key = toLocalDateKey(cursor);
+    const count = dayCounts.get(key) ?? 0;
+    cells.push({
+      dateKey: key,
+      count,
+      level: getHeatmapLevelLocal(count),
+      weekday: cursor.getDay(),
+    });
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return cells;
+}
+
 export default function MyStatsPage() {
   const [pageData, setPageData] = useState<StatsPageData | undefined>(
     undefined,
   );
+  const [isYearHeatmapOpen, setIsYearHeatmapOpen] = useState(false);
 
   useEffect(() => {
     function syncStats() {
@@ -120,6 +171,19 @@ export default function MyStatsPage() {
   const totalSessions = pageData?.snapshot?.totalSessions ?? 0;
   const username = pageData?.username ?? null;
   const averages = computeAverages(pageData?.records ?? []);
+  const userStatsHeatmap =
+    snapshot?.heatmap.slice(-63) ??
+    Array.from({ length: 63 }, (_, index) => ({
+      dateKey: `empty-${index}`,
+      count: 0,
+      level: 0 as const,
+    }));
+  const yearHeatmapNow = new Date();
+  const yearHeatmap = buildYearHeatmap(
+    pageData?.records ?? [],
+    yearHeatmapNow,
+  );
+  const yearLabel = yearHeatmapNow.getFullYear();
 
   return (
     <main className="shell-page stats-page">
@@ -197,7 +261,83 @@ export default function MyStatsPage() {
                   </p>
                 </div>
               </div>
+
+              <div className="shell-user-stats-side">
+                <div className="shell-user-stats-heatmap-wrap">
+                  <div className="shell-user-stats-heatmap-head">
+                    <button
+                      type="button"
+                      className="shell-user-stats-heatmap-trigger"
+                      onClick={() => setIsYearHeatmapOpen(true)}
+                    >
+                      Poop Calendar
+                    </button>
+                  </div>
+                  <div
+                    className="shell-user-stats-heatmap"
+                    role="img"
+                    aria-label="Recent poop calendar"
+                  >
+                    {userStatsHeatmap.map((cell) => (
+                      <span
+                        key={cell.dateKey}
+                        className={`stats-heatmap-cell level-${cell.level}`}
+                        data-tip={`${cell.dateKey.replace(/-/g, "/")} · ${cell.count} ${
+                          cell.count === 1 ? "time" : "times"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {isYearHeatmapOpen ? (
+              <div className="shell-year-heatmap-overlay">
+                <div className="shell-year-heatmap-head">
+                  <h3 className="shell-year-heatmap-title">
+                    {yearLabel} Poop Calendar
+                  </h3>
+                  <button
+                    type="button"
+                    className="shell-year-heatmap-close"
+                    onClick={() => setIsYearHeatmapOpen(false)}
+                    aria-label="Close poop calendar"
+                  >
+                    ×
+                  </button>
+                </div>
+                <div
+                  className="shell-year-heatmap-grid"
+                  role="img"
+                  aria-label={`${yearLabel} poop calendar`}
+                >
+                  {yearHeatmap.map((cell, index) => (
+                    <span
+                      key={cell.dateKey}
+                      className={`stats-heatmap-cell level-${cell.level}`}
+                      style={
+                        index === 0
+                          ? { gridRowStart: cell.weekday + 1 }
+                          : undefined
+                      }
+                      title={`${cell.dateKey.replace(/-/g, "/")}: ${cell.count} ${
+                        cell.count === 1 ? "time" : "times"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="shell-year-heatmap-legend">
+                  <span className="shell-year-heatmap-legend-label">Less</span>
+                  <span className="stats-heatmap-cell level-0" />
+                  <span className="stats-heatmap-cell level-1" />
+                  <span className="stats-heatmap-cell level-2" />
+                  <span className="stats-heatmap-cell level-3" />
+                  <span className="stats-heatmap-cell level-4" />
+                  <span className="shell-year-heatmap-legend-label">More</span>
+                </div>
+              </div>
+            ) : null}
           </section>
         </section>
 
