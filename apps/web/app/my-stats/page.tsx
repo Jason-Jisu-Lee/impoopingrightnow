@@ -188,6 +188,13 @@ export default function MyStatsPage() {
                       {formatPerDay(averages.avgPerDay)}
                     </strong>
                   </p>
+                  <p className="session-user-stats-line">
+                    <span className="session-user-stats-label">streak:</span>{" "}
+                    <strong className="session-user-stats-value">
+                      {snapshot?.streaks.current ?? 0}{" "}
+                      {(snapshot?.streaks.current ?? 0) === 1 ? "day" : "days"}
+                    </strong>
+                  </p>
                 </div>
               </div>
             </div>

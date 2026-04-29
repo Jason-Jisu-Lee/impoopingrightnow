@@ -571,7 +571,7 @@ select {
   gap: 10px;
   grid-column: 1 / -1;
   position: relative;
-  margin-top: 100px;
+  margin-top: 12px;
 }
 
 .shell-user-stats-layout {
@@ -791,7 +791,7 @@ select {
   color: var(--ink);
   font-size: 0.78rem;
   letter-spacing: 0.04em;
-  padding: 5px 6px 5px 0;
+  padding: 2px 6px 2px 0;
   align-self: center;
   opacity: 0.65;
 }
@@ -800,7 +800,7 @@ select {
   color: var(--ink);
   font-family: var(--font-display), Georgia, serif;
   font-size: 1.05rem;
-  padding: 5px 0;
+  padding: 2px 0;
   align-self: center;
 }
 
@@ -3530,7 +3530,7 @@ select {
   }
 
   .stats-page.shell-page {
-    padding-top: 50px;
+    padding-top: 4px;
   }
 
   /* Bottom nav needs extra clearance */
@@ -3690,7 +3690,7 @@ select {
   }
 
   .session-hold-button {
-    width: min(100%, 420px);
+    width: min(100%, 546px);
   }
 
   .session-flush-button {

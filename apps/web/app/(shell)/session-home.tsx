@@ -1338,10 +1338,6 @@ export function SessionHome() {
       <div className="shell-daily-poop-counter" aria-live="polite">
         Daily Poop Counter: {dailyPoopCounter.toLocaleString()}
       </div>
-      <div className="shell-home-streak-counter">
-        Streak: {sessionStatsSnapshot?.streaks.current ?? 0}{" "}
-        {(sessionStatsSnapshot?.streaks.current ?? 0) === 1 ? "day" : "days"}
-      </div>
 
       <div className="shell-frame">
         <section
