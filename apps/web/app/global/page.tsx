@@ -63,15 +63,6 @@ export default function GlobalPage() {
               countries / {globalAnalytics.regionalStats.length} regions
             </span>
           </div>
-          <div className="shell-banner-row">
-            <div>
-              <h1 className="banner-title">Something to read while you sit.</h1>
-            </div>
-          </div>
-          <p className="banner-subtitle">
-            This page is just for browsing. The numbers are still preview data
-            for now.
-          </p>
         </section>
 
         <section className="shell-main">
@@ -93,13 +84,6 @@ export default function GlobalPage() {
         </section>
 
         <ShellNav />
-
-        <footer className="shell-footer">
-          <span>
-            <strong>Status:</strong> the world board is live in preview mode.
-          </span>
-          <span>Real location data and live totals come later.</span>
-        </footer>
       </div>
     </main>
   );

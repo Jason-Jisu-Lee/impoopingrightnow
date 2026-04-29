@@ -19,7 +19,11 @@ const shellNavItems: ShellNavItem[] = [
 
 function HomeIcon() {
   return (
-    <svg className="shell-nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <svg
+      className="shell-nav-icon shell-nav-icon--home"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
       <path d="M3 12l9-8 9 8v8H3V12z" />
       <path d="M10 20v-5h4v5" />
     </svg>

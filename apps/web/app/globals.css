@@ -397,6 +397,11 @@ select {
   fill: none;
 }
 
+.shell-nav-icon--home {
+  width: 23px;
+  height: 23px;
+}
+
 .shell-nav-glyph-fallback {
   font-family: var(--font-display), Georgia, serif;
   font-size: 1rem;
@@ -3394,6 +3399,13 @@ select {
 }
 
 @media (max-width: 560px) {
+  html,
+  body {
+    overflow: hidden;
+    height: 100%;
+    max-height: 100%;
+  }
+
   /* ---- Hide home aside (user stats) — lives in Records on mobile ---- */
   .shell-home-page .shell-aside {
     display: none;
@@ -3609,7 +3621,7 @@ select {
   }
 
   /* ---- Touch targets ---- */
-  .session-primary-action {
+  .session-primary-action:not(.session-hold-button) {
     width: min(100%, 260px);
     min-height: 56px;
     padding: 10px 16px;

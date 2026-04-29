@@ -312,17 +312,6 @@ export default function SettingsPage() {
               {sessionCount.toLocaleString()} local sessions on file
             </span>
           </div>
-          <div className="shell-banner-row">
-            <div>
-              <h1 className="banner-title">
-                Quiet profile controls for an anonymous-first product.
-              </h1>
-            </div>
-          </div>
-          <p className="banner-subtitle">
-            Username edits and recovery email capture now live here without
-            introducing login screens, passwords, or any mandatory account step.
-          </p>
         </section>
 
         <section className="shell-main">
@@ -344,14 +333,6 @@ export default function SettingsPage() {
         </section>
 
         <ShellNav />
-
-        <footer className="shell-footer">
-          <span>
-            <strong>Status:</strong> username edits and passive email capture
-            are now wired on web.
-          </span>
-          <span>No login or password flow was introduced.</span>
-        </footer>
       </div>
     </main>
   );
