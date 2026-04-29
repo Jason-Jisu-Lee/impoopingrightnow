@@ -61,7 +61,7 @@ export default function GlobalPage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              minHeight: "40vh",
+              minHeight: "50vh",
               fontFamily: "Georgia, serif",
               fontSize: "clamp(1.1rem, 3vw, 1.6rem)",
               letterSpacing: "0.04em",

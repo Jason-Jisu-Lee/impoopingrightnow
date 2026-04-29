@@ -267,6 +267,18 @@ select {
   text-transform: uppercase;
 }
 
+.shell-home-streak-counter {
+  position: fixed;
+  bottom: 80px;
+  left: 18px;
+  z-index: 4;
+  color: rgba(35, 23, 13, 0.72);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: none;
+}
+
 .banner-title {
   margin: 0;
   font-family: var(--font-display), Georgia, serif;
@@ -3579,6 +3591,12 @@ select {
   }
 
   .shell-daily-poop-counter {
+    font-size: 0.56rem;
+    letter-spacing: 0.06em;
+  }
+
+  .shell-home-streak-counter {
+    display: block;
     font-size: 0.56rem;
     letter-spacing: 0.06em;
   }

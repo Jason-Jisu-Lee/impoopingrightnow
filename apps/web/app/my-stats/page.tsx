@@ -12,9 +12,7 @@ import {
   type StoredSessionRecord,
 } from "@impoopingrightnow/shared";
 
-import {
-  PageChromeControls,
-} from "../_components/page-chrome-controls";
+import { PageChromeControls } from "../_components/page-chrome-controls";
 import { ShellNav } from "../_components/shell-nav";
 
 type StatsPageData = {
@@ -188,24 +186,6 @@ export default function MyStatsPage() {
                     </span>{" "}
                     <strong className="session-user-stats-value">
                       {formatPerDay(averages.avgPerDay)}
-                    </strong>
-                  </p>
-                  <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">
-                      current streak:
-                    </span>{" "}
-                    <strong className="session-user-stats-value">
-                      {snapshot?.streaks.current ?? 0}{" "}
-                      {(snapshot?.streaks.current ?? 0) === 1 ? "day" : "days"}
-                    </strong>
-                  </p>
-                  <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">
-                      best streak:
-                    </span>{" "}
-                    <strong className="session-user-stats-value">
-                      {snapshot?.streaks.best ?? 0}{" "}
-                      {(snapshot?.streaks.best ?? 0) === 1 ? "day" : "days"}
                     </strong>
                   </p>
                 </div>
