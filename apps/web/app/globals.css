@@ -3595,10 +3595,10 @@ select {
     z-index: 1;
   }
 
-  /* Live people counter: fixed at 25vh, centered */
+  /* Live people counter: fixed at 15vh, centered */
   .shell-home-page .shell-banner-home {
     position: fixed;
-    top: 25vh;
+    top: 15vh;
     left: 0;
     right: 0;
     z-index: 3;
