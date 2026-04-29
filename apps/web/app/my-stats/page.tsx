@@ -148,51 +148,72 @@ export default function MyStatsPage() {
                 <div className="shell-user-stats-col">
                   {username !== null ? (
                     <p className="session-user-stats-line">
-                      <span className="session-user-stats-label">username:</span>{" "}
-                      <strong className="session-user-stats-value">{username}</strong>
+                      <span className="session-user-stats-label">
+                        username:
+                      </span>{" "}
+                      <strong className="session-user-stats-value">
+                        {username}
+                      </strong>
                     </p>
                   ) : null}
                   <p className="session-user-stats-line">
                     <span className="session-user-stats-label">pooped:</span>{" "}
                     <strong className="session-user-stats-value">
-                      {totalSessions.toLocaleString()} {totalSessions === 1 ? "time" : "times"}
+                      {totalSessions.toLocaleString()}{" "}
+                      {totalSessions === 1 ? "time" : "times"}
                     </strong>
                   </p>
                   <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">average session time:</span>{" "}
+                    <span className="session-user-stats-label">
+                      average session time:
+                    </span>{" "}
                     <strong className="session-user-stats-value">
-                      {averages.avgDurationMs !== null ? formatDurationMs(averages.avgDurationMs) : "--"}
+                      {averages.avgDurationMs !== null
+                        ? formatDurationMs(averages.avgDurationMs)
+                        : "--"}
                     </strong>
                   </p>
                   <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">average poop time:</span>{" "}
+                    <span className="session-user-stats-label">
+                      average poop time:
+                    </span>{" "}
                     <strong className="session-user-stats-value">
-                      {averages.avgPushMs !== null ? formatDurationMs(averages.avgPushMs) : "--"}
+                      {averages.avgPushMs !== null
+                        ? formatDurationMs(averages.avgPushMs)
+                        : "--"}
                     </strong>
                   </p>
                 </div>
                 <div className="shell-user-stats-col">
                   <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">average session start time:</span>{" "}
+                    <span className="session-user-stats-label">
+                      average session start time:
+                    </span>{" "}
                     <strong className="session-user-stats-value">
                       {formatTimeOfDay(averages.avgStartMinutes)}
                     </strong>
                   </p>
                   <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">average poop a day:</span>{" "}
+                    <span className="session-user-stats-label">
+                      average poop a day:
+                    </span>{" "}
                     <strong className="session-user-stats-value">
                       {formatPerDay(averages.avgPerDay)}
                     </strong>
                   </p>
                   <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">current streak:</span>{" "}
+                    <span className="session-user-stats-label">
+                      current streak:
+                    </span>{" "}
                     <strong className="session-user-stats-value">
                       {snapshot?.streaks.current ?? 0}{" "}
                       {(snapshot?.streaks.current ?? 0) === 1 ? "day" : "days"}
                     </strong>
                   </p>
                   <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">best streak:</span>{" "}
+                    <span className="session-user-stats-label">
+                      best streak:
+                    </span>{" "}
                     <strong className="session-user-stats-value">
                       {snapshot?.streaks.best ?? 0}{" "}
                       {(snapshot?.streaks.best ?? 0) === 1 ? "day" : "days"}
@@ -202,7 +223,6 @@ export default function MyStatsPage() {
               </div>
             </div>
           </section>
-
         </section>
 
         <ShellNav />
