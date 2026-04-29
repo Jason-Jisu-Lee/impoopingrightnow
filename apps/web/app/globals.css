@@ -3674,11 +3674,11 @@ select {
   .session-elapsed-overlay {
     display: block;
     position: fixed;
-    top: 13%;
+    top: calc(13% - 12px);
     left: 50%;
     transform: translateX(-50%);
     z-index: 5;
-    font-size: 1.1rem;
+    font-size: 2.75rem;
     font-family: var(--font-display), Georgia, serif;
     letter-spacing: 0.06em;
     color: var(--ink);
