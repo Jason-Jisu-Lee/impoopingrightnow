@@ -3688,7 +3688,7 @@ select {
   }
 
   .session-primary-action:not(.session-hold-button) {
-    width: min(100%, 351px);
+    width: min(100%, 421px);
     min-height: 56px;
     padding: 10px 16px;
     font-size: 1rem;
