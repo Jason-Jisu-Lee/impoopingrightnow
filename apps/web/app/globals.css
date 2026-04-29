@@ -3533,6 +3533,13 @@ select {
     gap: 12px;
   }
 
+  .shell-banner {
+    border: 0;
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+
   .shell-banner,
   .shell-main,
   .shell-panel,
@@ -3590,7 +3597,7 @@ select {
   /* Counter: fixed at 25% from top, centered */
   .shell-home-page .shell-daily-poop-counter {
     position: fixed;
-    top: 25vh;
+    top: calc(25vh + 50px);
     left: 0;
     right: 0;
     text-align: center;
