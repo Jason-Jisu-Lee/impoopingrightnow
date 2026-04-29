@@ -225,7 +225,7 @@ export default function MyStatsPage() {
               className="stats-brag-button"
               onClick={handleBrag}
             >
-              {isBragCopied ? "Link Copied!" : "Brag"}
+              {isBragCopied ? "Copied!" : "Brag"}
             </button>
             <div className="shell-user-stats-layout">
               <div className="shell-user-stats-text-cols">

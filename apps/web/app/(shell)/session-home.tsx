@@ -1358,10 +1358,7 @@ export function SessionHome() {
           ) : null}
 
           {!isCertificateVisible ? (
-            <FloatingFeedOverlay
-              messages={liveFeedMessages}
-              now={timerNow}
-            />
+            <FloatingFeedOverlay messages={liveFeedMessages} now={timerNow} />
           ) : null}
 
           <div
