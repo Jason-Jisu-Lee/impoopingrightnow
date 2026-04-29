@@ -635,8 +635,6 @@ function ActiveSessionView({
   confettiToken,
   onHoldStart,
   onHoldEnd,
-  immediateGenEnabled,
-  onToggleImmediateGen,
   hasPendingFlush,
   onFlush,
 }: {
@@ -645,8 +643,6 @@ function ActiveSessionView({
   confettiToken: number;
   onHoldStart: (event: PointerEvent<HTMLButtonElement>) => void;
   onHoldEnd: (event: PointerEvent<HTMLButtonElement>) => void;
-  immediateGenEnabled: boolean;
-  onToggleImmediateGen: () => void;
   hasPendingFlush: boolean;
   onFlush: () => void;
 }) {
@@ -827,21 +823,6 @@ function ActiveSessionView({
       ) : null}
 
       <div className="session-bottom-controls">
-        {!(hasPendingFlush && !immediateGenEnabled) ? (
-          <button
-            type="button"
-            className={`session-cert-gen-switch${immediateGenEnabled ? " is-on" : ""}`}
-            onClick={onToggleImmediateGen}
-            aria-pressed={immediateGenEnabled}
-          >
-            <span className="session-cert-gen-switch-track">
-              <span className="session-cert-gen-switch-thumb" />
-            </span>
-            <span className="session-cert-gen-switch-label">
-              Immediate Certificate Generation
-            </span>
-          </button>
-        ) : null}
       </div>
     </section>
   );
@@ -940,7 +921,7 @@ export function SessionHome() {
   const [certificate, setCertificate] = useState<SessionCertificate | null>(
     null,
   );
-  const [immediateGenEnabled, setImmediateGenEnabled] = useState(false);
+  const [immediateGenEnabled] = useState(false);
   const [isYearHeatmapOpen, setIsYearHeatmapOpen] = useState(false);
   const [timerNow, setTimerNow] = useState<Date>(() => new Date());
   const [confettiToken, setConfettiToken] = useState(0);
@@ -1414,11 +1395,7 @@ export function SessionHome() {
                   confettiToken={confettiToken}
                   onHoldStart={handleHoldStart}
                   onHoldEnd={handleHoldEnd}
-                  immediateGenEnabled={immediateGenEnabled}
-                  onToggleImmediateGen={() => setImmediateGenEnabled((v) => !v)}
-                  hasPendingFlush={
-                    !immediateGenEnabled && sessionActivity.pushCount > 0
-                  }
+                  hasPendingFlush={sessionActivity.pushCount > 0}
                   onFlush={handleFlush}
                 />
               ) : !isCertificateVisible ? (
