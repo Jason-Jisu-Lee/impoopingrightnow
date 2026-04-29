@@ -708,6 +708,9 @@ function ActiveSessionView({
 
   return (
     <section className="session-home-panel session-live-shell">
+      <div className="session-elapsed-overlay" aria-hidden="true">
+        {sessionElapsedLabel}
+      </div>
       <div className="session-hold-wrap">
         {confettiToken > 0 ? (
           <div
@@ -767,12 +770,6 @@ function ActiveSessionView({
           </span>
         </div>
         <div className="session-live-stat">
-          <span className="session-live-stat-label">
-            Total Poop Session Timer
-          </span>
-          <span className="session-live-stat-value">{sessionElapsedLabel}</span>
-        </div>
-        <div className="session-live-stat">
           <span className="session-live-stat-label">Push timer</span>
           <span className="session-live-stat-value">
             {formatTimerSMs(
@@ -782,7 +779,7 @@ function ActiveSessionView({
           </span>
         </div>
         <div className="session-live-stat">
-          <span className="session-live-stat-label">Expulsion (cut) count</span>
+          <span className="session-live-stat-label">Poop Cut Count</span>
           <span className="session-live-stat-value">
             {sessionActivity.pushCount}
           </span>
