@@ -1273,6 +1273,29 @@ select {
   }
 }
 
+.stats-brag-button {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: 1px solid rgba(140, 90, 43, 0.35);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-family: var(--font-mono), "Courier New", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.stats-brag-button:hover,
+.stats-brag-button:focus-visible {
+  background: rgba(140, 90, 43, 0.08);
+  outline: none;
+}
+
 .session-hold-button {
   background: linear-gradient(
     135deg,

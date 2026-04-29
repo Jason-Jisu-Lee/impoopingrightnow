@@ -150,6 +150,31 @@ export default function MyStatsPage() {
     undefined,
   );
   const [isYearHeatmapOpen, setIsYearHeatmapOpen] = useState(false);
+  const [isBragCopied, setIsBragCopied] = useState(false);
+
+  function handleBrag() {
+    const total = pageData?.snapshot?.totalSessions ?? 0;
+    const streak = pageData?.snapshot?.streaks.current ?? 0;
+    const user = pageData?.username ? `@${pageData.username}` : "I";
+    const text =
+      `${user} has pooped ${total} ${total === 1 ? "time" : "times"} on impoopingrightnow.com` +
+      (streak > 0 ? ` — ${streak}-day streak 💪` : "") +
+      `\n\nimpoopingrightnow.com`;
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator
+        .share({ text })
+        .catch(() => {
+          // user cancelled or share failed — do nothing
+        });
+    } else {
+      // fallback: copy to clipboard
+      navigator.clipboard.writeText(text).then(() => {
+        setIsBragCopied(true);
+        setTimeout(() => setIsBragCopied(false), 2000);
+      }).catch(() => {});
+    }
+  }
 
   useEffect(() => {
     function syncStats() {
@@ -195,6 +220,13 @@ export default function MyStatsPage() {
           <div className="my-stats-desktop-uc">Under Construction . . .</div>
 
           <section className="shell-aside-card shell-user-stats-card">
+            <button
+              type="button"
+              className="stats-brag-button"
+              onClick={handleBrag}
+            >
+              {isBragCopied ? "Copied!" : "Brag"}
+            </button>
             <div className="shell-user-stats-layout">
               <div className="shell-user-stats-text-cols">
                 <div className="shell-user-stats-col">
