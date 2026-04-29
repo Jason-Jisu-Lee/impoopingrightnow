@@ -367,14 +367,14 @@ function createFloatingFeedStyle(message: LiveFeedMessage): FloatingFeedStyle {
     "#8f3058",
   ] as const;
   const lanes = [
-    { topStart: 4, topRange: 14, leftStart: 2, leftRange: 12 },
-    { topStart: 4, topRange: 14, leftStart: 72, leftRange: 20 },
-    { topStart: 22, topRange: 14, leftStart: 5, leftRange: 14 },
-    { topStart: 22, topRange: 14, leftStart: 70, leftRange: 18 },
-    { topStart: 44, topRange: 14, leftStart: 2, leftRange: 10 },
-    { topStart: 44, topRange: 14, leftStart: 76, leftRange: 16 },
-    { topStart: 64, topRange: 14, leftStart: 4, leftRange: 14 },
-    { topStart: 64, topRange: 14, leftStart: 72, leftRange: 18 },
+    { topStart: 4, topRange: 14, leftStart: 2, leftRange: 10 },
+    { topStart: 4, topRange: 14, leftStart: 58, leftRange: 8 },
+    { topStart: 22, topRange: 14, leftStart: 3, leftRange: 10 },
+    { topStart: 22, topRange: 14, leftStart: 56, leftRange: 8 },
+    { topStart: 44, topRange: 14, leftStart: 2, leftRange: 8 },
+    { topStart: 44, topRange: 14, leftStart: 58, leftRange: 8 },
+    { topStart: 64, topRange: 14, leftStart: 3, leftRange: 10 },
+    { topStart: 64, topRange: 14, leftStart: 56, leftRange: 8 },
   ] as const;
   const lane = lanes[hash % lanes.length];
   const top = lane.topStart + ((hash >>> 6) % lane.topRange);
@@ -1357,17 +1357,17 @@ export function SessionHome() {
             <PageBackControl onBack={handleReturnHome} />
           ) : null}
 
+          {!isCertificateVisible ? (
+            <FloatingFeedOverlay
+              messages={liveFeedMessages}
+              now={timerNow}
+            />
+          ) : null}
+
           <div
             className={`shell-content-grid${isLandingState || isActiveSession || isCertificateVisible ? " is-landing-layout" : ""}`}
           >
             <div className="session-panel-stack">
-              {!isCertificateVisible ? (
-                <FloatingFeedOverlay
-                  messages={liveFeedMessages}
-                  now={timerNow}
-                />
-              ) : null}
-
               {isActiveSession && sessionActivity ? (
                 <ActiveSessionView
                   sessionActivity={sessionActivity}
