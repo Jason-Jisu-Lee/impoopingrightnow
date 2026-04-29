@@ -793,20 +793,6 @@ function ActiveSessionView({
             {formatVelocity(smoothedFlowScore)} in/min
           </span>
         </div>
-        <div className="session-live-stat">
-          <span className="session-live-stat-label">Strain efficiency</span>
-          <span className="session-live-stat-value">
-            {efficiency.toFixed(1)}%
-          </span>
-        </div>
-        <div className="session-live-stat">
-          <span className="session-live-stat-label">Structural integrity</span>
-          <span className="session-live-stat-value">{integrity}</span>
-        </div>
-        <div className="session-live-stat">
-          <span className="session-live-stat-label">Bristol stool type</span>
-          <span className="session-live-stat-value">—</span>
-        </div>
       </div>
 
       {hasPendingFlush ? (
@@ -1362,7 +1348,7 @@ export function SessionHome() {
       </div>
 
       <div className="shell-frame">
-        <section className="shell-banner shell-banner-home">
+        <section className={`shell-banner shell-banner-home${isActiveSession ? " is-session-active" : ""}`}>
           <div className="shell-banner-row is-centered">
             <span className="banner-counter">
               {formatCounterCopyPrefix(simulatedCounter)}
