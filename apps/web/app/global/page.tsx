@@ -55,16 +55,6 @@ export default function GlobalPage() {
       <PageChromeControls />
 
       <div className="shell-frame">
-        <section className="shell-banner">
-          <div className="shell-banner-row">
-            <span className="eyebrow">World Board</span>
-            <span className="banner-counter">
-              Preview board · {globalAnalytics.countryLeaderboard.length}{" "}
-              countries / {globalAnalytics.regionalStats.length} regions
-            </span>
-          </div>
-        </section>
-
         <section className="shell-main">
           <div
             style={{

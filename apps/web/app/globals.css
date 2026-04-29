@@ -3595,15 +3595,19 @@ select {
     z-index: 1;
   }
 
-  /* Counter: fixed at 25% from top, centered */
-  .shell-home-page .shell-daily-poop-counter {
+  /* Live people counter: fixed at 25vh, centered */
+  .shell-home-page .shell-banner-home {
     position: fixed;
-    top: calc(25vh + 50px);
+    top: 25vh;
     left: 0;
     right: 0;
-    text-align: center;
-    z-index: 5;
-    font-size: 0.62rem;
+    z-index: 3;
+    min-height: unset;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
   }
 
   .shell-panel-title {

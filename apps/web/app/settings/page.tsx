@@ -305,15 +305,6 @@ export default function SettingsPage() {
       <PageChromeControls />
 
       <div className="shell-frame">
-        <section className="shell-banner">
-          <div className="shell-banner-row">
-            <span className="eyebrow">Settings</span>
-            <span className="banner-counter">
-              {sessionCount.toLocaleString()} local sessions on file
-            </span>
-          </div>
-        </section>
-
         <section className="shell-main">
           <div
             style={{

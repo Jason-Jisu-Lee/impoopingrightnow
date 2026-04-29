@@ -13,7 +13,6 @@ import {
 } from "@impoopingrightnow/shared";
 
 import {
-  PageBackControl,
   PageChromeControls,
 } from "../_components/page-chrome-controls";
 import { ShellNav } from "../_components/shell-nav";
@@ -129,18 +128,8 @@ export default function MyStatsPage() {
       <PageChromeControls />
 
       <div className="shell-frame">
-        <section className="shell-banner">
-          <div className="shell-banner-row">
-            <span className="eyebrow">My Stats</span>
-            <span className="banner-counter">
-              {totalSessions.toLocaleString()} sessions on this device
-            </span>
-          </div>
-        </section>
-
         <section className="shell-main">
           <div className="my-stats-desktop-uc">Under Construction . . .</div>
-          <PageBackControl />
 
           <section className="shell-aside-card shell-user-stats-card">
             <div className="shell-user-stats-layout">
