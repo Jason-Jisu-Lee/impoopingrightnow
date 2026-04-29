@@ -776,11 +776,12 @@ select {
 }
 
 .session-user-stats-label {
-  color: var(--muted);
-  font-size: 0.72rem;
+  color: var(--ink);
+  font-size: 0.78rem;
   letter-spacing: 0.04em;
   padding: 5px 6px 5px 0;
   align-self: center;
+  opacity: 0.65;
 }
 
 .session-user-stats-value {
@@ -3508,6 +3509,10 @@ select {
   /* ---- Page layout ---- */
   .shell-page {
     padding: 12px 12px 80px 12px;
+  }
+
+  .stats-page.shell-page {
+    padding-top: 50px;
   }
 
   /* Bottom nav needs extra clearance */

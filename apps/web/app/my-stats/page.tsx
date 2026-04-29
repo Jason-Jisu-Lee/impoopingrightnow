@@ -93,7 +93,7 @@ function formatTimeOfDay(minutes: number | null): string {
 
 function formatPerDay(value: number | null): string {
   if (value === null) return "--";
-  return `${value.toFixed(1)}x / day`;
+  return `${value.toFixed(10)} / day`;
 }
 
 export default function MyStatsPage() {
