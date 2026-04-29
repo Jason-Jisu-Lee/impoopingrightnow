@@ -808,8 +808,7 @@ function ActiveSessionView({
         </div>
       ) : null}
 
-      <div className="session-bottom-controls">
-      </div>
+      <div className="session-bottom-controls"></div>
     </section>
   );
 }
@@ -1348,7 +1347,9 @@ export function SessionHome() {
       </div>
 
       <div className="shell-frame">
-        <section className={`shell-banner shell-banner-home${isActiveSession ? " is-session-active" : ""}`}>
+        <section
+          className={`shell-banner shell-banner-home${isActiveSession ? " is-session-active" : ""}`}
+        >
           <div className="shell-banner-row is-centered">
             <span className="banner-counter">
               {formatCounterCopyPrefix(simulatedCounter)}
