@@ -91,7 +91,8 @@ function formatTimeOfDay(minutes: number | null): string {
 
 function formatPerDay(value: number | null): string {
   if (value === null) return "--";
-  return `${value.toFixed(10)} / day`;
+  const fixed = value.toFixed(1);
+  return `${fixed} / day`;
 }
 
 function toLocalDateKey(date: Date): string {
@@ -253,7 +254,9 @@ export default function MyStatsPage() {
                     </strong>
                   </p>
                   <p className="session-user-stats-line">
-                    <span className="session-user-stats-label">streak:</span>{" "}
+                    <span className="session-user-stats-label">
+                      current streak:
+                    </span>{" "}
                     <strong className="session-user-stats-value">
                       {snapshot?.streaks.current ?? 0}{" "}
                       {(snapshot?.streaks.current ?? 0) === 1 ? "day" : "days"}

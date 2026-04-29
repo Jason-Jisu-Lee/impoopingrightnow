@@ -3779,6 +3779,24 @@ select {
     height: 8px;
   }
 
+  .stats-page .session-user-stats-label {
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+
+  .stats-page .session-user-stats-value {
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+
+  .stats-page .shell-user-stats-heatmap-wrap {
+    margin-top: 10px;
+  }
+
+  .stats-page .shell-user-stats-heatmap-head {
+    margin-bottom: 10px;
+  }
+
   .session-status-line {
     gap: 8px;
     font-size: 0.72rem;
