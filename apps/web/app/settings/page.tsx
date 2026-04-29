@@ -311,7 +311,7 @@ export default function SettingsPage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              minHeight: "50vh",
+              minHeight: "calc(100svh - 170px)",
               fontFamily: "Georgia, serif",
               fontSize: "clamp(1.1rem, 3vw, 1.6rem)",
               letterSpacing: "0.04em",
