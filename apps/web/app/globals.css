@@ -3688,14 +3688,14 @@ select {
   }
 
   .session-primary-action:not(.session-hold-button) {
-    width: min(100%, 260px);
+    width: min(100%, 351px);
     min-height: 56px;
     padding: 10px 16px;
     font-size: 1rem;
   }
 
   .session-hold-button {
-    width: min(100%, 546px);
+    width: min(100%, 351px);
   }
 
   .session-flush-button {
