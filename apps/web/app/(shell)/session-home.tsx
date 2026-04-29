@@ -748,16 +748,13 @@ function ActiveSessionView({
           <img
             src={
               isHolding
-                ? [
-                    "/logo-push-1.png",
-                    "/logo-push-2.png",
-                    "/logo-push-3.png",
-                    "/logo-push-4.png",
-                  ][Math.min(3, Math.floor(livePushMs / 1000))] ?? "/logo-push-4.png"
+                ? livePushMs < 2000
+                  ? "/logo-push-1.png"
+                  : "/logo-push-2.png"
                 : "/logo.png"
             }
             alt=""
-            className="session-hero-logo"
+            className={`session-hero-logo${isHolding ? " session-hero-logo--push" : ""}${isHolding && livePushMs >= 2000 ? " session-hero-logo--push-2" : ""}`}
             aria-hidden="true"
           />
         </button>
@@ -782,7 +779,10 @@ function ActiveSessionView({
         <div className="session-live-stat">
           <span className="session-live-stat-label">Push timer</span>
           <span className="session-live-stat-value">
-            {formatTimerSMs(sessionActivity.totalPushMs + (isHolding ? livePushMs : 0))} s
+            {formatTimerSMs(
+              sessionActivity.totalPushMs + (isHolding ? livePushMs : 0),
+            )}{" "}
+            s
           </span>
         </div>
         <div className="session-live-stat">

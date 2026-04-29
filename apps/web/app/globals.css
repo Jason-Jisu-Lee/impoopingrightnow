@@ -988,6 +988,8 @@ select {
   letter-spacing: 0.08em;
   color: var(--ink);
   text-align: center;
+  position: relative;
+  top: -25px;
 }
 
 .session-hero-logo {
@@ -996,6 +998,16 @@ select {
   width: auto;
   object-fit: contain;
   filter: brightness(0);
+  mix-blend-mode: multiply;
+}
+
+.session-hero-logo--push {
+  filter: none;
+  transform: scale(1.82);
+}
+
+.session-hero-logo--push-2 {
+  transform: scale(1.638) translateY(3px);
 }
 
 .session-primary-action:hover,
@@ -1262,7 +1274,7 @@ select {
 .session-hold-button.is-holding {
   animation:
     session-hold-pulse 900ms ease-in-out infinite,
-    session-hold-darken 7s ease-out forwards;
+    session-hold-darken 8s linear forwards;
 }
 
 .session-push-helper {
@@ -1357,6 +1369,8 @@ select {
   user-select: none;
   font-family: inherit;
   cursor: pointer;
+  position: relative;
+  top: -31px;
 }
 
 .session-encouragement {
@@ -3241,6 +3255,27 @@ select {
       135deg,
       rgba(140, 90, 43, 0.26),
       rgba(140, 90, 43, 0.18)
+    );
+  }
+  25% {
+    background: linear-gradient(
+      135deg,
+      rgba(140, 90, 43, 0.34),
+      rgba(140, 90, 43, 0.26)
+    );
+  }
+  50% {
+    background: linear-gradient(
+      135deg,
+      rgba(140, 90, 43, 0.42),
+      rgba(140, 90, 43, 0.34)
+    );
+  }
+  75% {
+    background: linear-gradient(
+      135deg,
+      rgba(140, 90, 43, 0.5),
+      rgba(140, 90, 43, 0.4)
     );
   }
   100% {

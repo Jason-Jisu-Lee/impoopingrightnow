@@ -20,9 +20,8 @@ const shellNavItems: ShellNavItem[] = [
 function HomeIcon() {
   return (
     <svg className="shell-nav-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M4 11.5 12 4.5l8 7" />
-      <path d="M5.5 10.8V19.5h13V10.8" />
-      <path d="M10 19.5v-5h4v5" />
+      <path d="M3 12l9-8 9 8v8H3V12z" />
+      <path d="M10 20v-5h4v5" />
     </svg>
   );
 }
@@ -86,7 +85,7 @@ export function ShellNav() {
       {shellNavItems.map((item) => (
         <Link
           key={item.href}
-          href={item.href === "/" ? "/" : "/under-construction"}
+          href={item.href}
           className={`shell-nav-link${pathname === item.href ? " is-active" : ""}`}
           aria-current={pathname === item.href ? "page" : undefined}
         >
