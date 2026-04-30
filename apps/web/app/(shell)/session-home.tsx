@@ -505,17 +505,31 @@ function FlushConfettiOverlay({ token }: { token: number }) {
   );
 }
 
-function LandingView({ onStart }: { onStart: () => void }) {
+function LandingView({
+  onStart,
+  isTutorial,
+}: {
+  onStart: () => void;
+  isTutorial: boolean;
+}) {
   return (
     <section className="session-home-panel session-landing-panel">
+      {isTutorial ? (
+        <div className="tutorial-overlay" aria-hidden="true" />
+      ) : null}
       <div className="session-home-actions">
         <p className="session-home-start-label">Ready to poop?</p>
         <button
           type="button"
-          className="session-primary-action session-landing-action"
+          className={`session-primary-action session-landing-action${isTutorial ? " tutorial-spotlight" : ""}`}
           onClick={onStart}
           aria-label="Start pooping session"
         >
+          {isTutorial ? (
+            <span className="tutorial-callout tutorial-callout--below">
+              Tap when you&apos;re in the bathroom
+            </span>
+          ) : null}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo.png"
@@ -637,12 +651,14 @@ function ActiveSessionView({
   confettiToken,
   onHoldStart,
   onHoldEnd,
+  isTutorial,
 }: {
   sessionActivity: SessionActivityState;
   now: Date;
   confettiToken: number;
   onHoldStart: (event: PointerEvent<HTMLButtonElement>) => void;
   onHoldEnd: (event: PointerEvent<HTMLButtonElement>) => void;
+  isTutorial: boolean;
 }) {
   const sessionElapsedLabel = formatDurationMs(
     getSessionElapsedMs(sessionActivity, now),
@@ -711,6 +727,9 @@ function ActiveSessionView({
       </div>
       <div className="session-hold-spacer" aria-hidden="true" />
       <div className="session-hold-wrap">
+        {isTutorial ? (
+          <div className="tutorial-overlay" aria-hidden="true" />
+        ) : null}
         {confettiToken > 0 ? (
           <div
             key={confettiToken}
@@ -732,11 +751,11 @@ function ActiveSessionView({
           className="session-home-start-label"
           style={{ textTransform: "none" }}
         >
-          PRESS, HOLD, AND FOCUS
+          I&apos;M POOPING RIGHT NOW
         </p>
         <button
           type="button"
-          className={`session-hold-button session-primary-action${isHolding ? " is-holding" : ""}`}
+          className={`session-hold-button session-primary-action${isHolding ? " is-holding" : ""}${isTutorial ? " tutorial-spotlight" : ""}`}
           aria-pressed={isHolding}
           onPointerDown={onHoldStart}
           onPointerUp={onHoldEnd}
@@ -744,6 +763,13 @@ function ActiveSessionView({
           onContextMenu={(e) => e.preventDefault()}
           onTouchStart={(e) => e.preventDefault()}
         >
+          {isTutorial ? (
+            <span className="tutorial-callout tutorial-callout--above">
+              Hold when poop is coming out.
+              <br />
+              Release when done.
+            </span>
+          ) : null}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={
@@ -877,6 +903,8 @@ function CertificateView({
   );
 }
 
+const TUTORIAL_STORAGE_KEY = "imprn:tutorial_done";
+
 export function SessionHome() {
   const [identityCard, setIdentityCard] = useState<IdentityCardState>(
     createIdentityCardState(null, false),
@@ -894,6 +922,8 @@ export function SessionHome() {
     null,
   );
   const immediateGenEnabled = true;
+  // 0 = tutorial done/skipped, 1 = step 1 (landing), 2 = step 2 (active session)
+  const [tutorialStep, setTutorialStep] = useState<0 | 1 | 2>(0);
   const [isYearHeatmapOpen, setIsYearHeatmapOpen] = useState(false);
   const [timerNow, setTimerNow] = useState<Date>(() => new Date());
   const [confettiToken, setConfettiToken] = useState(0);
@@ -930,6 +960,14 @@ export function SessionHome() {
     flowState.stage === "active" &&
     sessionActivity !== null;
   const isLandingState = !isCertificateVisible && !isActiveSession;
+
+  // Check tutorial status from localStorage after mount
+  useEffect(() => {
+    const done = browserIdentityStorage.getItem(TUTORIAL_STORAGE_KEY);
+    if (!done) {
+      setTutorialStep(1);
+    }
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -1099,6 +1137,10 @@ export function SessionHome() {
     setIsDiarrheaSession(false);
     setFeedDraft("");
     setFeedNotice(null);
+    // Advance tutorial from landing step to active-session step
+    if (tutorialStep === 1) {
+      setTutorialStep(2);
+    }
   }
 
   function handleReturnHome() {
@@ -1179,6 +1221,12 @@ export function SessionHome() {
 
     if (nextState === sessionActivity) {
       return;
+    }
+
+    // Tutorial complete — user has held the button
+    if (tutorialStep === 2) {
+      setTutorialStep(0);
+      browserIdentityStorage.setItem(TUTORIAL_STORAGE_KEY, "1");
     }
 
     setTimerNow(pushStartedAt);
@@ -1326,7 +1374,7 @@ export function SessionHome() {
   const yearLabel = yearHeatmapNow.getFullYear();
 
   return (
-    <main className="shell-page shell-home-page">
+    <main className={`shell-page shell-home-page${tutorialStep > 0 ? " is-tutorial" : ""}`}>
       <PageChromeControls onHome={handleReturnHome} />
 
       <FlushConfettiOverlay token={flushConfettiToken} />
@@ -1367,9 +1415,10 @@ export function SessionHome() {
                   confettiToken={confettiToken}
                   onHoldStart={handleHoldStart}
                   onHoldEnd={handleHoldEnd}
+                  isTutorial={tutorialStep === 2}
                 />
               ) : !isCertificateVisible ? (
-                <LandingView onStart={handleStartSession} />
+                <LandingView onStart={handleStartSession} isTutorial={tutorialStep === 1} />
               ) : null}
 
               {isCertificateVisible && certificate ? (
