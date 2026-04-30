@@ -709,6 +709,7 @@ function ActiveSessionView({
       <div className="session-elapsed-overlay" aria-hidden="true">
         {sessionElapsedLabel}
       </div>
+      <div className="session-hold-spacer" aria-hidden="true" />
       <div className="session-hold-wrap">
         {confettiToken > 0 ? (
           <div
@@ -770,7 +771,7 @@ function ActiveSessionView({
         <div className="session-live-stat">
           <span className="session-live-stat-label">Push timer</span>
           <span className="session-live-stat-value">
-            {pushElapsedLabel}{" "}
+            {formatTimerSMs(livePushMs)}{" "}
             s
           </span>
         </div>

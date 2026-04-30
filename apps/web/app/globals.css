@@ -1118,12 +1118,19 @@ select {
 }
 
 .session-live-shell {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 18px;
   padding-top: 12px;
+  min-height: calc(100svh - 220px);
   position: relative;
   isolation: isolate;
   overflow: hidden;
+}
+
+.session-hold-spacer {
+  flex: 1;
+  min-height: 0;
 }
 
 .session-live-topline,
@@ -1205,7 +1212,6 @@ select {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  margin-top: max(24px, calc(50vh - 100px));
 }
 
 .session-live-topline {
