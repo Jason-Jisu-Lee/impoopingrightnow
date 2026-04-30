@@ -1,4 +1,7 @@
-import type { AnonymousProfile, SessionCertificate } from "@impoopingrightnow/shared";
+import type {
+  AnonymousProfile,
+  SessionCertificate,
+} from "@impoopingrightnow/shared";
 
 export type CompletedSessionSyncPayload = {
   identity: {
