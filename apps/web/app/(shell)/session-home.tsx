@@ -52,6 +52,16 @@ import {
   buildCompletedSessionSyncPayload,
   syncCompletedSessionToBackend,
 } from "../_lib/session-sync";
+import {
+  buildPublicShareSnapshot,
+  buildPublicShareUrl,
+  getShareCopy,
+  type ShareMode,
+} from "../_lib/share-snapshot";
+import {
+  buildStoredShareUrl,
+  createStoredShareId,
+} from "../_lib/share-store";
 import { ShellNav } from "../_components/shell-nav";
 
 type IdentityCardState = {
@@ -818,10 +828,16 @@ function CertificateView({
   certificate,
   onGoAgain,
   onDone,
+  onBrag,
+  onChallenge,
+  copiedCertShareMode,
 }: {
   certificate: SessionCertificate;
   onGoAgain: () => void;
   onDone: () => void;
+  onBrag: () => void;
+  onChallenge: () => void;
+  copiedCertShareMode: ShareMode | null;
 }) {
   return (
     <section className="session-home-panel session-certificate-panel">
@@ -872,6 +888,23 @@ function CertificateView({
         </p>
         <button type="button" className="certificate-poop-thought-btn" disabled>
           Send a Poop Thought · coming soon
+        </button>
+      </div>
+
+      <div className="cert-share-actions">
+        <button
+          type="button"
+          className="stats-share-button"
+          onClick={onBrag}
+        >
+          {copiedCertShareMode === "brag" ? "Copied!" : "Brag"}
+        </button>
+        <button
+          type="button"
+          className="stats-share-button"
+          onClick={onChallenge}
+        >
+          {copiedCertShareMode === "challenge" ? "Copied!" : "Challenge"}
         </button>
       </div>
 
@@ -1129,6 +1162,53 @@ export function SessionHome() {
     if (tutorialStep === 1) {
       setTutorialStep(2);
     }
+  }
+
+  const [copiedCertShareMode, setCopiedCertShareMode] = useState<ShareMode | null>(null);
+
+  async function handleCertShare(mode: ShareMode) {
+    if (typeof window === "undefined") return;
+    const snapshot = buildSessionStats(sessionHistoryRecords);
+    const uniqueDays = new Set(
+      sessionHistoryRecords.map((r) => new Date(r.completedAt).toDateString())
+    ).size;
+    const avgPerDay = uniqueDays > 0 ? sessionHistoryRecords.length / uniqueDays : null;
+    const shareSnapshot = buildPublicShareSnapshot({
+      mode,
+      username: identityUsername,
+      snapshot,
+      averagePerDay: avgPerDay,
+    });
+    let shareUrl = buildPublicShareUrl({
+      snapshot: shareSnapshot,
+      origin: window.location.origin,
+    });
+    const storedShareId = await createStoredShareId(shareSnapshot);
+    if (storedShareId) {
+      shareUrl = buildStoredShareUrl({
+        origin: window.location.origin,
+        shareId: storedShareId,
+      });
+    }
+    const shareCopy = getShareCopy(shareSnapshot);
+    const fallbackText = `${shareCopy.shareText}\n\n${shareUrl}`;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator
+        .share({
+          title: `${shareCopy.shareLabel} | impoopingrightnow`,
+          text: shareCopy.shareText,
+          url: shareUrl,
+        })
+        .catch(() => {});
+      return;
+    }
+    navigator.clipboard
+      ?.writeText(fallbackText)
+      .then(() => {
+        setCopiedCertShareMode(mode);
+        window.setTimeout(() => setCopiedCertShareMode(null), 2000);
+      })
+      .catch(() => {});
   }
 
   function handleReturnHome() {
@@ -1416,6 +1496,9 @@ export function SessionHome() {
                   certificate={certificate}
                   onGoAgain={handleStartSession}
                   onDone={handleReturnHome}
+                  onBrag={() => void handleCertShare("brag")}
+                  onChallenge={() => void handleCertShare("challenge")}
+                  copiedCertShareMode={copiedCertShareMode}
                 />
               ) : null}
             </div>

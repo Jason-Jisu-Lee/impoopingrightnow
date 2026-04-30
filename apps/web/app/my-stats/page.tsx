@@ -270,16 +270,6 @@ export default function MyStatsPage() {
             <div className="shell-user-stats-layout">
               <div className="shell-user-stats-text-cols">
                 <div className="shell-user-stats-col">
-                  {username !== null ? (
-                    <p className="session-user-stats-line">
-                      <span className="session-user-stats-label">
-                        username:
-                      </span>{" "}
-                      <strong className="session-user-stats-value">
-                        {username}
-                      </strong>
-                    </p>
-                  ) : null}
                   <p className="session-user-stats-line">
                     <span className="session-user-stats-label">pooped:</span>{" "}
                     <strong className="session-user-stats-value">

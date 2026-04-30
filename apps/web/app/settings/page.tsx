@@ -306,21 +306,56 @@ export default function SettingsPage() {
 
       <div className="shell-frame">
         <section className="shell-main">
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: "calc(100svh - 170px)",
-              fontFamily: "Georgia, serif",
-              fontSize: "clamp(1.1rem, 3vw, 1.6rem)",
-              letterSpacing: "0.04em",
-              color: "var(--ink)",
-              textAlign: "center",
-            }}
-          >
-            Under Construction . . .
-          </div>
+          {isProfileLoading ? null : (
+            <div className="profile-page-content">
+              <section className="profile-section">
+                <h2 className="profile-section-title">Username</h2>
+                <form className="profile-form" onSubmit={handleUsernameSubmit}>
+                  <input
+                    className="profile-input"
+                    type="text"
+                    autoComplete="username"
+                    placeholder="your_username"
+                    value={usernameDraft}
+                    onChange={(event) => setUsernameDraft(event.target.value)}
+                    aria-label="Username"
+                  />
+                  <button type="submit" className="profile-button">
+                    Save
+                  </button>
+                  {usernameNotice ? (
+                    <p className={`profile-notice is-${usernameNotice.tone}`}>
+                      {usernameNotice.text}
+                    </p>
+                  ) : null}
+                </form>
+              </section>
+
+              <section className="profile-section">
+                <h2 className="profile-section-title">Email</h2>
+                <form className="profile-form" onSubmit={handleEmailSubmit}>
+                  <input
+                    className="profile-input"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    value={emailDraft}
+                    onChange={(event) => setEmailDraft(event.target.value)}
+                    aria-label="Email"
+                  />
+                  <button type="submit" className="profile-button">
+                    Save
+                  </button>
+                  {emailNotice ? (
+                    <p className={`profile-notice is-${emailNotice.tone}`}>
+                      {emailNotice.text}
+                    </p>
+                  ) : null}
+                </form>
+              </section>
+            </div>
+          )}
         </section>
 
         <ShellNav />
