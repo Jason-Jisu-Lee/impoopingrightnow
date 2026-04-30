@@ -518,7 +518,7 @@ function LandingView({
         <div className="tutorial-overlay" aria-hidden="true" />
       ) : null}
       <div className="session-home-actions">
-        <p className="session-home-start-label">Ready to poop?</p>
+        <p className={`session-home-start-label${isTutorial ? " tutorial-spotlight" : ""}`}>Ready to poop?</p>
         <button
           type="button"
           className={`session-primary-action session-landing-action${isTutorial ? " tutorial-spotlight" : ""}`}
@@ -748,7 +748,7 @@ function ActiveSessionView({
         ) : null}
 
         <p
-          className="session-home-start-label"
+          className={`session-home-start-label${isTutorial ? " tutorial-spotlight" : ""}`}
           style={{ textTransform: "none" }}
         >
           I&apos;M POOPING RIGHT NOW
@@ -765,9 +765,7 @@ function ActiveSessionView({
         >
           {isTutorial ? (
             <span className="tutorial-callout tutorial-callout--above">
-              Hold when poop is coming out.
-              <br />
-              Release when done.
+              HOLD WHEN POOP IS COMING OUT!!
             </span>
           ) : null}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -833,10 +831,6 @@ function CertificateView({
 }) {
   return (
     <section className="session-home-panel session-certificate-panel">
-      <div className="certificate-topline">
-        <span className="session-live-stamp">{certificate.issuedAtLabel}</span>
-      </div>
-
       <div className="certificate-paper">
         <h2 className="certificate-title">{certificate.certHeadline}</h2>
         <div className="certificate-key-stat">
@@ -1383,17 +1377,19 @@ export function SessionHome() {
       </div>
 
       <div className="shell-frame">
-        <section
-          className={`shell-banner shell-banner-home${isActiveSession ? " is-session-active" : ""}`}
-        >
-          <div className="shell-banner-row is-centered">
-            <span className="banner-counter">
-              {formatCounterCopyPrefix(simulatedCounter)}
-              <SquattingPooperIcon />
-              {formatCounterCopySuffix()}
-            </span>
-          </div>
-        </section>
+        {!isCertificateVisible ? (
+          <section
+            className={`shell-banner shell-banner-home${isActiveSession ? " is-session-active" : ""}`}
+          >
+            <div className="shell-banner-row is-centered">
+              <span className="banner-counter">
+                {formatCounterCopyPrefix(simulatedCounter)}
+                <SquattingPooperIcon />
+                {formatCounterCopySuffix()}
+              </span>
+            </div>
+          </section>
+        ) : null}
 
         <section className="shell-main">
           {!isLandingState ? (
