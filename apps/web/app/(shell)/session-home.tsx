@@ -742,6 +742,7 @@ function ActiveSessionView({
           onPointerUp={onHoldEnd}
           onPointerCancel={onHoldEnd}
           onContextMenu={(e) => e.preventDefault()}
+          onTouchStart={(e) => e.preventDefault()}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
