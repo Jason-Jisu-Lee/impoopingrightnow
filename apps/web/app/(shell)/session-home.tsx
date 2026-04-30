@@ -514,9 +514,6 @@ function LandingView({
 }) {
   return (
     <section className="session-home-panel session-landing-panel">
-      {isTutorial ? (
-        <div className="tutorial-overlay" aria-hidden="true" />
-      ) : null}
       <div className="session-home-actions">
         <p className={`session-home-start-label${isTutorial ? " tutorial-spotlight" : ""}`}>Ready to poop?</p>
         <button
@@ -727,9 +724,6 @@ function ActiveSessionView({
       </div>
       <div className="session-hold-spacer" aria-hidden="true" />
       <div className="session-hold-wrap">
-        {isTutorial ? (
-          <div className="tutorial-overlay" aria-hidden="true" />
-        ) : null}
         {confettiToken > 0 ? (
           <div
             key={confettiToken}
@@ -1368,7 +1362,7 @@ export function SessionHome() {
   const yearLabel = yearHeatmapNow.getFullYear();
 
   return (
-    <main className={`shell-page shell-home-page${tutorialStep > 0 ? " is-tutorial" : ""}`}>
+    <main className={`shell-page shell-home-page${tutorialStep > 0 ? ` is-tutorial is-tutorial-${tutorialStep}` : ""}`}>
       <PageChromeControls onHome={handleReturnHome} />
 
       <FlushConfettiOverlay token={flushConfettiToken} />

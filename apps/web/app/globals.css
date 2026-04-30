@@ -147,7 +147,7 @@ select {
   position: relative;
 }
 
-/* ---- Tutorial overlay ---- */
+/* ---- Tutorial dimming (opacity-based, no z-index overlay) ---- */
 .is-tutorial .shell-nav {
   pointer-events: none;
   opacity: 0.35;
@@ -158,19 +158,39 @@ select {
   visibility: hidden;
 }
 
-/* Dim layer — covers everything in the panel */
-.tutorial-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 30;
-  background: rgba(20, 13, 6, 0.55);
+/* Dim banner counter during tutorial */
+.is-tutorial .shell-banner-home {
+  opacity: 0.35;
   pointer-events: none;
 }
 
-/* Spotlight — sits above the dim layer */
+/* Hide floating feed during tutorial */
+.is-tutorial .session-floating-feed-layer {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Step 1 (landing): dim panel content outside the hero actions */
+.is-tutorial-1 .session-landing-panel > :not(.session-home-actions) {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* Step 2 (active): dim everything in panel except the hold area */
+.is-tutorial-2 .session-live-shell > :not(.session-hold-wrap) {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* Step 2: within hold area, dim confetti etc but not the spotlights */
+.is-tutorial-2 .session-hold-wrap > :not(.tutorial-spotlight) {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* Spotlight — needs relative positioning for the callout bubble */
 .tutorial-spotlight {
   position: relative;
-  z-index: 31;
   pointer-events: auto;
 }
 
