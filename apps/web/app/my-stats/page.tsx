@@ -13,6 +13,16 @@ import {
 } from "@impoopingrightnow/shared";
 
 import { PageChromeControls } from "../_components/page-chrome-controls";
+import {
+  buildStoredShareUrl,
+  createStoredShareId,
+} from "../_lib/share-store";
+import {
+  buildPublicShareSnapshot,
+  buildPublicShareUrl,
+  getShareCopy,
+  type ShareMode,
+} from "../_lib/share-snapshot";
 import { ShellNav } from "../_components/shell-nav";
 
 type StatsPageData = {
@@ -150,31 +160,9 @@ export default function MyStatsPage() {
     undefined,
   );
   const [isYearHeatmapOpen, setIsYearHeatmapOpen] = useState(false);
-  const [isBragCopied, setIsBragCopied] = useState(false);
-
-  function handleBrag() {
-    const total = pageData?.snapshot?.totalSessions ?? 0;
-    const streak = pageData?.snapshot?.streaks.current ?? 0;
-    const user = pageData?.username ? `@${pageData.username}` : "I";
-    const text =
-      `${user} has pooped ${total} ${total === 1 ? "time" : "times"} on impoopingrightnow.com` +
-      (streak > 0 ? ` — ${streak}-day streak 💪` : "") +
-      `\n\nimpoopingrightnow.com`;
-
-    if (typeof navigator !== "undefined" && navigator.share) {
-      navigator
-        .share({ text })
-        .catch(() => {
-          // user cancelled or share failed — do nothing
-        });
-    } else {
-      // fallback: copy to clipboard
-      navigator.clipboard.writeText(text).then(() => {
-        setIsBragCopied(true);
-        setTimeout(() => setIsBragCopied(false), 2000);
-      }).catch(() => {});
-    }
-  }
+  const [copiedShareMode, setCopiedShareMode] = useState<ShareMode | null>(
+    null,
+  );
 
   useEffect(() => {
     function syncStats() {
@@ -211,6 +199,52 @@ export default function MyStatsPage() {
   );
   const yearLabel = yearHeatmapNow.getFullYear();
 
+  async function handleShare(mode: ShareMode) {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const shareSnapshot = buildPublicShareSnapshot({
+      mode,
+      username,
+      snapshot,
+      averagePerDay: averages.avgPerDay,
+    });
+    let shareUrl = buildPublicShareUrl({
+      snapshot: shareSnapshot,
+      origin: window.location.origin,
+    });
+    const storedShareId = await createStoredShareId(shareSnapshot);
+
+    if (storedShareId) {
+      shareUrl = buildStoredShareUrl({
+        origin: window.location.origin,
+        shareId: storedShareId,
+      });
+    }
+
+    const shareCopy = getShareCopy(shareSnapshot);
+    const fallbackText = `${shareCopy.shareText}\n\n${shareUrl}`;
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator
+        .share({
+          title: `${shareCopy.shareLabel} | impoopingrightnow`,
+          text: shareCopy.shareText,
+          url: shareUrl,
+        })
+        .catch(() => {
+          // user cancelled or share failed — do nothing
+        });
+      return;
+    }
+
+    navigator.clipboard?.writeText(fallbackText).then(() => {
+      setCopiedShareMode(mode);
+      window.setTimeout(() => setCopiedShareMode(null), 2000);
+    }).catch(() => {});
+  }
+
   return (
     <main className="shell-page stats-page">
       <PageChromeControls />
@@ -220,13 +254,22 @@ export default function MyStatsPage() {
           <div className="my-stats-desktop-uc">Under Construction . . .</div>
 
           <section className="shell-aside-card shell-user-stats-card">
-            <button
-              type="button"
-              className="stats-brag-button"
-              onClick={handleBrag}
-            >
-              {isBragCopied ? "Copied!" : "Brag"}
-            </button>
+            <div className="stats-share-actions">
+              <button
+                type="button"
+                className="stats-share-button"
+                onClick={() => handleShare("brag")}
+              >
+                {copiedShareMode === "brag" ? "Copied!" : "Brag"}
+              </button>
+              <button
+                type="button"
+                className="stats-share-button"
+                onClick={() => handleShare("challenge")}
+              >
+                {copiedShareMode === "challenge" ? "Copied!" : "Challenge"}
+              </button>
+            </div>
             <div className="shell-user-stats-layout">
               <div className="shell-user-stats-text-cols">
                 <div className="shell-user-stats-col">

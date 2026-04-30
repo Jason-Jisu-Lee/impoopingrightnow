@@ -1273,27 +1273,173 @@ select {
   }
 }
 
-.stats-brag-button {
+.stats-share-actions {
   position: absolute;
   top: 10px;
   right: 12px;
-  background: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+}
+
+.stats-share-button {
+  background: rgba(255, 252, 248, 0.9);
   border: 1px solid rgba(140, 90, 43, 0.35);
   border-radius: 999px;
   padding: 4px 14px;
+  min-width: 90px;
   font-family: var(--font-mono), "Courier New", monospace;
   font-size: 0.72rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--accent);
   cursor: pointer;
-  transition: background 120ms ease, color 120ms ease;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
 }
 
-.stats-brag-button:hover,
-.stats-brag-button:focus-visible {
+.stats-share-button:hover,
+.stats-share-button:focus-visible {
   background: rgba(140, 90, 43, 0.08);
   outline: none;
+}
+
+.share-page .shell-frame {
+  width: min(100%, 860px);
+}
+
+.share-banner-title {
+  max-width: 12ch;
+}
+
+.share-banner .banner-subtitle {
+  max-width: 34rem;
+}
+
+.share-main {
+  display: flex;
+  justify-content: center;
+}
+
+.share-content-grid {
+  width: min(100%, 640px);
+}
+
+.share-card {
+  display: grid;
+  gap: 18px;
+}
+
+.share-card-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.share-shared-at,
+.share-heatmap-hint {
+  font-family: var(--font-mono), "Courier New", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(86, 67, 51, 0.72);
+}
+
+.share-card-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.share-card-handle {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  line-height: 0.95;
+  color: var(--ink);
+}
+
+.share-card-summary,
+.share-card-caption {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.share-card-summary {
+  color: var(--ink);
+  font-size: 1.02rem;
+}
+
+.share-card-caption {
+  color: rgba(86, 67, 51, 0.72);
+  font-family: var(--font-mono), "Courier New", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.share-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.share-metric-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid rgba(140, 90, 43, 0.16);
+  border-radius: 18px;
+  background: rgba(255, 252, 248, 0.76);
+}
+
+.share-metric-label {
+  font-family: var(--font-mono), "Courier New", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(86, 67, 51, 0.72);
+}
+
+.share-metric-value {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.2rem, 3vw, 1.55rem);
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.share-heatmap-wrap {
+  display: grid;
+  gap: 10px;
+}
+
+.share-heatmap-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-family: var(--font-display), Georgia, serif;
+  color: var(--ink);
+}
+
+.share-heatmap {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.share-heatmap .stats-heatmap-cell {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+}
+
+.share-cta {
+  width: min(100%, 320px);
+  text-decoration: none;
+  justify-self: start;
 }
 
 .session-hold-button {
@@ -3556,6 +3702,18 @@ select {
     padding: 12px 12px 80px 12px;
   }
 
+  .share-metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .share-heatmap {
+    gap: 6px;
+  }
+
+  .share-cta {
+    width: 100%;
+  }
+
   .stats-page.shell-page {
     padding-top: 4px;
   }
@@ -3568,6 +3726,15 @@ select {
   .shell-top-controls-wrap {
     top: 8px;
     left: 10px;
+  }
+
+  .stats-share-actions {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 8px);
+    right: calc(env(safe-area-inset-right, 0px) + 10px);
+    flex-direction: column;
+    align-items: flex-end;
+    z-index: 8;
   }
 
   .shell-main-back-anchor {
@@ -3650,6 +3817,14 @@ select {
     background: transparent;
     padding: 0;
     z-index: 1;
+  }
+
+  .session-home-actions {
+    width: min(calc(100vw - 12px), 421px);
+  }
+
+  .session-landing-action {
+    width: 100%;
   }
 
   /* Live people counter: fixed at 15vh, centered */

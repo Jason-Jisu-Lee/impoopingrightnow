@@ -510,7 +510,7 @@ function LandingView({ onStart }: { onStart: () => void }) {
         <p className="session-home-start-label">Ready to poop?</p>
         <button
           type="button"
-          className="session-primary-action"
+          className="session-primary-action session-landing-action"
           onClick={onStart}
           aria-label="Start pooping session"
         >
