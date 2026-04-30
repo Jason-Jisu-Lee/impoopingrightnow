@@ -14,7 +14,7 @@ const shellNavItems: ShellNavItem[] = [
   { href: "/", label: "Home", title: "Home", glyph: "H" },
   { href: "/my-stats", label: "Records", title: "My Stats", glyph: "R" },
   { href: "/global", label: "World", title: "World Board", glyph: "W" },
-  { href: "/settings", label: "Settings", title: "Settings", glyph: "S" },
+  { href: "/settings", label: "Profile", title: "Profile", glyph: "P" },
 ];
 
 function HomeIcon() {
@@ -50,13 +50,11 @@ function WorldBoardIcon() {
   );
 }
 
-function SettingsIcon() {
+function ProfileIcon() {
   return (
     <svg className="shell-nav-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M7 7.5h10" />
-      <path d="M7 16.5h10" />
-      <circle cx="10" cy="7.5" r="1.75" />
-      <circle cx="14" cy="16.5" r="1.75" />
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" />
     </svg>
   );
 }
@@ -75,7 +73,7 @@ function NavIcon({ href, glyph }: Pick<ShellNavItem, "href" | "glyph">) {
   }
 
   if (href === "/settings") {
-    return <SettingsIcon />;
+    return <ProfileIcon />;
   }
 
   return <span className="shell-nav-glyph-fallback">{glyph}</span>;
