@@ -1,6 +1,6 @@
 import {
   createPublicSupabaseClient,
-  getWebPublicSupabaseEnv,
+  type PublicSupabaseEnv,
 } from "@impoopingrightnow/shared";
 
 import type { PublicShareSnapshot } from "./share-snapshot";
@@ -32,8 +32,19 @@ function toSnapshot(row: ShareSnapshotRow): PublicShareSnapshot {
   };
 }
 
+function readClientSupabaseEnv(): PublicSupabaseEnv | null {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+
+  if (!url || !anonKey) {
+    return null;
+  }
+
+  return { url, anonKey };
+}
+
 function getShareClient() {
-  const env = getWebPublicSupabaseEnv();
+  const env = readClientSupabaseEnv();
 
   if (!env) {
     return null;
@@ -43,7 +54,7 @@ function getShareClient() {
 }
 
 export function isShareStorageConfigured(): boolean {
-  return Boolean(getWebPublicSupabaseEnv());
+  return Boolean(readClientSupabaseEnv());
 }
 
 export function getStoredSharePath(shareId: string): string {
