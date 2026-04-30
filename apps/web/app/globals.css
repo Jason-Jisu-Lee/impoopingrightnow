@@ -1643,6 +1643,31 @@ select {
   line-height: 0.94;
 }
 
+.certificate-key-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 20px 0 8px;
+}
+
+.certificate-key-stat-label {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.certificate-key-stat-value {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(3rem, 12vw, 5rem);
+  line-height: 1;
+  color: var(--ink);
+  font-weight: 700;
+}
+
 .certificate-body,
 .certificate-rank-card p {
   margin: 0;

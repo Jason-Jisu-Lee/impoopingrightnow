@@ -741,6 +741,7 @@ function ActiveSessionView({
           onPointerDown={onHoldStart}
           onPointerUp={onHoldEnd}
           onPointerCancel={onHoldEnd}
+          onContextMenu={(e) => e.preventDefault()}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -811,6 +812,10 @@ function CertificateView({
 
       <div className="certificate-paper">
         <h2 className="certificate-title">{certificate.certHeadline}</h2>
+        <div className="certificate-key-stat">
+          <span className="certificate-key-stat-label">{certificate.certKeyStatLabel}</span>
+          <span className="certificate-key-stat-value">{certificate.certKeyStatValue}</span>
+        </div>
         <p className="certificate-body">{certificate.certSubline}</p>
 
         <div className="session-live-stats">
