@@ -1120,7 +1120,7 @@ select {
 .session-live-shell {
   display: grid;
   gap: 18px;
-  padding-top: clamp(128px, 18vh, 196px);
+  padding-top: 12px;
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -1205,7 +1205,7 @@ select {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  margin-top: 24px;
+  margin-top: max(24px, calc(50vh - 100px));
 }
 
 .session-live-topline {

@@ -637,16 +637,12 @@ function ActiveSessionView({
   confettiToken,
   onHoldStart,
   onHoldEnd,
-  hasPendingFlush,
-  onFlush,
 }: {
   sessionActivity: SessionActivityState;
   now: Date;
   confettiToken: number;
   onHoldStart: (event: PointerEvent<HTMLButtonElement>) => void;
   onHoldEnd: (event: PointerEvent<HTMLButtonElement>) => void;
-  hasPendingFlush: boolean;
-  onFlush: () => void;
 }) {
   const sessionElapsedLabel = formatDurationMs(
     getSessionElapsedMs(sessionActivity, now),
@@ -792,19 +788,6 @@ function ActiveSessionView({
         </div>
       </div>
 
-      {hasPendingFlush ? (
-        <div className="session-flush-wrap">
-          <p className="session-flush-label">Done?</p>
-          <button
-            type="button"
-            className="session-flush-button"
-            onClick={onFlush}
-          >
-            Flush
-          </button>
-        </div>
-      ) : null}
-
       <div className="session-bottom-controls"></div>
     </section>
   );
@@ -903,7 +886,7 @@ export function SessionHome() {
   const [certificate, setCertificate] = useState<SessionCertificate | null>(
     null,
   );
-  const [immediateGenEnabled] = useState(false);
+  const immediateGenEnabled = true;
   const [isYearHeatmapOpen, setIsYearHeatmapOpen] = useState(false);
   const [timerNow, setTimerNow] = useState<Date>(() => new Date());
   const [confettiToken, setConfettiToken] = useState(0);
@@ -1377,8 +1360,6 @@ export function SessionHome() {
                   confettiToken={confettiToken}
                   onHoldStart={handleHoldStart}
                   onHoldEnd={handleHoldEnd}
-                  hasPendingFlush={sessionActivity.pushCount > 0}
-                  onFlush={handleFlush}
                 />
               ) : !isCertificateVisible ? (
                 <LandingView onStart={handleStartSession} />
