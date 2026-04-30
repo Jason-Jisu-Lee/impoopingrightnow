@@ -39,7 +39,6 @@ Right now the app is mostly local-first.
 ## What already exists in the repo
 
 - public env helpers in [packages/shared/src/supabase.ts](packages/shared/src/supabase.ts)
-- env placeholders in [.env.example](.env.example)
 - base Supabase schema in [supabase/migrations/20260424213000_v1_foundation.sql](supabase/migrations/20260424213000_v1_foundation.sql)
 - share snapshot schema in [supabase/migrations/20260429230000_share_snapshots.sql](supabase/migrations/20260429230000_share_snapshots.sql)
 - share flow behavior notes in [share-flow.md](share-flow.md)

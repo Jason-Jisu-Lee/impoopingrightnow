@@ -1120,7 +1120,7 @@ select {
 .session-live-shell {
   display: grid;
   gap: 18px;
-  padding-top: 12px;
+  padding-top: clamp(128px, 18vh, 196px);
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -2251,11 +2251,12 @@ select {
 
 .session-feed-username {
   color: currentColor;
-  align-self: flex-end;
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  white-space: nowrap;
+  font-family: var(--font-mono), "Courier New", monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .session-floating-feed-message {
@@ -2264,6 +2265,8 @@ select {
   font-family: var(--font-display), Georgia, serif;
   font-size: clamp(1rem, 2.4vw, 1.22rem);
   line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .session-floating-feed-note p {
@@ -3823,7 +3826,7 @@ select {
   }
 
   .session-home-actions {
-    width: min(calc(100vw - 12px), 421px);
+    width: min(calc(100vw - 12px), 274px);
   }
 
   .session-landing-action {

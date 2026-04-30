@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { NextResponse } from "next/server";
 
 import {
@@ -11,15 +12,34 @@ import {
   type CompletedSessionSyncPayload,
 } from "../../_lib/session-sync";
 
-function createServiceSupabaseClient() {
+async function readServiceSupabaseConfig() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  let serviceRoleKey = process.env["SUPABASE_SERVICE_ROLE_KEY"]?.trim();
+
+  try {
+    const cloudflareContext = await getCloudflareContext({ async: true });
+    const runtimeEnv = cloudflareContext.env as Record<string, string | undefined>;
+
+    serviceRoleKey = runtimeEnv.SUPABASE_SERVICE_ROLE_KEY?.trim() ?? serviceRoleKey;
+  } catch {
+    // Local Next.js dev can fall back to process.env.
+  }
 
   if (!url || !serviceRoleKey) {
     return null;
   }
 
-  return createClient(url, serviceRoleKey, {
+  return { url, serviceRoleKey };
+}
+
+async function createServiceSupabaseClient() {
+  const config = await readServiceSupabaseConfig();
+
+  if (!config) {
+    return null;
+  }
+
+  return createClient(config.url, config.serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       detectSessionInUrl: false,
@@ -35,20 +55,20 @@ function isCompletedSessionSyncPayload(
 
   return Boolean(
     candidate &&
-      candidate.identity &&
-      typeof candidate.identity.id === "string" &&
-      typeof candidate.identity.username === "string" &&
-      candidate.certificate &&
-      typeof candidate.certificate.durationMs === "number" &&
-      typeof candidate.certificate.pushCount === "number" &&
-      typeof candidate.certificate.totalPushMs === "number" &&
-      typeof candidate.certificate.startedAt === "string" &&
-      typeof candidate.certificate.endedAt === "string",
+    candidate.identity &&
+    typeof candidate.identity.id === "string" &&
+    typeof candidate.identity.username === "string" &&
+    candidate.certificate &&
+    typeof candidate.certificate.durationMs === "number" &&
+    typeof candidate.certificate.pushCount === "number" &&
+    typeof candidate.certificate.totalPushMs === "number" &&
+    typeof candidate.certificate.startedAt === "string" &&
+    typeof candidate.certificate.endedAt === "string",
   );
 }
 
 export async function POST(request: Request) {
-  const client = createServiceSupabaseClient();
+  const client = await createServiceSupabaseClient();
 
   if (!client) {
     return NextResponse.json(
@@ -95,10 +115,7 @@ export async function POST(request: Request) {
     user_id: body.identity.id,
     duration_sec: Math.max(0, Math.round(body.certificate.durationMs / 1000)),
     push_count: Math.max(0, Math.round(body.certificate.pushCount)),
-    push_time_sec: Math.max(
-      0,
-      Math.round(body.certificate.totalPushMs / 1000),
-    ),
+    push_time_sec: Math.max(0, Math.round(body.certificate.totalPushMs / 1000)),
     hour_of_day: getSessionLogHourOfDay(body.certificate.startedAt),
     created_at: body.certificate.endedAt,
   });

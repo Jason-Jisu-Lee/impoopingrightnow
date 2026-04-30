@@ -245,9 +245,7 @@ function formatOptionalDuration(durationMs: number | null): string {
 
 function formatTimerSMs(ms: number): string {
   const safe = Number.isFinite(ms) ? Math.max(0, ms) : 0;
-  const totalSec = Math.floor(safe / 1000);
-  const millis = Math.floor(safe % 1000);
-  return `${totalSec}.${String(millis).padStart(3, "0")}`;
+  return (safe / 1000).toFixed(1);
 }
 
 function formatAverageCutNumber(value: number | null): string {
@@ -371,14 +369,14 @@ function createFloatingFeedStyle(message: LiveFeedMessage): FloatingFeedStyle {
     "#8f3058",
   ] as const;
   const lanes = [
-    { topStart: 4, topRange: 14, leftStart: 2, leftRange: 10 },
-    { topStart: 4, topRange: 14, leftStart: 58, leftRange: 8 },
-    { topStart: 22, topRange: 14, leftStart: 3, leftRange: 10 },
-    { topStart: 22, topRange: 14, leftStart: 56, leftRange: 8 },
-    { topStart: 44, topRange: 14, leftStart: 2, leftRange: 8 },
-    { topStart: 44, topRange: 14, leftStart: 58, leftRange: 8 },
-    { topStart: 64, topRange: 14, leftStart: 3, leftRange: 10 },
-    { topStart: 64, topRange: 14, leftStart: 56, leftRange: 8 },
+    { topStart: 4, topRange: 14, leftStart: 30, leftRange: 8 },
+    { topStart: 4, topRange: 14, leftStart: 68, leftRange: 6 },
+    { topStart: 22, topRange: 14, leftStart: 28, leftRange: 8 },
+    { topStart: 22, topRange: 14, leftStart: 66, leftRange: 6 },
+    { topStart: 44, topRange: 14, leftStart: 30, leftRange: 6 },
+    { topStart: 44, topRange: 14, leftStart: 70, leftRange: 6 },
+    { topStart: 64, topRange: 14, leftStart: 28, leftRange: 8 },
+    { topStart: 64, topRange: 14, leftStart: 66, leftRange: 6 },
   ] as const;
   const lane = lanes[hash % lanes.length];
   const top = lane.topStart + ((hash >>> 6) % lane.topRange);
@@ -423,9 +421,9 @@ function FloatingFeedOverlay({
           style={createFloatingFeedStyle(message)}
         >
           <p className="session-floating-feed-message">
-            &quot;{message.message}&quot;
+            {message.message}{" "}
+            <span className="session-feed-username">@{message.username}</span>
           </p>
-          <span className="session-feed-username">- {message.username}</span>
         </article>
       ))}
     </div>
@@ -737,7 +735,7 @@ function ActiveSessionView({
           className="session-home-start-label"
           style={{ textTransform: "none" }}
         >
-          Release Each Time You Deploy
+          PRESS, HOLD, AND FOCUS
         </p>
         <button
           type="button"
@@ -776,9 +774,7 @@ function ActiveSessionView({
         <div className="session-live-stat">
           <span className="session-live-stat-label">Push timer</span>
           <span className="session-live-stat-value">
-            {formatTimerSMs(
-              sessionActivity.totalPushMs + (isHolding ? livePushMs : 0),
-            )}{" "}
+            {pushElapsedLabel}{" "}
             s
           </span>
         </div>
