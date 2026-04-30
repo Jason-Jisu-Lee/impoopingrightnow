@@ -1295,7 +1295,10 @@ select {
   text-transform: uppercase;
   color: var(--accent);
   cursor: pointer;
-  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease;
 }
 
 .stats-share-button:hover,

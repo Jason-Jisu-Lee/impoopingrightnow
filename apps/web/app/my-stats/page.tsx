@@ -13,10 +13,7 @@ import {
 } from "@impoopingrightnow/shared";
 
 import { PageChromeControls } from "../_components/page-chrome-controls";
-import {
-  buildStoredShareUrl,
-  createStoredShareId,
-} from "../_lib/share-store";
+import { buildStoredShareUrl, createStoredShareId } from "../_lib/share-store";
 import {
   buildPublicShareSnapshot,
   buildPublicShareUrl,
@@ -193,10 +190,7 @@ export default function MyStatsPage() {
       level: 0 as const,
     }));
   const yearHeatmapNow = new Date();
-  const yearHeatmap = buildYearHeatmap(
-    pageData?.records ?? [],
-    yearHeatmapNow,
-  );
+  const yearHeatmap = buildYearHeatmap(pageData?.records ?? [], yearHeatmapNow);
   const yearLabel = yearHeatmapNow.getFullYear();
 
   async function handleShare(mode: ShareMode) {
@@ -239,10 +233,13 @@ export default function MyStatsPage() {
       return;
     }
 
-    navigator.clipboard?.writeText(fallbackText).then(() => {
-      setCopiedShareMode(mode);
-      window.setTimeout(() => setCopiedShareMode(null), 2000);
-    }).catch(() => {});
+    navigator.clipboard
+      ?.writeText(fallbackText)
+      .then(() => {
+        setCopiedShareMode(mode);
+        window.setTimeout(() => setCopiedShareMode(null), 2000);
+      })
+      .catch(() => {});
   }
 
   return (

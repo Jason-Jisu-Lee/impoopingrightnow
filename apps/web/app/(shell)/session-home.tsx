@@ -48,6 +48,10 @@ import {
   PageChromeControls,
   PoopLogoIcon,
 } from "../_components/page-chrome-controls";
+import {
+  buildCompletedSessionSyncPayload,
+  syncCompletedSessionToBackend,
+} from "../_lib/session-sync";
 import { ShellNav } from "../_components/shell-nav";
 
 type IdentityCardState = {
@@ -1123,6 +1127,29 @@ export function SessionHome() {
     setIsDiarrheaSession(false);
   }
 
+  function persistCompletedSession(nextCertificate: SessionCertificate) {
+    void recordCompletedSession(browserIdentityStorage, nextCertificate)
+      .then((nextRecords) => {
+        setSessionHistoryRecords(nextRecords);
+        setCompletedSessionCount(nextRecords.length);
+      })
+      .catch(() => {
+        const existingRecords = readStoredSessionHistory();
+        setSessionHistoryRecords(existingRecords);
+        setCompletedSessionCount(existingRecords.length);
+      });
+
+    if (!identityProfile) {
+      return;
+    }
+
+    void syncCompletedSessionToBackend(
+      buildCompletedSessionSyncPayload(identityProfile, nextCertificate),
+    ).catch(() => {
+      // Keep the local-first flow intact if backend sync fails.
+    });
+  }
+
   function handleFlush() {
     if (!sessionActivity) {
       return;
@@ -1142,16 +1169,7 @@ export function SessionHome() {
       },
     );
 
-    void recordCompletedSession(browserIdentityStorage, nextCertificate)
-      .then((nextRecords) => {
-        setSessionHistoryRecords(nextRecords);
-        setCompletedSessionCount(nextRecords.length);
-      })
-      .catch(() => {
-        const existingRecords = readStoredSessionHistory();
-        setSessionHistoryRecords(existingRecords);
-        setCompletedSessionCount(existingRecords.length);
-      });
+    persistCompletedSession(nextCertificate);
 
     setTimerNow(endedAt);
     setCertificate(nextCertificate);
@@ -1216,16 +1234,7 @@ export function SessionHome() {
         },
       );
 
-      void recordCompletedSession(browserIdentityStorage, nextCertificate)
-        .then((nextRecords) => {
-          setSessionHistoryRecords(nextRecords);
-          setCompletedSessionCount(nextRecords.length);
-        })
-        .catch(() => {
-          const existingRecords = readStoredSessionHistory();
-          setSessionHistoryRecords(existingRecords);
-          setCompletedSessionCount(existingRecords.length);
-        });
+      persistCompletedSession(nextCertificate);
 
       setCertificate(nextCertificate);
       setSessionActivity(null);

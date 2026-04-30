@@ -48,13 +48,17 @@ export function PublicShareScreen({
 }) {
   const copy = snapshot ? getShareCopy(snapshot) : null;
   const heatmapLevels = snapshot ? parseRecentHeatmapLevels(snapshot) : [];
-  const handle = snapshot?.username ? `@${snapshot.username}` : "Anonymous pooper";
+  const handle = snapshot?.username
+    ? `@${snapshot.username}`
+    : "Anonymous pooper";
 
   return (
     <div className="shell-frame">
       <section className="shell-banner share-banner">
         <div className="shell-banner-row">
-          <span className="eyebrow">{copy?.badgeLabel ?? "Share unavailable"}</span>
+          <span className="eyebrow">
+            {copy?.badgeLabel ?? "Share unavailable"}
+          </span>
         </div>
         <div className="shell-banner-row">
           <div>
@@ -64,7 +68,8 @@ export function PublicShareScreen({
           </div>
         </div>
         <p className="banner-subtitle">
-          {copy?.body ?? "Ask for a fresh share link, or jump into the homepage yourself."}
+          {copy?.body ??
+            "Ask for a fresh share link, or jump into the homepage yourself."}
         </p>
       </section>
 
@@ -82,7 +87,9 @@ export function PublicShareScreen({
 
                 <div className="share-card-copy">
                   <h2 className="share-card-handle">{handle}</h2>
-                  <p className="share-card-summary">{getSummaryText(snapshot)}</p>
+                  <p className="share-card-summary">
+                    {getSummaryText(snapshot)}
+                  </p>
                 </div>
 
                 <div className="share-metric-grid">
@@ -110,7 +117,9 @@ export function PublicShareScreen({
                 <div className="share-heatmap-wrap">
                   <div className="share-heatmap-head">
                     <span>Last 4 weeks</span>
-                    <span className="share-heatmap-hint">lighter to heavier</span>
+                    <span className="share-heatmap-hint">
+                      lighter to heavier
+                    </span>
                   </div>
                   <div
                     className="share-heatmap"
@@ -142,7 +151,8 @@ export function PublicShareScreen({
                 <div className="share-card-copy">
                   <h2 className="share-card-handle">Share unavailable</h2>
                   <p className="share-card-summary">
-                    This link does not contain a valid brag or challenge snapshot.
+                    This link does not contain a valid brag or challenge
+                    snapshot.
                   </p>
                 </div>
 

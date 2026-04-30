@@ -90,7 +90,9 @@ export function parsePublicShareSnapshot(
   }
 
   try {
-    const parsedValue = JSON.parse(rawValue) as Partial<SerializedShareSnapshot>;
+    const parsedValue = JSON.parse(
+      rawValue,
+    ) as Partial<SerializedShareSnapshot>;
 
     if (
       parsedValue.v !== 1 ||
@@ -163,6 +165,8 @@ export function getShareCopy(snapshot: PublicShareSnapshot): ShareCopy {
   };
 }
 
-export function parseRecentHeatmapLevels(snapshot: PublicShareSnapshot): number[] {
+export function parseRecentHeatmapLevels(
+  snapshot: PublicShareSnapshot,
+): number[] {
   return snapshot.recentHeatmap.split("").map((level) => Number(level));
 }
