@@ -152,7 +152,7 @@ select {
   visibility: hidden;
 }
 
-/* Full-page dark overlay via pseudo-element */
+/* Full-page dark overlay via pseudo-element on <main> */
 .is-tutorial::before {
   content: "";
   position: fixed;
@@ -162,16 +162,27 @@ select {
   pointer-events: all;
 }
 
-/* session-hold-wrap creates a stacking context (z-index:1) that traps children.
-   Remove that stacking context during tutorial so spotlight can escape above the overlay. */
-.is-tutorial .session-hold-wrap {
-  z-index: auto;
+/*
+ * The overlay is at z-index 15. The spotlight CONTAINERS must be lifted
+ * to z-index 20 so their entire stacking context paints above the overlay.
+ * Setting z-index on a child element inside a lower-z-index stacking context
+ * doesn't help — the CONTAINER itself must be higher.
+ */
+
+/* Step 1: lift the whole landing panel above the overlay */
+.is-tutorial-1 .session-landing-panel {
+  position: relative; /* ensures z-index applies on desktop */
+  z-index: 20;
 }
 
-/* Spotlight elements appear above the overlay */
+/* Step 2: lift the hold-wrap above the overlay */
+.is-tutorial-2 .session-hold-wrap {
+  z-index: 20;
+}
+
+/* Spotlight elements — no z-index needed here, the container handles it */
 .tutorial-spotlight {
   position: relative;
-  z-index: 20;
   pointer-events: auto;
 }
 
