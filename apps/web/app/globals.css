@@ -2283,7 +2283,7 @@ select {
 .session-feed-username {
   color: currentColor;
   font-family: var(--font-mono), "Courier New", monospace;
-  font-size: 0.8rem;
+  font-size: 0.68rem;
   letter-spacing: 0.04em;
   text-transform: none;
   white-space: normal;
@@ -2294,7 +2294,7 @@ select {
   margin: 0;
   color: currentColor;
   font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(1rem, 2.4vw, 1.22rem);
+  font-size: clamp(1.15rem, 2.8vw, 1.4rem);
   line-height: 1.45;
   overflow-wrap: anywhere;
   word-break: break-word;
