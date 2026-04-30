@@ -1466,8 +1466,7 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: min(100%, 420px);
-  margin-inline: auto;
+  width: min(100%, 421px);
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
@@ -3905,7 +3904,7 @@ select {
   }
 
   .session-hold-button {
-    width: min(100%, 351px);
+    width: min(calc(100vw - 12px), 274px);
   }
 
   .session-flush-button {
