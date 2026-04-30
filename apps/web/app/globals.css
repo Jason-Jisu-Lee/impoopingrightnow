@@ -154,6 +154,10 @@ select {
   filter: grayscale(0.4);
 }
 
+.is-tutorial .shell-footer {
+  visibility: hidden;
+}
+
 /* Dim layer — covers everything in the panel */
 .tutorial-overlay {
   position: fixed;
