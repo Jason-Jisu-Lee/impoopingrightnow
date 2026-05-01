@@ -244,6 +244,12 @@ export default function SettingsPage() {
   }
 
   function handleEmailSave() {
+    if (emailDraft.trim() === "") {
+      setIsEditingEmail(false);
+      setEmailNotice(null);
+      return;
+    }
+
     const validationResult = validateEmailAddress(emailDraft);
 
     if (validationResult.status === "invalid") {
@@ -323,16 +329,23 @@ export default function SettingsPage() {
                       autoFocus
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleUsernameSave();
-                        if (e.key === "Escape") { setIsEditingUsername(false); setUsernameNotice(null); }
+                        if (e.key === "Escape") {
+                          setIsEditingUsername(false);
+                          setUsernameNotice(null);
+                        }
                       }}
                     />
                   ) : (
-                    <span className="profile-row-value">{profile?.username ?? "—"}</span>
+                    <span className="profile-row-value">
+                      {profile?.username ?? "—"}
+                    </span>
                   )}
                   <button
                     type="button"
                     className="profile-row-edit-btn"
-                    aria-label={isEditingUsername ? "Save username" : "Edit username"}
+                    aria-label={
+                      isEditingUsername ? "Save username" : "Edit username"
+                    }
                     onClick={() => {
                       if (isEditingUsername) {
                         handleUsernameSave();
@@ -343,11 +356,19 @@ export default function SettingsPage() {
                     }}
                   >
                     {isEditingUsername ? (
-                      <svg className="profile-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <svg
+                        className="profile-row-icon"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
                         <path d="M5 13l4 4L19 7" />
                       </svg>
                     ) : (
-                      <svg className="profile-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <svg
+                        className="profile-row-icon"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
                         <path d="M15.5 4.5l4 4L7 21H3v-4L15.5 4.5Z" />
                         <path d="M13 7l4 4" />
                       </svg>
@@ -355,7 +376,9 @@ export default function SettingsPage() {
                   </button>
                 </div>
                 {usernameNotice ? (
-                  <p className={`profile-notice is-${usernameNotice.tone}`}>{usernameNotice.text}</p>
+                  <p className={`profile-notice is-${usernameNotice.tone}`}>
+                    {usernameNotice.text}
+                  </p>
                 ) : null}
 
                 <div className="profile-row">
@@ -374,11 +397,16 @@ export default function SettingsPage() {
                       autoFocus
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleEmailSave();
-                        if (e.key === "Escape") { setIsEditingEmail(false); setEmailNotice(null); }
+                        if (e.key === "Escape") {
+                          setIsEditingEmail(false);
+                          setEmailNotice(null);
+                        }
                       }}
                     />
                   ) : (
-                    <span className="profile-row-value">{profile?.email ?? "—"}</span>
+                    <span className="profile-row-value">
+                      {profile?.email ?? "—"}
+                    </span>
                   )}
                   <button
                     type="button"
@@ -394,11 +422,19 @@ export default function SettingsPage() {
                     }}
                   >
                     {isEditingEmail ? (
-                      <svg className="profile-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <svg
+                        className="profile-row-icon"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
                         <path d="M5 13l4 4L19 7" />
                       </svg>
                     ) : (
-                      <svg className="profile-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <svg
+                        className="profile-row-icon"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
                         <path d="M15.5 4.5l4 4L7 21H3v-4L15.5 4.5Z" />
                         <path d="M13 7l4 4" />
                       </svg>
@@ -406,7 +442,9 @@ export default function SettingsPage() {
                   </button>
                 </div>
                 {emailNotice ? (
-                  <p className={`profile-notice is-${emailNotice.tone}`}>{emailNotice.text}</p>
+                  <p className={`profile-notice is-${emailNotice.tone}`}>
+                    {emailNotice.text}
+                  </p>
                 ) : null}
               </div>
             </div>
