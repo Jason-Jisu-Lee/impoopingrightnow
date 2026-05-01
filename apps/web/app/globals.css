@@ -2106,8 +2106,81 @@ select {
 
 .profile-page-content {
   display: grid;
-  gap: 32px;
+  gap: 24px;
   max-width: 480px;
+}
+
+.profile-rows {
+  display: grid;
+  gap: 0;
+}
+
+.profile-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-row:first-child {
+  border-top: 1px solid var(--line);
+}
+
+.profile-row-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  min-width: 80px;
+}
+
+.profile-row-value {
+  flex: 1;
+  font-family: var(--font-mono), "Courier New", monospace;
+  font-size: 0.95rem;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-row-edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 1rem;
+  padding: 4px 6px;
+  border-radius: 8px;
+  line-height: 1;
+}
+
+.profile-row-edit-btn:hover {
+  background: rgba(140, 90, 43, 0.1);
+}
+
+.profile-row-form {
+  display: grid;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-row-form:first-child {
+  border-top: 1px solid var(--line);
+}
+
+.profile-row-form .profile-row-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.profile-row-form-actions {
+  display: flex;
+  gap: 10px;
 }
 
 .profile-section {

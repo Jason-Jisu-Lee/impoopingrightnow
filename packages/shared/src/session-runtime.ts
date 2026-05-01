@@ -285,7 +285,7 @@ function matchPushTimer(input: CertSelectorInput): CertCategoryMatch | null {
   if (!c || input.pushCount === 0) return null;
   const longestPushSec = input.longestPushMs / 1000;
   const ks = {
-    keyStatLabel: "Longest Push",
+    keyStatLabel: "Your Longest Push",
     keyStatValue: `${Math.round(longestPushSec)}s`,
   };
   if (longestPushSec < 4 && c.under_4s)

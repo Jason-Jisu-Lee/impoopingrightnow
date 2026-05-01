@@ -154,6 +154,8 @@ export default function SettingsPage() {
   const [usernameNotice, setUsernameNotice] =
     useState<SettingsNoticeState>(null);
   const [emailNotice, setEmailNotice] = useState<SettingsNoticeState>(null);
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -232,10 +234,8 @@ export default function SettingsPage() {
       .then((nextProfile) => {
         setProfile(nextProfile);
         setUsernameDraft(nextProfile.username);
-        setUsernameNotice({
-          tone: "success",
-          text: "Username saved locally.",
-        });
+        setIsEditingUsername(false);
+        setUsernameNotice(null);
       })
       .catch(() => {
         setUsernameNotice({
@@ -268,10 +268,8 @@ export default function SettingsPage() {
       .then((nextProfile) => {
         setProfile(nextProfile);
         setEmailDraft(nextProfile.email ?? "");
-        setEmailNotice({
-          tone: "success",
-          text: "Recovery email saved locally.",
-        });
+        setIsEditingEmail(false);
+        setEmailNotice(null);
       })
       .catch(() => {
         setEmailNotice({
@@ -308,52 +306,66 @@ export default function SettingsPage() {
         <section className="shell-main">
           {isProfileLoading ? null : (
             <div className="profile-page-content">
-              <section className="profile-section">
-                <h2 className="profile-section-title">Username</h2>
-                <form className="profile-form" onSubmit={handleUsernameSubmit}>
-                  <input
-                    className="profile-input"
-                    type="text"
-                    autoComplete="username"
-                    placeholder="your_username"
-                    value={usernameDraft}
-                    onChange={(event) => setUsernameDraft(event.target.value)}
-                    aria-label="Username"
-                  />
-                  <button type="submit" className="profile-button">
-                    Save
-                  </button>
-                  {usernameNotice ? (
-                    <p className={`profile-notice is-${usernameNotice.tone}`}>
-                      {usernameNotice.text}
-                    </p>
-                  ) : null}
-                </form>
-              </section>
+              <div className="profile-rows">
+                {isEditingUsername ? (
+                  <form className="profile-row-form" onSubmit={handleUsernameSubmit}>
+                    <span className="profile-row-label">username</span>
+                    <input
+                      className="profile-input"
+                      type="text"
+                      autoComplete="username"
+                      placeholder="your_username"
+                      value={usernameDraft}
+                      onChange={(event) => setUsernameDraft(event.target.value)}
+                      aria-label="Username"
+                      autoFocus
+                    />
+                    <div className="profile-row-form-actions">
+                      <button type="submit" className="profile-button">Save</button>
+                      <button type="button" className="profile-button is-secondary" onClick={() => { setIsEditingUsername(false); setUsernameNotice(null); }}>Cancel</button>
+                    </div>
+                    {usernameNotice ? (
+                      <p className={`profile-notice is-${usernameNotice.tone}`}>{usernameNotice.text}</p>
+                    ) : null}
+                  </form>
+                ) : (
+                  <div className="profile-row">
+                    <span className="profile-row-label">username</span>
+                    <span className="profile-row-value">{profile?.username ?? "—"}</span>
+                    <button type="button" className="profile-row-edit-btn" aria-label="Edit username" onClick={() => { setIsEditingUsername(true); setUsernameNotice(null); }}>✎</button>
+                  </div>
+                )}
 
-              <section className="profile-section">
-                <h2 className="profile-section-title">Email</h2>
-                <form className="profile-form" onSubmit={handleEmailSubmit}>
-                  <input
-                    className="profile-input"
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    placeholder="you@example.com"
-                    value={emailDraft}
-                    onChange={(event) => setEmailDraft(event.target.value)}
-                    aria-label="Email"
-                  />
-                  <button type="submit" className="profile-button">
-                    Save
-                  </button>
-                  {emailNotice ? (
-                    <p className={`profile-notice is-${emailNotice.tone}`}>
-                      {emailNotice.text}
-                    </p>
-                  ) : null}
-                </form>
-              </section>
+                {isEditingEmail ? (
+                  <form className="profile-row-form" onSubmit={handleEmailSubmit}>
+                    <span className="profile-row-label">email</span>
+                    <input
+                      className="profile-input"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      placeholder="you@example.com"
+                      value={emailDraft}
+                      onChange={(event) => setEmailDraft(event.target.value)}
+                      aria-label="Email"
+                      autoFocus
+                    />
+                    <div className="profile-row-form-actions">
+                      <button type="submit" className="profile-button">Save</button>
+                      <button type="button" className="profile-button is-secondary" onClick={() => { setIsEditingEmail(false); setEmailNotice(null); }}>Cancel</button>
+                    </div>
+                    {emailNotice ? (
+                      <p className={`profile-notice is-${emailNotice.tone}`}>{emailNotice.text}</p>
+                    ) : null}
+                  </form>
+                ) : (
+                  <div className="profile-row">
+                    <span className="profile-row-label">email</span>
+                    <span className="profile-row-value">{profile?.email ?? "—"}</span>
+                    <button type="button" className="profile-row-edit-btn" aria-label="Edit email" onClick={() => { setIsEditingEmail(true); setEmailNotice(null); }}>✎</button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </section>

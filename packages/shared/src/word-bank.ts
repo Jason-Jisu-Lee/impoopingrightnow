@@ -253,7 +253,7 @@ export const masterWordBank = {
             "🚀 Zero-Effort Excellence",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. The colon obeyed without resistance.",
+            "Your longest push: {longestPushSec}s. The colon obeyed without resistance.",
             "Top 2% of pushes ever recorded on this app.",
             "Frictionless. Effortless. Borderline rude to the toilet.",
             "Gravity did most of the work. You're welcome, gravity.",
@@ -268,7 +268,7 @@ export const masterWordBank = {
             "🌊 Tidal Cooperation",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. Smoother than fresh asphalt.",
+            "Your longest push: {longestPushSec}s. Smoother than fresh asphalt.",
             "You unlocked the achievement: Frictionless Voider.",
             "Engineers couldn't design a better delivery system.",
             "Whatever you ate, please write a memoir about it.",
@@ -283,7 +283,7 @@ export const masterWordBank = {
             "⏱ World Record Attempt",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. The leaderboard has been notified.",
+            "Your longest push: {longestPushSec}s. The leaderboard has been notified.",
             "You exited the bathroom faster than your coworker can say 'meeting'.",
             "Top 1% velocity tier. Speedrun community is taking notice.",
             "If pooping were an Olympic sport, this is a qualifier.",
@@ -298,7 +298,7 @@ export const masterWordBank = {
             "🎯 Bullseye Bowel",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. No follow-ups required.",
+            "Your longest push: {longestPushSec}s. No follow-ups required.",
             "Achievement unlocked: First-Try Finisher.",
             "Most people need 3+ attempts. You needed one breath.",
             "Decisive. Final. Unilateral.",
@@ -313,7 +313,7 @@ export const masterWordBank = {
             "💨 Vacuum-Sealed Ejection",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. The plumbing barely noticed.",
+            "Your longest push: {longestPushSec}s. The plumbing barely noticed.",
             "Top 3% of users by push speed.",
             "Whoever raised you fed you well. Send them a thank-you note.",
             "Achievement: 'Greased Lightning'.",
@@ -328,7 +328,7 @@ export const masterWordBank = {
             "🪶 Featherlight Exit",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. Quiet, clean, professional.",
+            "Your longest push: {longestPushSec}s. Quiet, clean, professional.",
             "No grunting. No bracing. No witnesses required.",
             "Top 4% efficiency tier this week.",
             "You make it look easy because, statistically, it was.",
@@ -343,7 +343,7 @@ export const masterWordBank = {
             "🍃 Whisper-Light Output",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. You barely participated.",
+            "Your longest push: {longestPushSec}s. You barely participated.",
             "The body did the thinking. You just sat there.",
             "Top 5% of low-effort sessions globally.",
             "If pooping had a Tinder, you'd be left-swiped for being too easy.",
@@ -361,7 +361,7 @@ export const masterWordBank = {
             "✅ Clinically Approved",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. A gastroenterologist would weep.",
+            "Your longest push: {longestPushSec}s. A gastroenterologist would weep.",
             "Top 25% of push efficiency this week.",
             "Achievement unlocked: 'Wholesome Voider'.",
             "Healthy. Dignified. Statistically beautiful.",
@@ -376,7 +376,7 @@ export const masterWordBank = {
             "🏛 Pillar of Regularity",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. No rush. No drama. Just craft.",
+            "Your longest push: {longestPushSec}s. No rush. No drama. Just craft.",
             "Top 30% of users by push poise.",
             "This is the push your colon writes home about.",
             "Achievement: 'Reliable Output'.",
@@ -391,7 +391,7 @@ export const masterWordBank = {
             "🎻 Harmonized Departure",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. You and your colon are on speaking terms.",
+            "Your longest push: {longestPushSec}s. You and your colon are on speaking terms.",
             "Top 20% by push smoothness.",
             "Whatever you said to your gut, it listened.",
             "Achievement unlocked: 'Internal Peace Treaty'.",
@@ -406,7 +406,7 @@ export const masterWordBank = {
             "🧪 Lab-Grade Discipline",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. Engineered, not improvised.",
+            "Your longest push: {longestPushSec}s. Engineered, not improvised.",
             "Top 22% efficiency this week.",
             "You don't poop. You execute.",
             "Achievement: 'Surgical Voider'.",
@@ -421,7 +421,7 @@ export const masterWordBank = {
             "🥇 Distinguished Effort",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. The principal called. Good news.",
+            "Your longest push: {longestPushSec}s. The principal called. Good news.",
             "Top 25% of users this week.",
             "Achievement: 'Academic Excellence (Lower GI Division)'.",
             "Your colon got tenure.",
@@ -439,7 +439,7 @@ export const masterWordBank = {
             "📈 Bell Curve Royalty",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. Perfectly representative.",
+            "Your longest push: {longestPushSec}s. Perfectly representative.",
             "You are the data. The data is you.",
             "Top 50% — also bottom 50%. Beautifully balanced.",
             "Achievement: 'Demographic Anchor'.",
@@ -454,7 +454,7 @@ export const masterWordBank = {
             "📋 Punched the Clock",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. No glamour, just results.",
+            "Your longest push: {longestPushSec}s. No glamour, just results.",
             "Top 50% efficiency. Backbone of the platform.",
             "Achievement: 'Reliable Workhorse'.",
             "You showed up, you did the thing, you left.",
@@ -469,7 +469,7 @@ export const masterWordBank = {
             "📬 Routine Dispatch",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. Nothing surprising. That's the win.",
+            "Your longest push: {longestPushSec}s. Nothing surprising. That's the win.",
             "Within median band of all global pushes.",
             "Achievement: 'Logistically Sound'.",
             "You are the Amazon of bowel movements.",
@@ -484,7 +484,7 @@ export const masterWordBank = {
             "🪴 No Stress Detected",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. Relaxed. Unhurried. Civilized.",
+            "Your longest push: {longestPushSec}s. Relaxed. Unhurried. Civilized.",
             "Top 50% of low-stress sessions.",
             "Achievement: 'Tranquil Voider'.",
             "Like watching a documentary, but pooping.",
@@ -499,7 +499,7 @@ export const masterWordBank = {
             "📐 Centered Output",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. Not flashy. Just functional.",
+            "Your longest push: {longestPushSec}s. Not flashy. Just functional.",
             "Top 50% of all sessions this week.",
             "Achievement: 'Consistent Contributor'.",
             "Mediocrity is underrated and you are proof.",
@@ -517,7 +517,7 @@ export const masterWordBank = {
             "📜 Polite Persuasion",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. Took a moment, but you got there.",
+            "Your longest push: {longestPushSec}s. Took a moment, but you got there.",
             "Slightly above global push average. No biggie.",
             "Achievement: 'Diplomatic Resolution'.",
             "Your colon raised some concerns. You addressed them.",
@@ -532,7 +532,7 @@ export const masterWordBank = {
             "🎯 Engaged Output",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. You meant it. The bowel responded.",
+            "Your longest push: {longestPushSec}s. You meant it. The bowel responded.",
             "Slightly above global push average — earned, not strained.",
             "Achievement: 'Productive Contributor'.",
             "Honest work. Fair pay.",
@@ -547,7 +547,7 @@ export const masterWordBank = {
             "🌱 Patient Cultivation",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. Not forced. Just encouraged.",
+            "Your longest push: {longestPushSec}s. Not forced. Just encouraged.",
             "Top 60% of sessions by patience.",
             "Achievement: 'Bowel Diplomat'.",
             "You did not yell. You merely suggested.",
@@ -565,7 +565,7 @@ export const masterWordBank = {
             "💼 Earned Every Inch",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. This was a job. You showed up.",
+            "Your longest push: {longestPushSec}s. This was a job. You showed up.",
             "Above global average push by ~30%. Hard-earned.",
             "Achievement: 'Blue Collar Bowel'.",
             "No shortcuts. No glamour. Just grit.",
@@ -580,7 +580,7 @@ export const masterWordBank = {
             "🔩 Worked Through It",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. You and the porcelain went the distance.",
+            "Your longest push: {longestPushSec}s. You and the porcelain went the distance.",
             "Above global average push time. 😭 Respect, though.",
             "Achievement: 'Push Through Adversity'.",
             "Your quads will thank you tomorrow.",
@@ -595,7 +595,7 @@ export const masterWordBank = {
             "🗿 Stoic Voider",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. Persistence pays dividends.",
+            "Your longest push: {longestPushSec}s. Persistence pays dividends.",
             "Above global push duration average. Earned every second.",
             "Achievement: 'Will of Iron'.",
             "Lesser users would have given up. You are not lesser.",
@@ -613,7 +613,7 @@ export const masterWordBank = {
             "🚜 Tilled the Earth",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. This was a project, not a poop.",
+            "Your longest push: {longestPushSec}s. This was a project, not a poop.",
             "Above global average push time by ~80%. 😭 Brutal but yours.",
             "Achievement: 'Industrial Voider'.",
             "Toilet should file a workman's comp claim.",
@@ -628,7 +628,7 @@ export const masterWordBank = {
             "🪑 Marathon Session",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. You spoke at length. The bowel listened. Eventually.",
+            "Your longest push: {longestPushSec}s. You spoke at length. The bowel listened. Eventually.",
             "Well above global push average. 😭 Painful but committed.",
             "Achievement: 'Endurance Voider'.",
             "Other users tap out at 20s. You're built different.",
@@ -643,7 +643,7 @@ export const masterWordBank = {
             "⏳ Glacial Progress",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. Measured in epochs.",
+            "Your longest push: {longestPushSec}s. Measured in epochs.",
             "Far above global push average. 😭 The toilet aged with you.",
             "Achievement: 'Pushed Through the Cretaceous'.",
             "You watched a continent drift while pushing.",
@@ -658,7 +658,7 @@ export const masterWordBank = {
             "🗿 Built Different",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. Most would have quit. You did not.",
+            "Your longest push: {longestPushSec}s. Most would have quit. You did not.",
             "Above global push average by a wide margin. 😭",
             "Achievement: 'Refusal to Yield'.",
             "Pain is temporary. The flush is forever.",
@@ -673,7 +673,7 @@ export const masterWordBank = {
             "📋 Permit-Required Push",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. Detours were in effect.",
+            "Your longest push: {longestPushSec}s. Detours were in effect.",
             "Above global push average. 😭 Heavy machinery deployed.",
             "Achievement: 'Major Infrastructure Project'.",
             "City council will be notified.",
@@ -691,7 +691,7 @@ export const masterWordBank = {
             "🆘 Fiber Intervention Required",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. This was not a poop. This was a standoff.",
+            "Your longest push: {longestPushSec}s. This was not a poop. This was a standoff.",
             "Top 1% longest pushes — not a flex. 😭",
             "Achievement: 'Survived the Siege'.",
             "Your gastroenterologist would like to schedule a chat.",
@@ -706,7 +706,7 @@ export const masterWordBank = {
             "🧗 Extracted at Great Cost",
           ],
           sublines: [
-            "Longest push: {longestPushSec}s. The bowel held it captive. You won.",
+            "Your longest push: {longestPushSec}s. The bowel held it captive. You won.",
             "Far above the 99th percentile of push durations. 😭",
             "Achievement: 'Survived Against All Odds'.",
             "Consider this a sign from the universe to add more fiber.",
