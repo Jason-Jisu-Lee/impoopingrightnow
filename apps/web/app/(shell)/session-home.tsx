@@ -58,10 +58,7 @@ import {
   getShareCopy,
   type ShareMode,
 } from "../_lib/share-snapshot";
-import {
-  buildStoredShareUrl,
-  createStoredShareId,
-} from "../_lib/share-store";
+import { buildStoredShareUrl, createStoredShareId } from "../_lib/share-store";
 import { ShellNav } from "../_components/shell-nav";
 
 type IdentityCardState = {
@@ -525,7 +522,11 @@ function LandingView({
   return (
     <section className="session-home-panel session-landing-panel">
       <div className="session-home-actions">
-        <p className={`session-home-start-label${isTutorial ? " tutorial-spotlight" : ""}`}>Ready to poop?</p>
+        <p
+          className={`session-home-start-label${isTutorial ? " tutorial-spotlight" : ""}`}
+        >
+          Ready to poop?
+        </p>
         <button
           type="button"
           className={`session-primary-action session-landing-action${isTutorial ? " tutorial-spotlight" : ""}`}
@@ -801,8 +802,7 @@ function ActiveSessionView({
         <div className="session-live-stat">
           <span className="session-live-stat-label">Push timer</span>
           <span className="session-live-stat-value">
-            {formatTimerSMs(livePushMs)}{" "}
-            s
+            {formatTimerSMs(livePushMs)} s
           </span>
         </div>
         <div className="session-live-stat">
@@ -844,8 +844,12 @@ function CertificateView({
       <div className="certificate-paper">
         <h2 className="certificate-title">{certificate.certHeadline}</h2>
         <div className="certificate-key-stat">
-          <span className="certificate-key-stat-label">{certificate.certKeyStatLabel}</span>
-          <span className="certificate-key-stat-value">{certificate.certKeyStatValue}</span>
+          <span className="certificate-key-stat-label">
+            {certificate.certKeyStatLabel}
+          </span>
+          <span className="certificate-key-stat-value">
+            {certificate.certKeyStatValue}
+          </span>
         </div>
         <p className="certificate-body">{certificate.certSubline}</p>
 
@@ -892,11 +896,7 @@ function CertificateView({
       </div>
 
       <div className="cert-share-actions">
-        <button
-          type="button"
-          className="stats-share-button"
-          onClick={onBrag}
-        >
+        <button type="button" className="stats-share-button" onClick={onBrag}>
           {copiedCertShareMode === "brag" ? "Copied!" : "Brag"}
         </button>
         <button
@@ -1164,15 +1164,17 @@ export function SessionHome() {
     }
   }
 
-  const [copiedCertShareMode, setCopiedCertShareMode] = useState<ShareMode | null>(null);
+  const [copiedCertShareMode, setCopiedCertShareMode] =
+    useState<ShareMode | null>(null);
 
   async function handleCertShare(mode: ShareMode) {
     if (typeof window === "undefined") return;
     const snapshot = buildSessionStats(sessionHistoryRecords);
     const uniqueDays = new Set(
-      sessionHistoryRecords.map((r) => new Date(r.completedAt).toDateString())
+      sessionHistoryRecords.map((r) => new Date(r.completedAt).toDateString()),
     ).size;
-    const avgPerDay = uniqueDays > 0 ? sessionHistoryRecords.length / uniqueDays : null;
+    const avgPerDay =
+      uniqueDays > 0 ? sessionHistoryRecords.length / uniqueDays : null;
     const shareSnapshot = buildPublicShareSnapshot({
       mode,
       username: identityUsername,
@@ -1442,7 +1444,9 @@ export function SessionHome() {
   const yearLabel = yearHeatmapNow.getFullYear();
 
   return (
-    <main className={`shell-page shell-home-page${tutorialStep > 0 ? ` is-tutorial is-tutorial-${tutorialStep}` : ""}`}>
+    <main
+      className={`shell-page shell-home-page${tutorialStep > 0 ? ` is-tutorial is-tutorial-${tutorialStep}` : ""}`}
+    >
       <PageChromeControls onHome={handleReturnHome} />
 
       <FlushConfettiOverlay token={flushConfettiToken} />
@@ -1488,7 +1492,10 @@ export function SessionHome() {
                   isTutorial={tutorialStep === 2}
                 />
               ) : !isCertificateVisible ? (
-                <LandingView onStart={handleStartSession} isTutorial={tutorialStep === 1} />
+                <LandingView
+                  onStart={handleStartSession}
+                  isTutorial={tutorialStep === 1}
+                />
               ) : null}
 
               {isCertificateVisible && certificate ? (

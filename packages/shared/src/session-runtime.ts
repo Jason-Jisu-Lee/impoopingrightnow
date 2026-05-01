@@ -284,7 +284,10 @@ function matchPushTimer(input: CertSelectorInput): CertCategoryMatch | null {
   const c = masterWordBank.certificate_results.push_timer as CertSubBucket;
   if (!c || input.pushCount === 0) return null;
   const longestPushSec = input.longestPushMs / 1000;
-  const ks = { keyStatLabel: "Longest Push", keyStatValue: `${Math.round(longestPushSec)}s` };
+  const ks = {
+    keyStatLabel: "Longest Push",
+    keyStatValue: `${Math.round(longestPushSec)}s`,
+  };
   if (longestPushSec < 4 && c.under_4s)
     return { priority: 2, pool: c.under_4s, ...ks };
   if (longestPushSec >= 10 && longestPushSec < 15 && c.s10_15)
@@ -310,11 +313,14 @@ function matchSessionTimer(input: CertSelectorInput): CertCategoryMatch | null {
   const durLabel = min >= 1 ? `${min.toFixed(0)} min` : `${Math.round(sec)}s`;
   const ks = { keyStatLabel: "Session Time", keyStatValue: durLabel };
   if (sec < 10 && c.under_10s) return { priority: 2, pool: c.under_10s, ...ks };
-  if (sec >= 10 && sec < 30 && c.s10_30) return { priority: 2, pool: c.s10_30, ...ks };
+  if (sec >= 10 && sec < 30 && c.s10_30)
+    return { priority: 2, pool: c.s10_30, ...ks };
   if (sec >= 30 && min < 1 && c.s30_to_1min)
     return { priority: 2, pool: c.s30_to_1min, ...ks };
-  if (min >= 1 && min < 5 && c.m1_5) return { priority: 2, pool: c.m1_5, ...ks };
-  if (min >= 7 && min < 12 && c.m7_12) return { priority: 2, pool: c.m7_12, ...ks };
+  if (min >= 1 && min < 5 && c.m1_5)
+    return { priority: 2, pool: c.m1_5, ...ks };
+  if (min >= 7 && min < 12 && c.m7_12)
+    return { priority: 2, pool: c.m7_12, ...ks };
   if (min >= 12 && c.over_12m) return { priority: 2, pool: c.over_12m, ...ks };
   return null;
 }
@@ -326,14 +332,18 @@ function matchStartedTime(input: CertSelectorInput): CertCategoryMatch | null {
   const period = hour >= 12 ? "PM" : "AM";
   const h = hour % 12 === 0 ? 12 : hour % 12;
   const ks = { keyStatLabel: "Start Time", keyStatValue: `${h} ${period}` };
-  if (hour >= 2 && hour < 4 && c.h2_4) return { priority: 3, pool: c.h2_4, ...ks };
-  if (hour >= 4 && hour < 6 && c.h4_6) return { priority: 3, pool: c.h4_6, ...ks };
-  if (hour >= 6 && hour < 8 && c.h6_8) return { priority: 3, pool: c.h6_8, ...ks };
+  if (hour >= 2 && hour < 4 && c.h2_4)
+    return { priority: 3, pool: c.h2_4, ...ks };
+  if (hour >= 4 && hour < 6 && c.h4_6)
+    return { priority: 3, pool: c.h4_6, ...ks };
+  if (hour >= 6 && hour < 8 && c.h6_8)
+    return { priority: 3, pool: c.h6_8, ...ks };
   if (hour >= 12 && hour < 14 && c.h12_14)
     return { priority: 3, pool: c.h12_14, ...ks };
   if (hour >= 22 && hour < 24 && c.h22_24)
     return { priority: 3, pool: c.h22_24, ...ks };
-  if (hour >= 0 && hour < 2 && c.h0_2) return { priority: 3, pool: c.h0_2, ...ks };
+  if (hour >= 0 && hour < 2 && c.h0_2)
+    return { priority: 3, pool: c.h0_2, ...ks };
   return null;
 }
 
@@ -377,9 +387,13 @@ function matchStrainEfficiency(
     .strain_efficiency as CertSubBucket;
   if (!c || input.durationMs <= 0) return null;
   const pct = (input.totalPushMs / input.durationMs) * 100;
-  const ks = { keyStatLabel: "Push Efficiency", keyStatValue: `${Math.round(pct)}%` };
+  const ks = {
+    keyStatLabel: "Push Efficiency",
+    keyStatValue: `${Math.round(pct)}%`,
+  };
   if (pct < 15 && c.under_15) return { priority: 4, pool: c.under_15, ...ks };
-  if (pct >= 15 && pct < 30 && c.p15_30) return { priority: 4, pool: c.p15_30, ...ks };
+  if (pct >= 15 && pct < 30 && c.p15_30)
+    return { priority: 4, pool: c.p15_30, ...ks };
   if (pct >= 90 && c.p90_100) return { priority: 4, pool: c.p90_100, ...ks };
   return null;
 }
@@ -397,7 +411,8 @@ function matchStructuralIntegrity(
     input.bristolType,
   );
   const ks = { keyStatLabel: "Integrity", keyStatValue: label };
-  if (label === "NOMINAL" && c.nominal) return { priority: 5, pool: c.nominal, ...ks };
+  if (label === "NOMINAL" && c.nominal)
+    return { priority: 5, pool: c.nominal, ...ks };
   if (label === "CRITICAL FAILURE" && c.critical)
     return { priority: 5, pool: c.critical, ...ks };
   return null;
@@ -445,7 +460,11 @@ function selectCertEntry(input: CertSelectorInput): CertResult {
   };
 
   const certKeyStatLabel = chosen?.keyStatLabel ?? "Duration";
-  const certKeyStatValue = chosen?.keyStatValue ?? (vars.durationMin >= 1 ? `${vars.durationMin} min` : `${vars.durationSec}s`);
+  const certKeyStatValue =
+    chosen?.keyStatValue ??
+    (vars.durationMin >= 1
+      ? `${vars.durationMin} min`
+      : `${vars.durationSec}s`);
 
   return {
     certHeadline: interpolate(entry.headline, vars),
@@ -472,7 +491,13 @@ export function completeSession(
     ? releasePush(state, endedAt)
     : state;
   const durationMs = getSessionElapsedMs(finalActivity, endedAt);
-  const { certHeadline, certSubline, sealLabel, certKeyStatLabel, certKeyStatValue } = selectCertEntry({
+  const {
+    certHeadline,
+    certSubline,
+    sealLabel,
+    certKeyStatLabel,
+    certKeyStatValue,
+  } = selectCertEntry({
     durationMs,
     pushCount: finalActivity.pushCount,
     totalPushMs: finalActivity.totalPushMs,

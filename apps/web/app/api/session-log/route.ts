@@ -18,9 +18,13 @@ async function readServiceSupabaseConfig() {
 
   try {
     const cloudflareContext = await getCloudflareContext({ async: true });
-    const runtimeEnv = cloudflareContext.env as Record<string, string | undefined>;
+    const runtimeEnv = cloudflareContext.env as Record<
+      string,
+      string | undefined
+    >;
 
-    serviceRoleKey = runtimeEnv.SUPABASE_SERVICE_ROLE_KEY?.trim() ?? serviceRoleKey;
+    serviceRoleKey =
+      runtimeEnv.SUPABASE_SERVICE_ROLE_KEY?.trim() ?? serviceRoleKey;
   } catch {
     // Local Next.js dev can fall back to process.env.
   }

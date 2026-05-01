@@ -162,16 +162,19 @@ select {
   pointer-events: all;
 }
 
-/* session-hold-wrap creates a stacking context (z-index:1) that traps children.
-   Remove that stacking context during tutorial so spotlight can escape above the overlay. */
-.is-tutorial .session-hold-wrap {
-  z-index: auto;
+/* Step 1: landing panel is position:fixed z-index:1 on mobile — lift above overlay */
+.is-tutorial-1 .session-landing-panel {
+  z-index: 20;
 }
 
-/* Spotlight elements appear above the overlay */
+/* Step 2: hold-wrap is position:relative — lift above overlay */
+.is-tutorial-2 .session-hold-wrap {
+  z-index: 20;
+}
+
+/* Spotlight elements */
 .tutorial-spotlight {
   position: relative;
-  z-index: 20;
   pointer-events: auto;
 }
 
