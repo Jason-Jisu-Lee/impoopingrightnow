@@ -152,24 +152,13 @@ select {
   visibility: hidden;
 }
 
-/* Full-page dark overlay via pseudo-element */
-.is-tutorial::before {
-  content: "";
+/* Full-page dark overlay — real DOM div rendered as first child of <main> */
+.tutorial-mask {
   position: fixed;
   inset: 0;
   background: rgba(20, 13, 6, 0.6);
   z-index: 15;
   pointer-events: all;
-}
-
-/* Step 1: landing panel is position:fixed z-index:1 on mobile — lift above overlay */
-.is-tutorial-1 .session-landing-panel {
-  z-index: 20;
-}
-
-/* Step 2: hold-wrap is position:relative — lift above overlay */
-.is-tutorial-2 .session-hold-wrap {
-  z-index: 20;
 }
 
 /* Spotlight elements */
@@ -4185,5 +4174,14 @@ select {
 
   .global-row-head {
     flex-direction: column;
+  }
+
+  /* Tutorial: lift spotlight containers above overlay (must be inside media block to beat z-index:1) */
+  .is-tutorial-1 .session-landing-panel {
+    z-index: 20;
+  }
+
+  .is-tutorial-2 .session-hold-wrap {
+    z-index: 20;
   }
 }
