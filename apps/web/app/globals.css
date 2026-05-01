@@ -172,6 +172,14 @@ select {
   background: var(--surface);
 }
 
+/* Step 1: on desktop the landing panel has no position so z-index:20 above has no effect —
+   lift the spotlight element itself above the overlay instead */
+@media (min-width: 561px) {
+  .is-tutorial-1 .tutorial-spotlight {
+    z-index: 20;
+  }
+}
+
 /* Step 2: lift live-shell above the main overlay */
 .is-tutorial-2 .session-live-shell {
   z-index: 20;
