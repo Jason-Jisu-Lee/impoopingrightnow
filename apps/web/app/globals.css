@@ -167,11 +167,9 @@ select {
   z-index: 20;
 }
 
-/* Step 1: give only the actions box a background so button/label are visible */
-.is-tutorial-1 .session-home-actions {
+/* Step 1: button gets cream background so it appears bright in exact button shape */
+.is-tutorial-1 .tutorial-spotlight {
   background: var(--surface);
-  border-radius: 16px;
-  padding: 16px;
 }
 
 /* Step 2: hold-wrap is position:relative — lift above overlay */
