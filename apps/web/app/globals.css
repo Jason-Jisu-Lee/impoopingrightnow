@@ -2150,37 +2150,39 @@ select {
   border: none;
   cursor: pointer;
   color: var(--accent);
-  font-size: 1rem;
   padding: 4px 6px;
   border-radius: 8px;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .profile-row-edit-btn:hover {
   background: rgba(140, 90, 43, 0.1);
 }
 
-.profile-row-form {
-  display: grid;
-  gap: 10px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
+.profile-row-icon {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
 }
 
-.profile-row-form:first-child {
-  border-top: 1px solid var(--line);
-}
-
-.profile-row-form .profile-row-label {
-  font-size: 0.8rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.profile-row-form-actions {
-  display: flex;
-  gap: 10px;
+.profile-row-input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--accent-soft);
+  padding: 2px 4px;
+  font-family: var(--font-mono), "Courier New", monospace;
+  font-size: 0.95rem;
+  color: var(--ink);
+  outline: none;
 }
 
 .profile-section {

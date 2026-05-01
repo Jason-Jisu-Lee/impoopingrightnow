@@ -215,9 +215,7 @@ export default function SettingsPage() {
     shouldShowEmailCapturePrompt(profile, sessionCount);
   const isProfileLoading = profile === undefined;
 
-  function handleUsernameSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  function handleUsernameSave() {
     const validationResult = validateAnonymousUsername(usernameDraft);
 
     if (validationResult.status === "invalid") {
@@ -245,9 +243,7 @@ export default function SettingsPage() {
       });
   }
 
-  function handleEmailSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  function handleEmailSave() {
     const validationResult = validateEmailAddress(emailDraft);
 
     if (validationResult.status === "invalid") {
@@ -279,6 +275,11 @@ export default function SettingsPage() {
       });
   }
 
+  function handleEmailSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    handleEmailSave();
+  }
+
   function handleDismissPrompt() {
     const dismissedAt =
       profile?.emailPromptDismissedAt ?? new Date().toISOString();
@@ -307,64 +308,106 @@ export default function SettingsPage() {
           {isProfileLoading ? null : (
             <div className="profile-page-content">
               <div className="profile-rows">
-                {isEditingUsername ? (
-                  <form className="profile-row-form" onSubmit={handleUsernameSubmit}>
-                    <span className="profile-row-label">username</span>
+                <div className="profile-row">
+                  <span className="profile-row-label">username</span>
+                  {isEditingUsername ? (
                     <input
-                      className="profile-input"
+                      className="profile-row-input"
                       type="text"
                       autoComplete="username"
                       placeholder="your_username"
                       value={usernameDraft}
-                      onChange={(event) => setUsernameDraft(event.target.value)}
+                      onChange={(e) => setUsernameDraft(e.target.value)}
                       aria-label="Username"
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
                       autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleUsernameSave();
+                        if (e.key === "Escape") { setIsEditingUsername(false); setUsernameNotice(null); }
+                      }}
                     />
-                    <div className="profile-row-form-actions">
-                      <button type="submit" className="profile-button">Save</button>
-                      <button type="button" className="profile-button is-secondary" onClick={() => { setIsEditingUsername(false); setUsernameNotice(null); }}>Cancel</button>
-                    </div>
-                    {usernameNotice ? (
-                      <p className={`profile-notice is-${usernameNotice.tone}`}>{usernameNotice.text}</p>
-                    ) : null}
-                  </form>
-                ) : (
-                  <div className="profile-row">
-                    <span className="profile-row-label">username</span>
+                  ) : (
                     <span className="profile-row-value">{profile?.username ?? "—"}</span>
-                    <button type="button" className="profile-row-edit-btn" aria-label="Edit username" onClick={() => { setIsEditingUsername(true); setUsernameNotice(null); }}>✎</button>
-                  </div>
-                )}
+                  )}
+                  <button
+                    type="button"
+                    className="profile-row-edit-btn"
+                    aria-label={isEditingUsername ? "Save username" : "Edit username"}
+                    onClick={() => {
+                      if (isEditingUsername) {
+                        handleUsernameSave();
+                      } else {
+                        setIsEditingUsername(true);
+                        setUsernameNotice(null);
+                      }
+                    }}
+                  >
+                    {isEditingUsername ? (
+                      <svg className="profile-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="profile-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M15.5 4.5l4 4L7 21H3v-4L15.5 4.5Z" />
+                        <path d="M13 7l4 4" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                {usernameNotice ? (
+                  <p className={`profile-notice is-${usernameNotice.tone}`}>{usernameNotice.text}</p>
+                ) : null}
 
-                {isEditingEmail ? (
-                  <form className="profile-row-form" onSubmit={handleEmailSubmit}>
-                    <span className="profile-row-label">email</span>
+                <div className="profile-row">
+                  <span className="profile-row-label">email</span>
+                  {isEditingEmail ? (
                     <input
-                      className="profile-input"
+                      className="profile-row-input"
                       type="email"
                       inputMode="email"
                       autoComplete="email"
                       placeholder="you@example.com"
                       value={emailDraft}
-                      onChange={(event) => setEmailDraft(event.target.value)}
+                      onChange={(e) => setEmailDraft(e.target.value)}
                       aria-label="Email"
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
                       autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleEmailSave();
+                        if (e.key === "Escape") { setIsEditingEmail(false); setEmailNotice(null); }
+                      }}
                     />
-                    <div className="profile-row-form-actions">
-                      <button type="submit" className="profile-button">Save</button>
-                      <button type="button" className="profile-button is-secondary" onClick={() => { setIsEditingEmail(false); setEmailNotice(null); }}>Cancel</button>
-                    </div>
-                    {emailNotice ? (
-                      <p className={`profile-notice is-${emailNotice.tone}`}>{emailNotice.text}</p>
-                    ) : null}
-                  </form>
-                ) : (
-                  <div className="profile-row">
-                    <span className="profile-row-label">email</span>
+                  ) : (
                     <span className="profile-row-value">{profile?.email ?? "—"}</span>
-                    <button type="button" className="profile-row-edit-btn" aria-label="Edit email" onClick={() => { setIsEditingEmail(true); setEmailNotice(null); }}>✎</button>
-                  </div>
-                )}
+                  )}
+                  <button
+                    type="button"
+                    className="profile-row-edit-btn"
+                    aria-label={isEditingEmail ? "Save email" : "Edit email"}
+                    onClick={() => {
+                      if (isEditingEmail) {
+                        handleEmailSave();
+                      } else {
+                        setIsEditingEmail(true);
+                        setEmailNotice(null);
+                      }
+                    }}
+                  >
+                    {isEditingEmail ? (
+                      <svg className="profile-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="profile-row-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M15.5 4.5l4 4L7 21H3v-4L15.5 4.5Z" />
+                        <path d="M13 7l4 4" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                {emailNotice ? (
+                  <p className={`profile-notice is-${emailNotice.tone}`}>{emailNotice.text}</p>
+                ) : null}
               </div>
             </div>
           )}
