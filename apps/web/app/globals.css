@@ -1398,6 +1398,11 @@ select {
     display: none;
   }
 
+  /* Hide My Stats nav item on desktop */
+  .shell-nav-link[href="/my-stats"] {
+    display: none;
+  }
+
   /* Active session: don't let the tall min-height push the button to the bottom */
   .session-live-shell {
     min-height: auto;
