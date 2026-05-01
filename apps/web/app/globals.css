@@ -1406,6 +1406,7 @@ select {
   /* Active session: don't let the tall min-height push the button to the bottom */
   .session-live-shell {
     min-height: auto;
+    overflow: visible;
   }
 
   .session-hold-spacer {
