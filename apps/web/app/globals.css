@@ -172,9 +172,26 @@ select {
   background: var(--surface);
 }
 
-/* Step 2: hold-wrap is position:relative — lift above overlay */
+/* Step 2: lift live-shell above the main overlay */
+.is-tutorial-2 .session-live-shell {
+  z-index: 20;
+}
+/* Step 2: inner overlay darkens everything inside live-shell */
+.is-tutorial-2 .session-live-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 13, 6, 0.6);
+  z-index: 15;
+  pointer-events: all;
+}
+/* Step 2: hold-wrap lifts above the inner overlay */
 .is-tutorial-2 .session-hold-wrap {
   z-index: 20;
+}
+/* Step 2: spotlight elements get cream background */
+.is-tutorial-2 .tutorial-spotlight {
+  background: var(--surface);
 }
 
 /* Spotlight elements */
