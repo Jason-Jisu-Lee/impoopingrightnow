@@ -152,13 +152,52 @@ select {
   visibility: hidden;
 }
 
-/* Full-page dark overlay — real DOM div rendered as first child of <main> */
+/* Step 1: full-page dark mask (real DOM div, first child of <main>) */
 .tutorial-mask {
   position: fixed;
   inset: 0;
   background: rgba(20, 13, 6, 0.6);
   z-index: 15;
-  pointer-events: all;
+  pointer-events: auto;
+}
+
+/* Step 1: give landing panel a solid surface so button/label are bright against the dark mask */
+.is-tutorial-1 .session-landing-panel {
+  background: var(--surface);
+}
+
+/* Step 2: local dim overlay inside session-live-shell.
+   session-live-shell already has isolation:isolate + overflow:hidden, so
+   z-index comparisons are within this stacking context — no root-context fights. */
+.is-tutorial-2 .session-live-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 13, 6, 0.6);
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Step 2: lift hold-wrap above the inner overlay */
+.is-tutorial-2 .session-hold-wrap {
+  z-index: 10;
+}
+
+/* Step 2: dim fixed elements outside the panel */
+.is-tutorial-2 .session-elapsed-overlay {
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.is-tutorial-2 .session-floating-feed-layer {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Both steps: dim bottom nav (ShellNav is a DOM child of <main>) */
+.is-tutorial .shell-nav {
+  opacity: 0.2;
+  pointer-events: none;
 }
 
 /* Spotlight elements */
@@ -4176,12 +4215,8 @@ select {
     flex-direction: column;
   }
 
-  /* Tutorial: lift spotlight containers above overlay (must be inside media block to beat z-index:1) */
+  /* Step 1: landing panel is position:fixed z-index:1 — must be above tutorial-mask z-index:15 */
   .is-tutorial-1 .session-landing-panel {
-    z-index: 20;
-  }
-
-  .is-tutorial-2 .session-hold-wrap {
     z-index: 20;
   }
 }
