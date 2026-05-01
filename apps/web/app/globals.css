@@ -167,13 +167,6 @@ select {
   z-index: 20;
 }
 
-/* Step 1: give only the actions box a background so button/label are visible */
-.is-tutorial-1 .session-home-actions {
-  background: var(--surface);
-  border-radius: 16px;
-  padding: 16px;
-}
-
 /* Step 2: hold-wrap is position:relative — lift above overlay */
 .is-tutorial-2 .session-hold-wrap {
   z-index: 20;
@@ -3986,6 +3979,16 @@ select {
 
   .session-home-actions {
     width: min(calc(100vw - 12px), 274px);
+  }
+
+  .tutorial-spotlight-wrap {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 6px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
   }
 
   .session-landing-action {

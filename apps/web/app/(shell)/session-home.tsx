@@ -522,30 +522,52 @@ function LandingView({
   return (
     <section className="session-home-panel session-landing-panel">
       <div className="session-home-actions">
-        <p
-          className={`session-home-start-label${isTutorial ? " tutorial-spotlight" : ""}`}
-        >
-          Ready to poop?
-        </p>
-        <button
-          type="button"
-          className={`session-primary-action session-landing-action${isTutorial ? " tutorial-spotlight" : ""}`}
-          onClick={onStart}
-          aria-label="Start pooping session"
-        >
-          {isTutorial ? (
-            <span className="tutorial-callout tutorial-callout--below">
-              Tap when you&apos;re in the bathroom
-            </span>
-          ) : null}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo.png"
-            alt=""
-            className="session-hero-logo"
-            aria-hidden="true"
-          />
-        </button>
+        {isTutorial ? (
+          <div className="tutorial-spotlight-wrap">
+            <p
+              className="session-home-start-label tutorial-spotlight"
+            >
+              Ready to poop?
+            </p>
+            <button
+              type="button"
+              className="session-primary-action session-landing-action tutorial-spotlight"
+              onClick={onStart}
+              aria-label="Start pooping session"
+            >
+              <span className="tutorial-callout tutorial-callout--below">
+                Tap when you&apos;re in the bathroom
+              </span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo.png"
+                alt=""
+                className="session-hero-logo"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        ) : (
+          <>
+            <p className="session-home-start-label">
+              Ready to poop?
+            </p>
+            <button
+              type="button"
+              className="session-primary-action session-landing-action"
+              onClick={onStart}
+              aria-label="Start pooping session"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo.png"
+                alt=""
+                className="session-hero-logo"
+                aria-hidden="true"
+              />
+            </button>
+          </>
+        )}
       </div>
     </section>
   );
