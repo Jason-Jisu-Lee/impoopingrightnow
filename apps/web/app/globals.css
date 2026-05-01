@@ -1397,6 +1397,16 @@ select {
   .stats-page .shell-main > :not(.my-stats-desktop-uc) {
     display: none;
   }
+
+  /* Active session: don't let the tall min-height push the button to the bottom */
+  .session-live-shell {
+    min-height: auto;
+  }
+
+  .session-hold-spacer {
+    flex: 0;
+    max-height: 40px;
+  }
 }
 
 .stats-share-actions {
