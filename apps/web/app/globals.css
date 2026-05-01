@@ -179,7 +179,7 @@ select {
 /* Step 2: inner overlay darkens everything inside live-shell */
 .is-tutorial-2 .session-live-shell::before {
   content: "";
-  position: absolute;
+  position: fixed;
   inset: 0;
   background: rgba(20, 13, 6, 0.6);
   z-index: 15;

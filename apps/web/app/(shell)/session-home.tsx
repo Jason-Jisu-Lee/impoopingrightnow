@@ -522,11 +522,7 @@ function LandingView({
   return (
     <section className="session-home-panel session-landing-panel">
       <div className="session-home-actions">
-        <p
-          className="session-home-start-label"
-        >
-          Ready to poop?
-        </p>
+        <p className="session-home-start-label">Ready to poop?</p>
         <button
           type="button"
           className={`session-primary-action session-landing-action${isTutorial ? " tutorial-spotlight" : ""}`}
@@ -753,7 +749,7 @@ function ActiveSessionView({
         ) : null}
 
         <p
-          className={`session-home-start-label${isTutorial ? " tutorial-spotlight" : ""}`}
+          className="session-home-start-label"
           style={{ textTransform: "none" }}
         >
           I&apos;M POOPING RIGHT NOW
