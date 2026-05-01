@@ -1447,7 +1447,6 @@ export function SessionHome() {
     <main
       className={`shell-page shell-home-page${tutorialStep > 0 ? ` is-tutorial is-tutorial-${tutorialStep}` : ""}`}
     >
-      {tutorialStep === 1 && <div className="tutorial-mask" aria-hidden="true" />}
       <PageChromeControls onHome={handleReturnHome} />
 
       <FlushConfettiOverlay token={flushConfettiToken} />

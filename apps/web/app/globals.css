@@ -147,7 +147,94 @@ select {
   position: relative;
 }
 
+/* ---- Tutorial overlay ---- */
+.is-tutorial .shell-footer {
+  visibility: hidden;
+}
 
+/* Full-page dark overlay via pseudo-element */
+.is-tutorial::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 13, 6, 0.6);
+  z-index: 15;
+  pointer-events: all;
+}
+
+/* Step 1: landing panel is position:fixed z-index:1 on mobile — lift above overlay */
+.is-tutorial-1 .session-landing-panel {
+  z-index: 20;
+}
+
+/* Step 2: hold-wrap is position:relative — lift above overlay */
+.is-tutorial-2 .session-hold-wrap {
+  z-index: 20;
+}
+
+/* Spotlight elements */
+.tutorial-spotlight {
+  position: relative;
+  pointer-events: auto;
+}
+
+/* Callout bubble */
+.tutorial-callout {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 32;
+  width: max-content;
+  max-width: min(260px, calc(100vw - 40px));
+  background: rgba(252, 247, 240, 0.97);
+  border: 1px solid rgba(140, 90, 43, 0.35);
+  border-radius: 14px;
+  padding: 10px 16px;
+  font-family: var(--font-mono), "Courier New", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-align: center;
+  line-height: 1.6;
+  pointer-events: none;
+  white-space: normal;
+}
+
+.tutorial-callout--below {
+  top: calc(100% + 14px);
+}
+
+.tutorial-callout--above {
+  bottom: calc(100% + 14px);
+}
+
+/* Arrow */
+.tutorial-callout--below::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: rgba(252, 247, 240, 0.97);
+  border-left: 1px solid rgba(140, 90, 43, 0.35);
+  border-top: 1px solid rgba(140, 90, 43, 0.35);
+}
+
+.tutorial-callout--above::before {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: rgba(252, 247, 240, 0.97);
+  border-right: 1px solid rgba(140, 90, 43, 0.35);
+  border-bottom: 1px solid rgba(140, 90, 43, 0.35);
+}
 
 .shell-main-back-anchor {
   position: absolute;
@@ -4098,119 +4185,5 @@ select {
 
   .global-row-head {
     flex-direction: column;
-  }
-
-  /* ---- Tutorial overlay (mobile-only) ---- */
-  .is-tutorial .shell-footer {
-    visibility: hidden;
-  }
-
-  .is-tutorial .shell-nav {
-    opacity: 0.2;
-    pointer-events: none;
-  }
-
-  /* Step 1: full-page dark mask rendered as first DOM child of <main> */
-  .tutorial-mask {
-    position: fixed;
-    inset: 0;
-    background: rgba(20, 13, 6, 0.6);
-    z-index: 15;
-    pointer-events: auto;
-  }
-
-  /* Step 1: landing panel (position:fixed z-index:1) lifted above mask */
-  .is-tutorial-1 .session-landing-panel {
-    z-index: 20;
-    background: var(--surface);
-  }
-
-  /* Step 2: dim overlay inside session-live-shell's own stacking context */
-  .is-tutorial-2 .session-live-shell::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: rgba(20, 13, 6, 0.6);
-    z-index: 5;
-    pointer-events: none;
-  }
-
-  /* Step 2: hold-wrap above inner overlay */
-  .is-tutorial-2 .session-hold-wrap {
-    z-index: 10;
-  }
-
-  /* Step 2: dim fixed elements outside the panel */
-  .is-tutorial-2 .session-elapsed-overlay {
-    opacity: 0.2;
-    pointer-events: none;
-  }
-
-  .is-tutorial-2 .session-floating-feed-layer {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  /* Spotlight elements */
-  .tutorial-spotlight {
-    position: relative;
-    pointer-events: auto;
-  }
-
-  /* Callout bubble */
-  .tutorial-callout {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 32;
-    width: max-content;
-    max-width: min(260px, calc(100vw - 40px));
-    background: rgba(252, 247, 240, 0.97);
-    border: 1px solid rgba(140, 90, 43, 0.35);
-    border-radius: 14px;
-    padding: 10px 16px;
-    font-family: var(--font-mono), "Courier New", monospace;
-    font-size: 0.78rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--accent);
-    text-align: center;
-    line-height: 1.6;
-    pointer-events: none;
-    white-space: normal;
-  }
-
-  .tutorial-callout--below {
-    top: calc(100% + 14px);
-  }
-
-  .tutorial-callout--above {
-    bottom: calc(100% + 14px);
-  }
-
-  .tutorial-callout--below::before {
-    content: "";
-    position: absolute;
-    top: -6px;
-    left: 50%;
-    transform: translateX(-50%) rotate(45deg);
-    width: 10px;
-    height: 10px;
-    background: rgba(252, 247, 240, 0.97);
-    border-left: 1px solid rgba(140, 90, 43, 0.35);
-    border-top: 1px solid rgba(140, 90, 43, 0.35);
-  }
-
-  .tutorial-callout--above::before {
-    content: "";
-    position: absolute;
-    bottom: -6px;
-    left: 50%;
-    transform: translateX(-50%) rotate(45deg);
-    width: 10px;
-    height: 10px;
-    background: rgba(252, 247, 240, 0.97);
-    border-right: 1px solid rgba(140, 90, 43, 0.35);
-    border-bottom: 1px solid rgba(140, 90, 43, 0.35);
   }
 }
