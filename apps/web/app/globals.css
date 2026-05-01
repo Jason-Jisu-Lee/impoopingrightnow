@@ -165,7 +165,6 @@ select {
 /* Step 1: landing panel is position:fixed z-index:1 on mobile — lift above overlay */
 .is-tutorial-1 .session-landing-panel {
   z-index: 20;
-  background: var(--surface);
 }
 
 /* Step 2: hold-wrap is position:relative — lift above overlay */
